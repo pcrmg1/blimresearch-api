@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  db:
+    image: 'postgres:16'
+    container_name: 'db'
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DB: 'blimresearch-dev'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+  pgadmin:
+    image: 'dpage/pgadmin4'
+    container_name: 'pgadmin'
+    depends_on:
+      - db
+    ports:
+      - '5050:80'
+    environment:
+      NODE_ENV: 'development'
+      PGADMIN_DEFAULT_EMAIL: 'root@root.com'
+      PGADMIN_DEFAULT_PASSWORD: 'root'
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: 'backend'
+    ports:
+      - '5000:5000'
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/blimresearch-dev?schema=public
+    volumes:
+      - .:/app
+volumes:
+  db-data:

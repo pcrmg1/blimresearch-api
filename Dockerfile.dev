@@ -13,8 +13,12 @@ COPY . .
 # Installing dependencies
 RUN bun install
 
+COPY prisma ./prisma
+
+RUN bunx prisma generate
+
 # Starting our application
-CMD [ "bun", "run" ,"index.ts" ]
+CMD [ "bun", "run", "--watch" ,"./src/index.ts" ]
 
 # Exposing server port
 EXPOSE 5000
