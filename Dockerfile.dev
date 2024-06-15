@@ -1,24 +1,24 @@
 # Fetching the minified node image on apline linux
-FROM oven/bun:slim
+FROM node:20
 
 # Declaring env
 ENV NODE_ENV development
+
+RUN npm install -g bun
 
 # Setting up the work directory
 WORKDIR /app
 
 # Copying all the files in our project
-COPY . .
-
+COPY package.json ./
+COPY bun.lockb ./
 # Installing dependencies
 RUN bun install
 
+COPY . .
 COPY prisma ./prisma
 
 RUN bunx prisma generate
 
 # Starting our application
-CMD [ "bun", "run", "--watch" ,"./src/index.ts" ]
-
-# Exposing server port
-EXPOSE 5000
+CMD [ "bun", "run", "dev" ]
