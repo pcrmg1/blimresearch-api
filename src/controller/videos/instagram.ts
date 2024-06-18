@@ -1,3 +1,4 @@
+import { createCarruselQuery, createQueryVirals } from '../../db/virals'
 import {
   getInstagramDataByQuery,
   getInstagramDataByDirectUrl,
@@ -14,13 +15,14 @@ export const getInstagramVirals = async ({
   query,
   minFollowers,
   minLikes,
-  userId
+  userId,
+  language
 }: {
   query: string
   minFollowers: number
-  language: string
   minLikes: number
   userId: string
+  language: string
 }) => {
   try {
     const foundItemsByQuery = await getInstagramDataByQuery({ query })
@@ -42,17 +44,33 @@ export const getInstagramVirals = async ({
       (item) => item.followersCount > minFollowers
     )
 
-    const formattedCarrousels = formatCarrouselFromInstagram({
+    const { totalSidecars, viralSidecars } = formatCarrouselFromInstagram({
       data: filteredUsersByMinNumberOfLike,
       userId
     })
 
-    const formattedVideos = formatVideosFromInstagram({
+    const { totalVideos, viralVideos } = formatVideosFromInstagram({
       data: filteredUsersByMinNumberOfLike,
       userId
     })
 
-    return { carrousels: formattedCarrousels, videos: formattedVideos }
+    const carruselQuery = await createCarruselQuery({
+      query,
+      userId,
+      carruseles: viralSidecars
+    })
+
+    const videoQuery = await createQueryVirals({
+      query,
+      userId,
+      language,
+      viralVideos: viralVideos
+    })
+
+    return {
+      carrousels: { totalSidecars, carruselQuery },
+      videos: { totalVideos, videoQuery }
+    }
   } catch (error) {
     console.log(error)
     throw new Error('Failed to find viral Instagram')

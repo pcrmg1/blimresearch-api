@@ -50,7 +50,7 @@ model Session {
 model CarruselQuery {
   id         String     @id @default(cuid())
   query      String
-  language   String
+  language   String?
   carruseles Carrusel[]
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
@@ -77,14 +77,14 @@ model Carrusel {
 }
 
 model VideoQuery {
-  id           String   @id @default(cuid())
-  query        String
-  language     String
-  tiktokVideos Video[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  userId       String
-  user         User     @relation(fields: [userId], references: [id])
+  id        String   @id @default(cuid())
+  query     String
+  language  String
+  videos    Video[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Video {

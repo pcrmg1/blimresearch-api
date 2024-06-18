@@ -26,7 +26,7 @@ authRouter.post('/login', async (req, res) => {
       return res.status(401).json({ mnessage: 'Wrong credentials' })
     }
     const token = signToken({ role: user.role, email, userId: user.id })
-    return res.status(200).json(token)
+    return res.status(200).json({ token, email: user.email, name: user.name })
   } catch (error) {
     errorHandler(error)
     return res.status(500).json({ message: 'Internal server error' })

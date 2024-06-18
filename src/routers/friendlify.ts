@@ -3,6 +3,7 @@ import { RequestWithToken } from '../types/jwt'
 import { friendlifyText } from '../libs/openai/friendlify'
 import {
   createFriendlifiedText,
+  deleteFriendlifiedTextById,
   getFriendlifiedTextWithPagination
 } from '../db/friendlify'
 import { errorHandler } from '../utils/error'
@@ -50,5 +51,23 @@ friendlifyRouter.get('/', async (req: RequestWithToken, res) => {
   } catch (error) {
     errorHandler(error)
     return res.status(500).json({ message: 'Failed to get texts' })
+  }
+})
+
+friendlifyRouter.delete('/:id', async (req: RequestWithToken, res) => {
+  const userId = req.userId
+  const { id } = req.params
+  if (!userId) {
+    return res.status(401).json({ message: 'No userId' })
+  }
+  if (!id) {
+    return res.status(400).json({ message: 'No id provided' })
+  }
+  try {
+    await deleteFriendlifiedTextById({ id })
+    return res.json({ message: 'Friendlified text deleted' })
+  } catch (error) {
+    errorHandler(error)
+    return res.status(500).json({ message: 'Failed to delete text' })
   }
 })

@@ -2,22 +2,24 @@ import { Router } from 'express'
 import { RequestWithToken } from '../types/jwt'
 import prismaDB from '../db/prisma'
 import { translateText } from '../libs/openai/translations'
-import { createTranslation, deleteTranslationById } from '../db/translations'
+import {
+  createTranslation,
+  deleteTranslationById,
+  getTranslationsWithPagination
+} from '../db/translations'
 
 export const translationsRouter = Router()
 
 translationsRouter.get('/', async (req: RequestWithToken, res) => {
+  const { limit, page } = req.query
   const userId = req.userId
   if (!userId) {
     return res.status(401).json({ message: 'No userId' })
   }
-  const translations = await prismaDB.translation.findMany({
-    where: {
-      userId
-    },
-    orderBy: {
-      createdAt: 'desc'
-    }
+  const translations = await getTranslationsWithPagination({
+    limit: Number(limit) || 10,
+    page: Number(page) || 0,
+    userId
   })
   return res.json({ data: translations })
 })

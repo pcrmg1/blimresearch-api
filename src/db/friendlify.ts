@@ -46,3 +46,11 @@ export const getFriendlifiedTextWithPagination = async ({
     }
   })
 }
+
+export const deleteFriendlifiedTextById = async ({ id }: { id: string }) => {
+  return await prismaDB.friendlifiedText.delete({
+    where: {
+      id
+    }
+  })
+}

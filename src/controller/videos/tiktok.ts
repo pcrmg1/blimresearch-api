@@ -1,3 +1,4 @@
+import { createQueryVirals } from '../../db/virals'
 import {
   getTiktokViralProfiles,
   getTiktokViralVideos
@@ -37,11 +38,11 @@ export const getTiktokVirals = async ({
       language,
       userId
     }))
-  // const queryCreated = await createQuery({
-  //   query: query as string,
-  //   language,
-  //   userId,
-  //   viralVideos: languageAdded
-  // })
-  return languageAdded
+  const queryCreated = await createQueryVirals({
+    query: query as string,
+    language,
+    userId,
+    viralVideos: languageAdded
+  })
+  return queryCreated
 }
