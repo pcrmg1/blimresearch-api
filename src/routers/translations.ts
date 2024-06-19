@@ -1,6 +1,5 @@
 import { Router } from 'express'
 import { RequestWithToken } from '../types/jwt'
-import prismaDB from '../db/prisma'
 import { translateText } from '../libs/openai/translations'
 import {
   createTranslation,
@@ -48,17 +47,20 @@ translationsRouter.post('/translate', async (req: RequestWithToken, res) => {
   }
 })
 
-translationsRouter.delete('/:id', async (req: RequestWithToken, res) => {
-  const { id } = req.params
-  const userId = req.userId
-  if (!userId) {
-    return res.status(401).json({ message: 'No userId' })
+translationsRouter.delete(
+  '/deleteById/:id',
+  async (req: RequestWithToken, res) => {
+    const { id } = req.params
+    const userId = req.userId
+    if (!userId) {
+      return res.status(401).json({ message: 'No userId' })
+    }
+    try {
+      await deleteTranslationById({ id })
+      return res.json({ message: 'Translation deleted' })
+    } catch (error) {
+      console.log(error)
+      return res.status(500).json({ message: 'Failed to delete translation' })
+    }
   }
-  try {
-    await deleteTranslationById({ id })
-    return res.json({ message: 'Translation deleted' })
-  } catch (error) {
-    console.log(error)
-    return res.status(500).json({ message: 'Failed to delete translation' })
-  }
-})
+)

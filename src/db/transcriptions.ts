@@ -17,7 +17,7 @@ export const createVideoTranscription = async ({
       text,
       type: 'video',
       userId,
-      videoId
+      shortcode: videoId
     }
   })
 }
@@ -87,5 +87,13 @@ export const getTranscriptionsByTypeWithPagination = async ({
 export const deleteTranscriptionById = async ({ id }: { id: string }) => {
   return await prismaDB.transcription.delete({
     where: { id }
+  })
+}
+
+export const getTranscriptionByVideoId = async ({ id }: { id: string }) => {
+  return await prismaDB.transcription.findFirst({
+    where: {
+      shortcode: id
+    }
   })
 }

@@ -8,6 +8,7 @@ import {
   createImageTranscription,
   createVideoTranscription,
   deleteTranscriptionById,
+  getTranscriptionByVideoId,
   getTranscriptionsByTypeWithPagination,
   getTranscriptionsWithPagination
 } from '../db/transcriptions'
@@ -49,9 +50,14 @@ transcriptionsRouter.post(
       console.log('URL recibida: ', url)
       if (platform === 'instagram') {
         const { transcription, videoId } = await transcribeInstagramVideo({
-          url,
-          userId
+          url
         })
+        const transcriptionsExists = await getTranscriptionByVideoId({
+          id: videoId
+        })
+        if (transcriptionsExists) {
+          return response.json({ data: transcriptionsExists })
+        }
         const transcriptionSaved = await createVideoTranscription({
           language,
           text: transcription,
@@ -78,11 +84,11 @@ transcriptionsRouter.post(
       }
     } catch (error) {
       if (error instanceof Error) {
-        return response.status(500).json({ error: error.message })
+        return response.status(500).json({ message: error.message })
       }
       return response
         .status(500)
-        .json({ error: 'There was an error processing the video' })
+        .json({ message: 'There was an error processing the video' })
     }
   }
 )
@@ -93,14 +99,14 @@ transcriptionsRouter.post(
     const { imgUrl, hashtagsToCompare, language } = request.body
     const userId = request.userId
     if (!userId) {
-      return response.status(400).json({ error: 'userId is required' })
+      return response.status(400).json({ message: 'userId is required' })
     }
     try {
       const transcription = await transcribeImage({ imgUrl, hashtagsToCompare })
       if (!transcription || transcription === null) {
         return response
           .status(500)
-          .json({ error: 'Hubo un error con el servidor' })
+          .json({ message: 'Hubo un error con el servidor' })
       }
       const data = parseImageTranscription({ transcription })
       const savedImageTranscription = await createImageTranscription({
@@ -112,7 +118,7 @@ transcriptionsRouter.post(
     } catch (error) {
       return response
         .status(500)
-        .json({ error: 'Hubo un error con el sevidor' })
+        .json({ message: 'Hubo un error con el sevidor' })
     }
   }
 )

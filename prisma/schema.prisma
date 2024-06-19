@@ -119,6 +119,7 @@ enum TranscriptionType {
 
 model Transcription {
   id                String             @id @default(cuid())
+  shortcode         String?
   text              String
   language          String
   type              TranscriptionType
