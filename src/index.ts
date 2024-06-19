@@ -10,6 +10,8 @@ import { friendlifyRouter } from './routers/friendlify'
 
 import { isAdmin } from './middlewares/isAdmin'
 import { verifyToken } from './middlewares/verifyToken'
+import { mediaCreationRouter } from './routers/mediaCreation'
+import { viralsRouter } from './routers/virals'
 
 const app = express()
 
@@ -28,6 +30,7 @@ app.use('/api/admin/users', verifyToken, isAdmin, usersRouter)
 app.use('/api/transcriptions', verifyToken, transcriptionsRouter)
 app.use('/api/translations', verifyToken, translationsRouter)
 app.use('/api/friendlify', verifyToken, friendlifyRouter)
+app.use('/api/virals', verifyToken, viralsRouter)
 
 const PORT = process.env.PORT || 5000
 
