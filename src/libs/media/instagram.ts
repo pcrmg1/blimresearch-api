@@ -1,4 +1,6 @@
-const instagramDl = require('@sasmeee/igdl')
+//Disable typescript here because the module is not typed
+// @ts-nocheck
+import instagramDl from '@sasmeee/igdl'
 import axios from 'axios'
 import fs from 'fs'
 
