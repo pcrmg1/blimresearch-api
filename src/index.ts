@@ -31,7 +31,6 @@ app.use('/api/transcriptions', verifyToken, transcriptionsRouter)
 app.use('/api/translations', verifyToken, translationsRouter)
 app.use('/api/friendlify', verifyToken, friendlifyRouter)
 app.use('/api/virals', verifyToken, viralsRouter)
-app.use('/api/mediaCreation', verifyToken, mediaCreationRouter)
 
 const PORT = process.env.PORT || 5000
 

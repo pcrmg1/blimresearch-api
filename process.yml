@@ -1,0 +1,5 @@
+apps: 
+- script: index.ts             
+  instances: 4
+  exec_mode: cluster
+  interpreter: "~/.bun/bin/bun"
