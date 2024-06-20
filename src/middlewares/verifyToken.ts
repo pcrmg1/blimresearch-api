@@ -21,6 +21,7 @@ export function verifyToken(
     req.role = payload.role
     return next()
   } catch (error) {
+    console.log('error', error)
     return res.status(403).json({ message: 'Token not valid' })
   }
 }

@@ -17,7 +17,7 @@ export const getVirals = async ({
       videos: true
     },
     take: limit,
-    skip: (page - 1) * limit
+    skip: page * limit
   })
 }
 

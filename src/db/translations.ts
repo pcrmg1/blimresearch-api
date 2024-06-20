@@ -51,3 +51,20 @@ export const deleteTranslationById = async ({ id }: { id: string }) => {
     }
   })
 }
+
+export const getTranslationByTranscriptionId = async ({
+  transcriptionId,
+  language
+}: {
+  transcriptionId: string
+  language: string
+}) => {
+  return await prismaDB.translation.findFirst({
+    where: {
+      transcriptionId,
+      AND: {
+        language
+      }
+    }
+  })
+}

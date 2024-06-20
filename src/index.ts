@@ -10,7 +10,6 @@ import { friendlifyRouter } from './routers/friendlify'
 
 import { isAdmin } from './middlewares/isAdmin'
 import { verifyToken } from './middlewares/verifyToken'
-import { mediaCreationRouter } from './routers/mediaCreation'
 import { viralsRouter } from './routers/virals'
 
 const app = express()

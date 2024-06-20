@@ -18,12 +18,12 @@ services:
     container_name: 'backend'
     ports:
       - '5000:5000'
-      - '5001:5001'
     depends_on:
       - db
     environment:
       env_file: .env
     volumes:
       - .:/app
+      - /app
 volumes:
   db-data:

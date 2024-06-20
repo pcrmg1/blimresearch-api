@@ -21,31 +21,34 @@ export const getTiktokDataFromUsernames = async ({
     maxPostsPerQuery: 1,
     usernames
   }
-
   console.log('Starting tiktok Run')
-
   const run = await apifyClient.actor('ssOXktOBaQQiYfhc4').call(input)
   const response = await apifyClient.dataset(run.defaultDatasetId).listItems()
   return response.items as unknown as TiktokProfileRun[]
 }
 
 export const getTiktokDataFromQuery = async ({ query }: { query: string }) => {
-  if (!query || query.length === 0)
-    throw new Error('No se puede hacer la busqueda sin query')
-  if (typeof query !== 'string')
-    throw new Error('La busqueda debe ser una cadena de texto')
-  const input = {
-    resultsPerPage: 15,
-    searchQueries: [query],
-    shouldDownloadCovers: false,
-    shouldDownloadSlideshowImages: false,
-    shouldDownloadSubtitles: false,
-    shoulddownloadInstagramVideos: false
+  try {
+    if (!query || query.length === 0)
+      throw new Error('No se puede hacer la busqueda sin query')
+    if (typeof query !== 'string')
+      throw new Error('La busqueda debe ser una cadena de texto')
+    const input = {
+      resultsPerPage: 15,
+      searchQueries: [query],
+      shouldDownloadCovers: false,
+      shouldDownloadSlideshowImages: false,
+      shouldDownloadSubtitles: false,
+      shoulddownloadInstagramVideos: false
+    }
+    const run = await apifyClient.actor('OtzYfK1ndEGdwWFKQ').call(input)
+    const response = await apifyClient.dataset(run.defaultDatasetId).listItems()
+    console.log('response received')
+    return response.items as unknown as TiktokQueryRun[]
+  } catch (error) {
+    console.log('error', error)
+    throw new Error('Error al obtener los datos de Tiktok')
   }
-
-  const run = await apifyClient.actor('OtzYfK1ndEGdwWFKQ').call(input)
-  const response = await apifyClient.dataset(run.defaultDatasetId).listItems()
-  return response.items as unknown as TiktokQueryRun[]
 }
 
 export const getTiktokViralVideos = async ({

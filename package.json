@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "bun run --watch src/index.ts",
-    "db:push": "dotenv -v DATABASE_URL=postgres://postgres:postgres@localhost:5432/blimresearch-dev?schema=public bunx prisma db push"
+    "db:push": "dotenv -v DATABASE_URL=postgres://postgres:postgres@localhost:5432/blimresearch-dev?schema=public bunx prisma db push",
+    "db:studio": "dotenv -v DATABASE_URL=postgres://postgres:postgres@localhost:5432/blimresearch-dev?schema=public bunx prisma studio"
   },
   "keywords": [],
   "author": "",

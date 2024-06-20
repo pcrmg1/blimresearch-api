@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { RequestWithToken } from '../types/jwt'
 import { transcribeInstagramVideo } from '../libs/transcriptions/instagram'
-import { transcribeTiktokVideo } from '../libs/media/tiktok'
+import { getTiktokVideoId, transcribeTiktokVideo } from '../libs/media/tiktok'
 import { transcribeImage } from '../libs/openai/trancriptions'
 import { parseImageTranscription } from '../utils/transcriptions/parseImageTranscription'
 import {
@@ -44,6 +44,7 @@ transcriptionsRouter.post(
     try {
       const { url, platform, language } = request.body
       const userId = request.userId
+      console.log({ url, platform, language, userId })
       if (!userId) {
         return response.status(400).json({ error: 'userId is required' })
       }
@@ -53,29 +54,40 @@ transcriptionsRouter.post(
           url
         })
         const transcriptionsExists = await getTranscriptionByVideoId({
-          id: videoId
+          shortcode: videoId
         })
         if (transcriptionsExists) {
+          console.log('Transcripcion ya existe en la base de datos, enviando')
           return response.json({ data: transcriptionsExists })
         }
         const transcriptionSaved = await createVideoTranscription({
           language,
           text: transcription,
           userId,
-          videoId
+          shortcode: videoId
         })
         return response.json({ data: transcriptionSaved })
       } else if (platform === 'tiktok') {
-        const { transcription, videoId } = await transcribeTiktokVideo({
+        const { videoId } = getTiktokVideoId({ url })
+        const transcriptionsExists = await getTranscriptionByVideoId({
+          shortcode: videoId
+        })
+        if (transcriptionsExists) {
+          console.log('Transcripcion ya existe en la base de datos, enviando')
+          return response.json({ data: transcriptionsExists })
+        }
+        const { transcription } = await transcribeTiktokVideo({
           url,
           userId
         })
+        console.log('Guardando en base de datos')
         const transcriptionSaved = await createVideoTranscription({
           language,
           text: transcription,
           userId,
-          videoId
+          shortcode: videoId
         })
+        console.log(transcriptionSaved)
         return response.json({ data: transcriptionSaved })
       } else {
         return response
@@ -83,6 +95,7 @@ transcriptionsRouter.post(
           .json({ error: 'No es una plataforma soportada' })
       }
     } catch (error) {
+      console.log({ error })
       if (error instanceof Error) {
         return response.status(500).json({ message: error.message })
       }

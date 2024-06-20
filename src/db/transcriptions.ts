@@ -4,12 +4,12 @@ export const createVideoTranscription = async ({
   language,
   text,
   userId,
-  videoId
+  shortcode
 }: {
   language: string
   text: string
   userId: string
-  videoId: string
+  shortcode: string
 }) => {
   return await prismaDB.transcription.create({
     data: {
@@ -17,7 +17,7 @@ export const createVideoTranscription = async ({
       text,
       type: 'video',
       userId,
-      shortcode: videoId
+      shortcode
     }
   })
 }
@@ -90,10 +90,14 @@ export const deleteTranscriptionById = async ({ id }: { id: string }) => {
   })
 }
 
-export const getTranscriptionByVideoId = async ({ id }: { id: string }) => {
+export const getTranscriptionByVideoId = async ({
+  shortcode
+}: {
+  shortcode: string
+}) => {
   return await prismaDB.transcription.findFirst({
     where: {
-      shortcode: id
+      shortcode
     }
   })
 }
