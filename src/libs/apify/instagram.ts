@@ -6,10 +6,6 @@ import {
   type InstagramQueryRun,
   type InstagramDirectURLRun
 } from '../../types/apify'
-import {
-  formatCarrouselFromInstagram,
-  formatVideosFromInstagram
-} from '../../utils/apify/instagram'
 
 export const getInstagramDataByQuery = async ({ query }: { query: string }) => {
   const input = {
