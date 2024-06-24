@@ -11,5 +11,19 @@ services:
       POSTGRES_DB: 'blimresearch-dev'
     volumes:
       - db-data:/var/lib/postgresql/data
+  backend:
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    container_name: 'backend'
+    ports:
+      - '5000:5000'
+    depends_on:
+      - db
+    environment:
+      env_file: .env
+    volumes:
+      - .:/app
+      - /app
 volumes:
   db-data:
