@@ -218,6 +218,7 @@ export const formatVideosFromInstagram = ({
     user_follows: number
     profilePicUrl: string
     userId: string
+    platform: string
   }[] = []
   viralVideos.forEach((item) => {
     const { username, followersCount, followsCount, videos, profilePicUrl } =
@@ -233,7 +234,8 @@ export const formatVideosFromInstagram = ({
         user_followers: followersCount,
         user_follows: followsCount,
         profilePicUrl,
-        userId
+        userId,
+        platform: 'instagram'
       })
     })
   })
