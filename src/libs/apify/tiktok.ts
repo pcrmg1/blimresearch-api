@@ -88,13 +88,19 @@ export const getTiktokViralProfiles = async ({
     maxDurationVideos: maxDurationVideo
   })
 
+  console.log('videosFound', videosFound)
+
   const videosGroupedByAuthor = groupItemsFromTiktokUsernamesResponseByAuthor({
     items: videosFound
   })
 
+  console.log('videosGroupedByAuthor', videosGroupedByAuthor)
+
   const averageByAuthor = getAverageByAuthorFromTiktokUsernamesResponse({
     items: videosGroupedByAuthor
   })
+
+  console.log('averageByAuthor', averageByAuthor)
 
   const viralVideosGrouped = videosGroupedByAuthor.map((profile: any) => {
     const { name, userFans, userHearts, videos } = profile
@@ -114,6 +120,8 @@ export const getTiktokViralProfiles = async ({
       viralVideos
     }
   })
+
+  console.log('viralVideosGrouped', viralVideosGrouped)
 
   let videos: any = []
   viralVideosGrouped.forEach((item: any) => {
@@ -141,5 +149,6 @@ export const getTiktokViralProfiles = async ({
     return
   })
 
+  console.log('videos', videos)
   return videos
 }

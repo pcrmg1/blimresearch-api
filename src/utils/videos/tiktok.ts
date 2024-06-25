@@ -51,26 +51,34 @@ export const formatItemsFromTiktokUsernamesResponse = ({
 }: {
   items: TiktokProfileRun[]
 }) => {
-  const itemsFound = items.map((item: any) => {
-    const { username, avatar, followers, following, videos, url } = item
+  const itemsFound = items.map((item) => {
+    const {
+      channel,
+      likes,
+      shares,
+      views,
+      bookmarks,
+      comments,
+      postPage,
+      video
+    } = item
     return {
-      tiktok_username: username,
-      tiktok_profilePicUrl: avatar,
-      tiktok_followers: followers,
-      tiktok_following: following,
-      tiktok_postsCount: videos,
-      tiktok_profileUrl: url
+      channel,
+      likes,
+      shares,
+      views,
+      bookmarks,
+      comments,
+      postPage,
+      video
     }
   })
 
-  const foundItems = items.map((username) => {
-    return itemsFound.find((item: any) => item.tiktok_username === username)
-  })
-
-  if (foundItems.length === 0) {
+  if (itemsFound.length === 0) {
     throw new Error('No se encontraron perfiles')
   }
-  return foundItems
+  console.log('itemsFound', itemsFound)
+  return itemsFound
 }
 
 export const filterItemsFromTiktokUsernamesResponseByDuration = ({
@@ -80,58 +88,66 @@ export const filterItemsFromTiktokUsernamesResponseByDuration = ({
   items: ReturnType<typeof formatItemsFromTiktokUsernamesResponse>
   maxDurationVideos?: number
 }) => {
+  if (!items) {
+    throw new Error('No se encontraron perfiles para formatear')
+  }
+
   return items
-    .filter((item: any) => item.channel)
-    .map((item: any) => {
-      const {
-        channel,
-        likes,
-        shares,
-        views,
-        bookmarks,
-        comments,
-        postPage,
-        video
-      } = item
-      const { name, followers } = channel
+    .filter((item) => item?.channel)
+    .map((item) => {
+      if (!item) {
+        return {
+          name: null,
+          userFans: 0,
+          userHearts: 0,
+          diggCount: 0,
+          shareCount: 0,
+          playCount: 0,
+          collectCount: 0,
+          commentCount: 0,
+          webVideoUrl: ''
+        }
+      }
+
+      const { channel, likes, shares, views, bookmarks, comments, video } = item
+
       if (maxDurationVideos) {
-        if (video.duration < maxDurationVideos) {
-          console.log({ name, videoDuration: true })
+        if (item?.video.duration < maxDurationVideos) {
           return {
-            name: name,
-            userFans: followers,
+            name: channel.name,
+            userFans: channel.followers,
             userHearts: 0,
             diggCount: likes,
             shareCount: shares,
             playCount: views,
             collectCount: bookmarks,
             commentCount: comments,
-            webVideoUrl: postPage
+            webVideoUrl: video.url
           }
         } else {
           return {
             name: null,
-            userFans: followers,
+            userFans: channel.followers,
             userHearts: 0,
             diggCount: likes,
             shareCount: shares,
             playCount: views,
             collectCount: bookmarks,
             commentCount: comments,
-            webVideoUrl: postPage
+            webVideoUrl: video.url
           }
         }
       } else {
         return {
-          name: name,
-          userFans: followers,
+          name: channel.name,
+          userFans: channel.followers,
           userHearts: 0,
           diggCount: likes,
           shareCount: shares,
           playCount: views,
           collectCount: bookmarks,
           commentCount: comments,
-          webVideoUrl: postPage
+          webVideoUrl: video.url
         }
       }
     })
@@ -142,8 +158,12 @@ export const groupItemsFromTiktokUsernamesResponseByAuthor = ({
 }: {
   items: ReturnType<typeof filterItemsFromTiktokUsernamesResponseByDuration>
 }) => {
+  if (!items) {
+    throw new Error('No se encontraron perfiles para agrupar por autor')
+  }
+
   return items
-    .filter((item) => item.name !== null)
+    .filter((item: any) => item.name !== null)
     .reduce((acc: any, currentProfile) => {
       const existsProfile = acc.find(
         (profile: any) => profile.name === currentProfile.name
