@@ -3,11 +3,16 @@ import { RequestWithToken } from '../types/jwt'
 import { LANGUAGES_FOR_QUERIES } from '../consts'
 import { getTiktokVirals } from '../controller/videos/tiktok'
 import { getInstagramVirals } from '../controller/videos/instagram'
-import { deleteViralQueryById, getVirals, getViralsByQuery } from '../db/virals'
+import {
+  deleteViralQueryById,
+  getCarruseles,
+  getVirals,
+  getViralsByQuery
+} from '../db/virals'
 
 export const viralsRouter = Router()
 
-viralsRouter.get('/', async (req: RequestWithToken, res) => {
+viralsRouter.get('/videos', async (req: RequestWithToken, res) => {
   const userId = req.userId
   if (!userId) {
     return res.status(401).json({ message: 'No userId' })
@@ -15,6 +20,22 @@ viralsRouter.get('/', async (req: RequestWithToken, res) => {
   const { page, limit } = req.query
 
   const videos = await getVirals({
+    page: Number(page) || 0,
+    limit: Number(limit) || 20,
+    userId
+  })
+
+  res.json({ data: videos })
+})
+
+viralsRouter.get('/carruseles', async (req: RequestWithToken, res) => {
+  const userId = req.userId
+  if (!userId) {
+    return res.status(401).json({ message: 'No userId' })
+  }
+  const { page, limit } = req.query
+
+  const videos = await getCarruseles({
     page: Number(page) || 0,
     limit: Number(limit) || 20,
     userId

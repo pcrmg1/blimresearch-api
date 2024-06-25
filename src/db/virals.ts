@@ -21,6 +21,27 @@ export const getVirals = async ({
   })
 }
 
+export const getCarruseles = async ({
+  page,
+  limit,
+  userId
+}: {
+  page: number
+  limit: number
+  userId: string
+}) => {
+  return await prismaDB.carruselQuery.findMany({
+    where: {
+      userId
+    },
+    include: {
+      carruseles: true
+    },
+    take: limit,
+    skip: page * limit
+  })
+}
+
 export const getViralsByQuery = async ({
   query,
   userId,
