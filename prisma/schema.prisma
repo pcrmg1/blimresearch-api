@@ -83,6 +83,7 @@ model VideoQuery {
   videos    Video[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  platform  String
   userId    String
   user      User     @relation(fields: [userId], references: [id])
 }

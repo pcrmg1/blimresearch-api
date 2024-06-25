@@ -64,7 +64,8 @@ export const getInstagramVirals = async ({
       query,
       userId,
       language,
-      viralVideos: viralVideos
+      viralVideos: viralVideos,
+      platform: 'instagram'
     })
 
     return {

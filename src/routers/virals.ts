@@ -44,7 +44,8 @@ viralsRouter.post('/findViralVideo', async (req: RequestWithToken, res) => {
   }
   const existsQuery = await getViralsByQuery({
     query: search as string,
-    userId
+    userId,
+    platform
   })
   if (existsQuery.length > 0) {
     return res

@@ -23,15 +23,18 @@ export const getVirals = async ({
 
 export const getViralsByQuery = async ({
   query,
-  userId
+  userId,
+  platform
 }: {
   query: string
   userId: string
+  platform: 'instagram' | 'tiktok'
 }) => {
   return await prismaDB.videoQuery.findMany({
     where: {
       query,
-      userId
+      userId,
+      platform
     },
     include: {
       videos: true
@@ -43,12 +46,14 @@ export const createQueryVirals = async ({
   query,
   language,
   userId,
-  viralVideos
+  viralVideos,
+  platform
 }: {
   query: string
   language: string
   userId: string
   viralVideos: any[]
+  platform: string
 }) => {
   return await prismaDB.videoQuery.create({
     data: {
@@ -57,7 +62,8 @@ export const createQueryVirals = async ({
       userId,
       videos: {
         create: viralVideos
-      }
+      },
+      platform
     },
     include: {
       videos: true
