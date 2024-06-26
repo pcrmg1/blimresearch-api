@@ -23,7 +23,7 @@ authRouter.post('/login', async (req, res) => {
       hash: user.password
     })
     if (!isPasswordCorrect) {
-      return res.status(401).json({ mnessage: 'Wrong credentials' })
+      return res.status(401).json({ message: 'Wrong credentials' })
     }
     const token = signToken({ role: user.role, email, userId: user.id })
     return res.status(200).json({ token, email: user.email, name: user.name })
