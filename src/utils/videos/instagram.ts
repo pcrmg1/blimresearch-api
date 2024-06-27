@@ -66,7 +66,7 @@ export const formatCarrouselFromInstagram = ({
       if (post.type === 'Sidecar') {
         const { likesCount, timestamp, images, url } = post
         sidecars.push({
-          likesCount,
+          likesCount: likesCount ? likesCount : 0,
           timestamp,
           images,
           url
