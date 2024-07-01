@@ -109,7 +109,16 @@ export const filterItemsFromTiktokUsernamesResponseByDuration = ({
         }
       }
 
-      const { channel, likes, shares, views, bookmarks, comments, video } = item
+      const {
+        channel,
+        likes,
+        shares,
+        views,
+        bookmarks,
+        comments,
+        video,
+        postPage
+      } = item
 
       if (maxDurationVideos) {
         if (item?.video.duration < maxDurationVideos) {
@@ -122,7 +131,7 @@ export const filterItemsFromTiktokUsernamesResponseByDuration = ({
             playCount: views,
             collectCount: bookmarks,
             commentCount: comments,
-            webVideoUrl: video.url
+            webVideoUrl: postPage
           }
         } else {
           return {
@@ -134,7 +143,7 @@ export const filterItemsFromTiktokUsernamesResponseByDuration = ({
             playCount: views,
             collectCount: bookmarks,
             commentCount: comments,
-            webVideoUrl: video.url
+            webVideoUrl: postPage
           }
         }
       } else {
@@ -147,7 +156,7 @@ export const filterItemsFromTiktokUsernamesResponseByDuration = ({
           playCount: views,
           collectCount: bookmarks,
           commentCount: comments,
-          webVideoUrl: video.url
+          webVideoUrl: postPage
         }
       }
     })
