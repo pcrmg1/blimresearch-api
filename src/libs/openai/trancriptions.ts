@@ -9,7 +9,6 @@ export const transcribeAudio = async (path: string) => {
     prompt:
       "Transcribe the following audio file, when a new line is spoken, write '/n' to indicate a new line."
   })
-  console.log(transcription)
   return transcription.text
 }
 
