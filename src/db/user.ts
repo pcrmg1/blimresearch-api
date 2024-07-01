@@ -9,26 +9,17 @@ export const getUserById = async ({ userId }: { userId: string }) => {
 }
 
 export const getUserByEmail = async ({ email }: { email: string }) => {
-  return await prismaDB.user.findFirst({
+  return await prismaDB.user.findUnique({
     where: {
       email
     }
   })
 }
 
-export const loginUser = async ({
-  email,
-  passwordHash
-}: {
-  email: string
-  passwordHash: string
-}) => {
-  return await prismaDB.user.findFirst({
+export const loginUser = async ({ email }: { email: string }) => {
+  return await prismaDB.user.findUnique({
     where: {
-      email,
-      AND: {
-        password: passwordHash
-      }
+      email
     }
   })
 }
