@@ -9,6 +9,15 @@ const prismaDB = new PrismaClient({
 
 export default prismaDB
 
-process.on('exit', async () => {
-  await prismaDB.$disconnect()
-})
+async function gracefulShutdown() {
+  try {
+    await prismaDB.$disconnect()
+    console.log('Prisma disconnected')
+  } catch (error) {
+    console.error('Error disconnecting Prisma:', error)
+  }
+}
+
+// Handle process signals for graceful shutdown
+process.on('disconnect', gracefulShutdown)
+process.on('exit', gracefulShutdown)
