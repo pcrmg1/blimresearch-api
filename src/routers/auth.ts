@@ -3,6 +3,8 @@ import { createUser, getUserByEmail } from '../db/user'
 import { comparePassword, hashPassword } from '../utils/password'
 import { signToken } from '../utils/token'
 import { errorHandler } from '../utils/error'
+import { config } from 'dotenv'
+config()
 
 export const authRouter = Router()
 
@@ -35,11 +37,20 @@ authRouter.post('/login', async (req, res) => {
 
 authRouter.post('/register', async (req, res) => {
   try {
-    const { email, password, name } = req.body
+    const adminPassword = process.env.ADMIN_PASSWORD
+    const { email, password, name, adminPasswordFromReq, role } = req.body
     if (!email || !password || !name) {
       return res
         .status(400)
         .json({ message: 'Email, password and name are required' })
+    }
+    if (adminPasswordFromReq !== adminPassword) {
+      return res.status(401).json({ message: 'Wrong admin password' })
+    }
+    if (['Admin', 'User'].includes(role) === false) {
+      return res
+        .status(400)
+        .json({ message: 'Role must be either Admin or User' })
     }
     const user = await getUserByEmail({ email })
     if (user) {
@@ -49,7 +60,8 @@ authRouter.post('/register', async (req, res) => {
     const userCreated = await createUser({
       email,
       passwordHash,
-      name
+      name,
+      role
     })
     return res.status(201).json(userCreated)
   } catch (error) {

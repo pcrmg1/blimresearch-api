@@ -43,7 +43,7 @@ export const createUser = async ({
   email: string
   passwordHash: string
   name?: string
-  role?: string
+  role?: 'User' | 'Admin'
   token?: string
 }) => {
   return await prismaDB.user.create({
@@ -51,7 +51,8 @@ export const createUser = async ({
       email,
       password: passwordHash,
       name,
-      token
+      token,
+      role: role || 'User'
     }
   })
 }
