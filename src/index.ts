@@ -57,7 +57,7 @@ main()
     await prismaDB.$connect()
   })
   .catch(async (e) => {
-    console.error(e)
+    console.error('Hubo un error:', e)
     await prismaDB.$disconnect()
     process.exit(1)
   })
