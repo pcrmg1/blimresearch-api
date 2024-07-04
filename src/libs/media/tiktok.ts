@@ -1,3 +1,4 @@
+import { unlink } from 'fs/promises'
 import Tiktok from 'tiktokapi-src'
 
 import { downloadVideoFromUrl, extractAudio } from '../media/handling'
@@ -29,6 +30,8 @@ export const transcribeTiktokVideo = async ({
     })
     console.log('Audio extraido')
     const transcription = await transcribeAudio(filename)
+    await unlink(`${id}.mp4`)
+    await unlink(`${id}.mp3`)
     return { transcription, videoId: id }
   } catch (error) {
     console.log(error)

@@ -4,7 +4,7 @@ import { openAI } from './client'
 export const transcribeAudio = async (path: string) => {
   console.log('Se comenzara a transcribir el audio, ', path)
   const transcription = await openAI.audio.transcriptions.create({
-    file: createReadStream(`./${path}`),
+    file: createReadStream(`${path}`),
     model: 'whisper-1',
     prompt:
       "Transcribe the following audio file, when a new line is spoken, write '/n' to indicate a new line."
