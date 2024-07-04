@@ -1,118 +1,118 @@
-import prismaDB from "./prisma";
+import { prismaDB } from '../index'
 
 export const getVirals = async ({
   page,
   limit,
-  userId,
+  userId
 }: {
-  page: number;
-  limit: number;
-  userId: string;
+  page: number
+  limit: number
+  userId: string
 }) => {
-  let result: any[] = [];
-  let fetchedItemsCount = 0;
-  let skip = page * limit;
+  let result: any[] = []
+  let fetchedItemsCount = 0
+  let skip = page * limit
 
   while (result.length < limit) {
     const items = await prismaDB.videoQuery.findMany({
       where: {
-        userId,
+        userId
       },
       include: {
-        videos: true,
+        videos: true
       },
       take: limit,
-      skip: skip + fetchedItemsCount,
-    });
+      skip: skip + fetchedItemsCount
+    })
 
-    fetchedItemsCount += items.length;
+    fetchedItemsCount += items.length
 
     // Filter out the items where `videos` is an empty array
-    const filteredItems = items.filter((item) => item.videos.length > 0);
-    result = result.concat(filteredItems);
+    const filteredItems = items.filter((item) => item.videos.length > 0)
+    result = result.concat(filteredItems)
 
     // Break the loop if there are no more items to fetch
     if (items.length < limit) {
-      break;
+      break
     }
   }
 
-  return result.slice(0, limit);
-};
+  return result.slice(0, limit)
+}
 
 export const getCarruseles = async ({
   page,
   limit,
-  userId,
+  userId
 }: {
-  page: number;
-  limit: number;
-  userId: string;
+  page: number
+  limit: number
+  userId: string
 }) => {
-  let result: any[] = [];
-  let fetchedItemsCount = 0;
-  let skip = page * limit;
+  let result: any[] = []
+  let fetchedItemsCount = 0
+  let skip = page * limit
 
   while (result.length < limit) {
     const items = await prismaDB.carruselQuery.findMany({
       where: {
-        userId,
+        userId
       },
       include: {
-        carruseles: true,
+        carruseles: true
       },
       take: limit,
-      skip: skip + fetchedItemsCount,
-    });
+      skip: skip + fetchedItemsCount
+    })
 
-    fetchedItemsCount += items.length;
+    fetchedItemsCount += items.length
 
     // Filter out the items where `carruseles` is an empty array
-    const filteredItems = items.filter((item) => item.carruseles.length > 0);
-    result = result.concat(filteredItems);
+    const filteredItems = items.filter((item) => item.carruseles.length > 0)
+    result = result.concat(filteredItems)
 
     // Break the loop if there are no more items to fetch
     if (items.length < limit) {
-      break;
+      break
     }
   }
 
-  return result.slice(0, limit);
-};
+  return result.slice(0, limit)
+}
 
 export const getViralsByQuery = async ({
   query,
   userId,
-  platform,
+  platform
 }: {
-  query: string;
-  userId: string;
-  platform: "instagram" | "tiktok";
+  query: string
+  userId: string
+  platform: 'instagram' | 'tiktok'
 }) => {
   return await prismaDB.videoQuery.findMany({
     where: {
       query,
       userId,
-      platform,
+      platform
     },
     include: {
-      videos: true,
-    },
-  });
-};
+      videos: true
+    }
+  })
+}
 
 export const createQueryVirals = async ({
   query,
   language,
   userId,
   viralVideos,
-  platform,
+  platform
 }: {
-  query: string;
-  language: string;
-  userId: string;
-  viralVideos: any[];
-  platform: string;
+  query: string
+  language: string
+  userId: string
+  viralVideos: any[]
+  platform: string
 }) => {
   return await prismaDB.videoQuery.create({
     data: {
@@ -120,26 +120,26 @@ export const createQueryVirals = async ({
       language,
       userId,
       videos: {
-        create: viralVideos,
+        create: viralVideos
       },
-      platform,
+      platform
     },
     include: {
-      videos: true,
-    },
-  });
-};
+      videos: true
+    }
+  })
+}
 
 export const createCarruselQuery = async ({
   query,
   language,
   userId,
-  carruseles,
+  carruseles
 }: {
-  query: string;
-  language?: string;
-  userId: string;
-  carruseles: any[];
+  query: string
+  language?: string
+  userId: string
+  carruseles: any[]
 }) => {
   return await prismaDB.carruselQuery.create({
     data: {
@@ -147,19 +147,19 @@ export const createCarruselQuery = async ({
       language,
       userId,
       carruseles: {
-        create: carruseles,
-      },
+        create: carruseles
+      }
     },
     include: {
-      carruseles: true,
-    },
-  });
-};
+      carruseles: true
+    }
+  })
+}
 
 export const deleteViralQueryById = async ({ id }: { id: string }) => {
   return await prismaDB.videoQuery.deleteMany({
     where: {
-      id,
-    },
-  });
-};
+      id
+    }
+  })
+}

@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import prismaDB from '../db/prisma'
+import { prismaDB } from '../index'
 
 export const resetDBRouter = Router()
 

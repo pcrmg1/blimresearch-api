@@ -1,4 +1,4 @@
-import prismaDB from './prisma'
+import { prismaDB } from '../index'
 
 export const getUserById = async ({ userId }: { userId: string }) => {
   return await prismaDB.user.findUnique({

@@ -1,4 +1,4 @@
-import prismaDB from './prisma'
+import { prismaDB } from '../index'
 
 export const getTranslationsWithPagination = async ({
   page,
