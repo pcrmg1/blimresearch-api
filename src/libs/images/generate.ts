@@ -20,6 +20,7 @@ export async function mergeTextWithImage(
       textAlign = "center",
       fillStyle = "#333",
       textBaseline = "middle",
+      padding = 20,
     } = options;
 
     ctx.font = `${fontSize}px ${fontFamily}`;
@@ -27,7 +28,26 @@ export async function mergeTextWithImage(
     ctx.textAlign = textAlign;
     ctx.textBaseline = textBaseline;
 
-    const lines = text.split("\n");
+    const maxTextWidth = width - padding * 2;
+
+    const words = text.split(" ");
+    const lines = [];
+    let currentLine = "";
+
+    for (let word of words) {
+      const testLine = currentLine ? currentLine + " " + word : word;
+      const lineWidth = ctx.measureText(testLine).width;
+      if (lineWidth > maxTextWidth) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    }
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+
     const lineHeight = fontSize * 1.2;
     const textHeight = lines.length * lineHeight;
 
