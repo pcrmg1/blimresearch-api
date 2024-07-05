@@ -161,7 +161,7 @@ export const formatVideosFromInstagram = ({
       if (post.type === 'Video') {
         const { likesCount, timestamp, displayUrl, url } = post
         videos.push({
-          likesCount,
+          likesCount: likesCount ? likesCount : 0,
           timestamp,
           displayUrl,
           url
