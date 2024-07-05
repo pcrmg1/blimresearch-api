@@ -69,7 +69,7 @@ model Carrusel {
   profilePicUrl   String
   user_followers  Int
   user_follows    Int
-  likes           Int
+  likes           Int?
   timestamp       DateTime
   userId          String
   user            User           @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
