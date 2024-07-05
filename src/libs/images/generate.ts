@@ -1,3 +1,4 @@
+import fs from "fs";
 import { createCanvas, loadImage } from "canvas";
 
 export async function mergeTextWithImage(
@@ -6,6 +7,10 @@ export async function mergeTextWithImage(
   options: any,
 ): Promise<Buffer | undefined> {
   try {
+    if (!fs.existsSync(imagePath)) {
+      throw new Error(`Image not found at path: ${imagePath}`);
+    }
+
     const image = await loadImage(imagePath);
     const { width, height } = image;
 
@@ -82,5 +87,6 @@ export async function mergeTextWithImage(
     return canvas.toBuffer("image/png");
   } catch (error) {
     console.error("Error merging text with image:", error);
+    return undefined;
   }
 }
