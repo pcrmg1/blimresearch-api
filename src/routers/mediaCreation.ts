@@ -36,13 +36,20 @@ mediaCreationRouter.post(
   "/upload",
   upload.single("file"),
   async (req: any, res) => {
-    if (!req.file) {
-      return res.status(400).send("No file uploaded");
+    let imagePath: string;
+
+    if (req.file) {
+      imagePath = req.file.path;
+    } else if (req.body.predefinedImage) {
+      imagePath = path.join("uploads", path.basename(req.body.predefinedImage));
+    } else {
+      return res
+        .status(400)
+        .send("No file uploaded or predefined image selected");
     }
 
     const texts: string[] = JSON.parse(req.body.texts);
     const options = JSON.parse(req.body.options);
-    const imagePath: string = req.file.path;
     const folderPath: string = "uploads/compressed";
 
     try {
@@ -52,18 +59,19 @@ mediaCreationRouter.post(
 
       fs.mkdirSync(folderPath, { recursive: true });
 
-      texts.forEach(async (text) => {
-        const imageBuffer = (await mergeTextWithImage(
-          imagePath,
-          text,
-          options,
-        )) as any;
+      for (const text of texts) {
+        const imageBuffer = await mergeTextWithImage(imagePath, text, options);
+        if (!imageBuffer) {
+          return res.status(500).send("Error generating the image.");
+        }
         const imageFileName = `${new Date().toISOString()}-${text}.png`;
         const imageFilePath = path.join(folderPath, imageFileName);
         fs.writeFileSync(imageFilePath, imageBuffer);
-      });
+      }
 
-      fs.unlinkSync(imagePath);
+      if (req.file) {
+        fs.unlinkSync(imagePath);
+      }
 
       res.send({ path: folderPath });
     } catch (error) {
@@ -71,8 +79,6 @@ mediaCreationRouter.post(
     }
   },
 );
-
-//
 
 mediaCreationRouter.get("/download", async (req: any, res) => {
   try {
