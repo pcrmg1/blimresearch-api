@@ -88,14 +88,17 @@ viralsRouter.post('/findViralVideo', async (req: RequestWithToken, res) => {
       await Promise.all(promisesArray)
       return res.json({ data: 'done' })
     } else if (platform === 'instagram') {
-      const data = await getInstagramVirals({
-        query: search as string,
-        minFollowers: minNumberOfFans ?? 1000,
-        minLikes: 1000,
-        userId,
-        language
-      })
-      return res.json({ data })
+      const promisesArray = LANGUAGES_FOR_QUERIES.map((language) =>
+        getInstagramVirals({
+          query: search as string,
+          minFollowers: minNumberOfFans ?? 1000,
+          minLikes: 1000,
+          userId,
+          language
+        })
+      )
+      await Promise.all(promisesArray)
+      return res.json({ data: 'done' })
     } else {
       return res.status(400).json({ error: 'platform is invalid' })
     }
