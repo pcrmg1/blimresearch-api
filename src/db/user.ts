@@ -1,7 +1,7 @@
-import { prismaDB } from '../index'
+import { db } from './prisma'
 
 export const getUserById = async ({ userId }: { userId: string }) => {
-  return await prismaDB.user.findUnique({
+  return await db.user.findUnique({
     where: {
       id: userId
     }
@@ -9,7 +9,7 @@ export const getUserById = async ({ userId }: { userId: string }) => {
 }
 
 export const getUserByEmail = async ({ email }: { email: string }) => {
-  return await prismaDB.user.findUnique({
+  return await db.user.findUnique({
     where: {
       email
     }
@@ -17,7 +17,7 @@ export const getUserByEmail = async ({ email }: { email: string }) => {
 }
 
 export const loginUser = async ({ email }: { email: string }) => {
-  return await prismaDB.user.findUnique({
+  return await db.user.findUnique({
     where: {
       email
     }
@@ -37,7 +37,7 @@ export const createUser = async ({
   role?: 'User' | 'Admin'
   token?: string
 }) => {
-  return await prismaDB.user.create({
+  return await db.user.create({
     data: {
       email,
       password: passwordHash,
