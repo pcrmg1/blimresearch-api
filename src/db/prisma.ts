@@ -8,3 +8,8 @@ export const prisma =
   //   log: ['query'],
   // }
   new PrismaClient()
+
+process.on('SIGINT', function () {
+  prisma.$disconnect()
+  process.exit(1)
+})
