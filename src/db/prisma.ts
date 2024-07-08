@@ -1,15 +1,10 @@
 import { PrismaClient } from '@prisma/client'
 
-let db: PrismaClient
+const globalForPrisma = global as unknown as { prisma: PrismaClient }
 
-declare global {
-  var __db: PrismaClient | undefined
-}
-
-if (!global.__db) {
-  global.__db = new PrismaClient()
-}
-
-db = global.__db
-
-export { db }
+export const prisma =
+  globalForPrisma.prisma ||
+  // new PrismaClient({
+  //   log: ['query'],
+  // }
+  new PrismaClient()

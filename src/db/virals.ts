@@ -1,4 +1,4 @@
-import { db } from './prisma'
+import { prisma } from './prisma'
 
 export const getVirals = async ({
   page,
@@ -14,7 +14,7 @@ export const getVirals = async ({
   let skip = page * limit
 
   while (result.length < limit) {
-    const items = await db.videoQuery.findMany({
+    const items = await prisma.videoQuery.findMany({
       where: {
         userId
       },
@@ -54,7 +54,7 @@ export const getCarruseles = async ({
   let skip = page * limit
 
   while (result.length < limit) {
-    const items = await db.carruselQuery.findMany({
+    const items = await prisma.carruselQuery.findMany({
       where: {
         userId
       },
@@ -89,7 +89,7 @@ export const getViralsByQuery = async ({
   userId: string
   platform: 'instagram' | 'tiktok'
 }) => {
-  return await db.videoQuery.findMany({
+  return await prisma.videoQuery.findMany({
     where: {
       query,
       userId,
@@ -114,7 +114,7 @@ export const createQueryVirals = async ({
   viralVideos: any[]
   platform: string
 }) => {
-  return await db.videoQuery.create({
+  return await prisma.videoQuery.create({
     data: {
       query,
       language,
@@ -141,7 +141,7 @@ export const createCarruselQuery = async ({
   userId: string
   carruseles: any[]
 }) => {
-  return await db.carruselQuery.create({
+  return await prisma.carruselQuery.create({
     data: {
       query,
       language,
@@ -157,7 +157,7 @@ export const createCarruselQuery = async ({
 }
 
 export const deleteViralQueryById = async ({ id }: { id: string }) => {
-  return await db.videoQuery.deleteMany({
+  return await prisma.videoQuery.deleteMany({
     where: {
       id
     }

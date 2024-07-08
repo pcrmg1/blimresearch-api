@@ -1,4 +1,4 @@
-import { db } from './prisma'
+import { prisma } from './prisma'
 
 export const getTranslationsWithPagination = async ({
   page,
@@ -9,7 +9,7 @@ export const getTranslationsWithPagination = async ({
   limit: number
   userId: string
 }) => {
-  return await db.translation.findMany({
+  return await prisma.translation.findMany({
     where: { userId },
     skip: page * limit,
     take: limit,
@@ -34,7 +34,7 @@ export const createTranslation = async ({
   userId: string
   transcriptionId?: string
 }) => {
-  return await db.translation.create({
+  return await prisma.translation.create({
     data: {
       text,
       language,
@@ -45,7 +45,7 @@ export const createTranslation = async ({
 }
 
 export const deleteTranslationById = async ({ id }: { id: string }) => {
-  return await db.translation.delete({
+  return await prisma.translation.delete({
     where: {
       id
     }
@@ -59,7 +59,7 @@ export const getTranslationByTranscriptionId = async ({
   transcriptionId: string
   language: string
 }) => {
-  return await db.translation.findFirst({
+  return await prisma.translation.findFirst({
     where: {
       transcriptionId,
       AND: {

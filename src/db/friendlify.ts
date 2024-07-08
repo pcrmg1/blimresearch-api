@@ -1,4 +1,4 @@
-import { db } from './prisma'
+import { prisma } from './prisma'
 
 export const createFriendlifiedText = async ({
   language,
@@ -13,7 +13,7 @@ export const createFriendlifiedText = async ({
   transcriptionId?: string
   translationId?: string
 }) => {
-  return await db.friendlifiedText.create({
+  return await prisma.friendlifiedText.create({
     data: {
       language,
       text,
@@ -33,7 +33,7 @@ export const getFriendlifiedTextWithPagination = async ({
   limit: number
   userId: string
 }) => {
-  return await db.friendlifiedText.findMany({
+  return await prisma.friendlifiedText.findMany({
     where: { userId },
     skip: page * limit,
     take: limit,
@@ -48,7 +48,7 @@ export const getFriendlifiedTextWithPagination = async ({
 }
 
 export const deleteFriendlifiedTextById = async ({ id }: { id: string }) => {
-  return await db.friendlifiedText.delete({
+  return await prisma.friendlifiedText.delete({
     where: {
       id
     }

@@ -1,4 +1,4 @@
-import { db } from './prisma'
+import { prisma } from './prisma'
 
 export const createVideoTranscription = async ({
   language,
@@ -11,7 +11,7 @@ export const createVideoTranscription = async ({
   userId: string
   shortcode: string
 }) => {
-  return await db.transcription.create({
+  return await prisma.transcription.create({
     data: {
       language,
       text,
@@ -31,7 +31,7 @@ export const createImageTranscription = async ({
   text: string
   userId: string
 }) => {
-  return await db.transcription.create({
+  return await prisma.transcription.create({
     data: {
       language,
       text,
@@ -50,7 +50,7 @@ export const getTranscriptionsWithPagination = async ({
   limit: number
   userId: string
 }) => {
-  return await db.transcription.findMany({
+  return await prisma.transcription.findMany({
     where: { userId },
     skip: page * limit,
     take: limit,
@@ -74,7 +74,7 @@ export const getTranscriptionsByTypeWithPagination = async ({
   userId: string
   type: 'image' | 'video'
 }) => {
-  return await db.transcription.findMany({
+  return await prisma.transcription.findMany({
     where: { userId, type },
     skip: page * limit,
     take: limit,
@@ -85,7 +85,7 @@ export const getTranscriptionsByTypeWithPagination = async ({
 }
 
 export const deleteTranscriptionById = async ({ id }: { id: string }) => {
-  return await db.transcription.delete({
+  return await prisma.transcription.delete({
     where: { id }
   })
 }
@@ -95,7 +95,7 @@ export const getTranscriptionByVideoId = async ({
 }: {
   shortcode: string
 }) => {
-  return await db.transcription.findFirst({
+  return await prisma.transcription.findFirst({
     where: {
       shortcode
     }
