@@ -1,6 +1,4 @@
 const instagramDl = require('@sasmeee/igdl')
-import axios from 'axios'
-import fs from 'fs'
 
 export const getInstagramVideoURL = async ({ url }: { url: string }) => {
   try {
