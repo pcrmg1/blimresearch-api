@@ -38,14 +38,23 @@ export const downloadVideoFromUrl = async ({
   filename: string
 }): Promise<void> => {
   const writer = createWriteStream(filename)
-  const response = await axios({
-    url,
-    method: 'GET',
-    responseType: 'stream'
-  })
-  response.data.pipe(writer)
-  return new Promise((resolve, reject) => {
-    writer.on('finish', resolve)
-    writer.on('error', reject)
-  })
+
+  try {
+    const response = await axios({
+      url,
+      method: 'GET',
+      responseType: 'stream'
+    })
+    response.data.pipe(writer)
+    return new Promise((resolve, reject) => {
+      writer.on('finish', resolve)
+      writer.on('error', (error) => {
+        writer.close()
+        reject(error)
+      })
+    })
+  } catch (error) {
+    writer.close()
+    throw error
+  }
 }
