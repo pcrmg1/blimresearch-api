@@ -16,6 +16,7 @@
   "dependencies": {
     "@prisma/client": "^5.15.1",
     "@sasmeee/igdl": "^1.0.0",
+    "@tobyg74/tiktok-api-dl": "^1.1.9",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
     "@types/fluent-ffmpeg": "^2.1.24",

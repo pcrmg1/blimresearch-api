@@ -1,5 +1,5 @@
 import { unlink } from 'fs/promises'
-import Tiktok from 'tiktokapi-src'
+const Tiktok = require('@tobyg74/tiktok-api-dl')
 
 import { downloadVideoFromUrl, extractAudio } from '../media/handling'
 import { transcribeAudio } from '../openai/trancriptions'
