@@ -13,14 +13,14 @@ export const transcribeTiktokVideo = async ({
 }) => {
   try {
     const id = url?.split('/')[5].split('?')[0] as string
-    const videoLink = await Tiktok.Downloader(url, { version: 'v2' })
+    const videoLink = await Tiktok.Downloader(url, { version: 'v3' })
     console.log({ videoLink })
     const filename = `${id}.mp3`
-    if (!videoLink || !videoLink.result || !videoLink.result.video)
+    if (!videoLink || !videoLink.result || !videoLink.result.video1)
       throw new Error('No se pudo descargar el video')
     console.log('Descargando video ', filename)
     await downloadVideoFromUrl({
-      url: videoLink.result.video,
+      url: videoLink.result.video1,
       filename: `${id}.mp4`
     })
     console.log('Video descargado, extrayendo audio')
