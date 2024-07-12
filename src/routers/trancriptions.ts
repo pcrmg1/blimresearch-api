@@ -12,6 +12,7 @@ import {
   getTranscriptionsByTypeWithPagination,
   getTranscriptionsWithPagination
 } from '../db/transcriptions'
+import { getCarruselImgUrls } from '../libs/media/instagram'
 
 export const transcriptionsRouter = Router()
 
@@ -135,6 +136,25 @@ transcriptionsRouter.post(
     }
   }
 )
+
+transcriptionsRouter.post('/transcribe_carrusel', async (req, res) => {
+  const { url } = req.body
+  console.log('Transcribiendo carrusel: ', url)
+  const carruselUrls = await getCarruselImgUrls({ url })
+  if (!carruselUrls) {
+    return res.status(500).json({ message: 'Error al obtener carrusel' })
+  }
+  const transcriptionPromises = carruselUrls.map((carrusel) => {
+    return transcribeImage({ imgUrl: carrusel.download_link })
+  })
+  console.log('Transcribiendo imagenes')
+  const transcriptions = await Promise.all(transcriptionPromises)
+  const parsedTranscriptions = transcriptions.map((transcription) => {
+    const parsedTransc = parseImageTranscription({ transcription })
+    return parsedTransc
+  })
+  return res.json({ data: parsedTranscriptions })
+})
 
 transcriptionsRouter.delete(
   '/deleteById/:id',
