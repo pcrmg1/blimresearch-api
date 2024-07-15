@@ -139,21 +139,38 @@ transcriptionsRouter.post(
 
 transcriptionsRouter.post('/transcribe_carrusel', async (req, res) => {
   const { url } = req.body
-  console.log('Transcribiendo carrusel: ', url)
-  const carruselUrls = await getCarruselImgUrls({ url })
-  if (!carruselUrls) {
-    return res.status(500).json({ message: 'Error al obtener carrusel' })
+  try {
+    console.log('Transcribiendo carrusel: ', url)
+    const carruselUrls = await getCarruselImgUrls({ url })
+    if (!carruselUrls) {
+      return res.status(500).json({ message: 'Error al obtener carrusel' })
+    }
+    console.log({ carruselUrls })
+    const transcriptionPromises = carruselUrls.map((carrusel) => {
+      return transcribeImage({ imgUrl: carrusel.download_link })
+    })
+    console.log('Transcribiendo imagenes')
+    const transcriptions = await Promise.all(transcriptionPromises)
+    const parsedTranscriptions = transcriptions.map((transcription) => {
+      const parsedTransc = parseImageTranscription({ transcription })
+      return parsedTransc
+    })
+    const transcriptionsWithUrl = parsedTranscriptions.map(
+      (transcription, index) => ({
+        transcription: transcription,
+        url: carruselUrls[index].download_link
+      })
+    )
+    return res.json({ data: transcriptionsWithUrl })
+  } catch (error) {
+    console.log({ error })
+    return res
+      .status(500)
+      .json({
+        message:
+          'Hubo un error con el servidor, compruebe que el carrusel tiene solo imagenes, por favor'
+      })
   }
-  const transcriptionPromises = carruselUrls.map((carrusel) => {
-    return transcribeImage({ imgUrl: carrusel.download_link })
-  })
-  console.log('Transcribiendo imagenes')
-  const transcriptions = await Promise.all(transcriptionPromises)
-  const parsedTranscriptions = transcriptions.map((transcription) => {
-    const parsedTransc = parseImageTranscription({ transcription })
-    return parsedTransc
-  })
-  return res.json({ data: parsedTranscriptions })
 })
 
 transcriptionsRouter.delete(
