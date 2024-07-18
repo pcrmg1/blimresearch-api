@@ -15,6 +15,7 @@ import { viralsRouter } from './routers/virals'
 import { resetDBRouter } from './routers/resetDb'
 
 import { PrismaClient } from '@prisma/client'
+import { tiktokUsernameViralsRouter } from './routers/tiktokUsernameVirals'
 
 export const prismaDB = new PrismaClient({
   log:
@@ -44,6 +45,7 @@ app.use('/api/translations', verifyToken, translationsRouter)
 app.use('/api/friendlify', verifyToken, friendlifyRouter)
 app.use('/api/virals', verifyToken, viralsRouter)
 app.use('/api/mediaCreation', verifyToken, mediaCreationRouter)
+app.use('/api/tiktokUsernameVirals', verifyToken, tiktokUsernameViralsRouter)
 app.use('/api/resetDb', resetDBRouter)
 
 const PORT = process.env.PORT || 5000

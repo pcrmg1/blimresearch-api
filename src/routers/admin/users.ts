@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { NewUserSchema } from '../../models/user'
-import { createUser } from '../../db/user'
+import { createUser, getAllUsers } from '../../db/user'
 import { hashPassword } from '../../utils/password'
 
 export const usersRouter = Router()
@@ -22,6 +22,15 @@ usersRouter.post('/createUser', async (req, res) => {
     const hashedPassword = await hashPassword({ password })
     const user = createUser({ email, passwordHash: hashedPassword, role, name })
     return res.json(user)
+  } catch (error) {
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
+usersRouter.get('/', async (req, res) => {
+  try {
+    const users = await getAllUsers()
+    return res.json(users)
   } catch (error) {
     return res.status(500).json({ message: 'Internal server error' })
   }

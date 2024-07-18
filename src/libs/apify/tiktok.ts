@@ -51,6 +51,36 @@ export const getTiktokDataFromQuery = async ({ query }: { query: string }) => {
   }
 }
 
+export const getTiktokDataFromProfilesQuery = async ({
+  profiles
+}: {
+  profiles: string[]
+}) => {
+  try {
+    if (!profiles || profiles.length === 0)
+      throw new Error('No se puede hacer la busqueda sin query')
+    const input = {
+      profiles,
+      resultsPerPage: 45,
+      shouldDownloadCovers: false,
+      shouldDownloadSlideshowImages: false,
+      shouldDownloadSubtitles: false,
+      shouldDownloadVideos: false
+    }
+    const run = await apifyClient.actor('OtzYfK1ndEGdwWFKQ').call(input)
+    const response = await apifyClient.dataset(run.defaultDatasetId).listItems()
+    const COST_PER_ITEM = 0.004
+    console.log('response received')
+    return {
+      items: response.items as unknown as TiktokQueryRun[],
+      cost: COST_PER_ITEM * response.items.length
+    }
+  } catch (error) {
+    console.log('error', error)
+    throw new Error('Error al obtener los datos de Tiktok')
+  }
+}
+
 export const getTiktokViralVideos = async ({
   query,
   minFans
@@ -151,4 +181,15 @@ export const getTiktokViralProfiles = async ({
 
   console.log('videos', videos)
   return videos
+}
+
+const getTiktokViralListFromUsernames = async ({
+  usernames
+}: {
+  usernames: string[]
+}) => {
+  const { items, cost } = await getTiktokDataFromProfilesQuery({
+    profiles: usernames
+  })
+  const filteredResults = items.filter((item) => item.authorMeta)
 }

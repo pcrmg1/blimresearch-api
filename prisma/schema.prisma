@@ -20,22 +20,26 @@ enum Role {
 }
 
 model User {
-  id                String             @id @default(cuid())
-  email             String             @unique
-  name              String?
-  password          String
-  role              Role               @default(User)
-  token             String?
-  sessions          Session[]
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  carruselQuery     CarruselQuery[]
-  carruseles        Carrusel[]
-  TiktokVideoQuery  VideoQuery[]
-  TiktokVideo       Video[]
-  Transcription     Transcription[]
-  Translation       Translation[]
-  FriendlifiedTexts FriendlifiedText[]
+  id                   String                 @id @default(cuid())
+  email                String                 @unique
+  name                 String?
+  password             String
+  role                 Role                   @default(User)
+  token                String?
+  sessions             Session[]
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  carruselQuery        CarruselQuery[]
+  carruseles           Carrusel[]
+  TiktokVideoQuery     VideoQuery[]
+  TiktokVideo          Video[]
+  Transcription        Transcription[]
+  Translation          Translation[]
+  FriendlifiedTexts    FriendlifiedText[]
+  TiktokUsernameVirals TiktokUsernameVirals[]
+  gastos               Float                  @default(0)
+
+  @@index([email], name: "email")
 }
 
 model Session {
@@ -56,6 +60,8 @@ model CarruselQuery {
   updatedAt  DateTime   @updatedAt
   userId     String
   user       User       @relation(fields: [userId], references: [id])
+
+  @@index([query, id], name: "query_id_carruselQuery")
 }
 
 model Carrusel {
@@ -74,6 +80,8 @@ model Carrusel {
   user            User           @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   carruselQueryId String?
   carruselQuery   CarruselQuery? @relation(fields: [carruselQueryId], references: [id])
+
+  @@index([url, id], name: "url")
 }
 
 model VideoQuery {
@@ -86,31 +94,37 @@ model VideoQuery {
   platform  String
   userId    String
   user      User     @relation(fields: [userId], references: [id])
+
+  @@index([query, id], name: "query_id_videoQuery")
 }
 
 model Video {
-  id            String          @id @default(cuid())
-  queryId       String
-  query         VideoQuery      @relation(fields: [queryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  language      String?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  platform      String
-  username      String
-  userFans      Int?
-  userHearts    Int?
-  userVideos    Int?
-  userHeartsAvg Int?
-  userPlayAvg   Int?
-  userShareAvg  Int?
-  videoUrl      String?
-  videoHearts   Int?
-  videoComments Int?
-  videoShares   Int?
-  videoViews    Int?
-  userId        String
-  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  Transcription Transcription[]
+  id                     String                @id @default(cuid())
+  queryId                String
+  query                  VideoQuery            @relation(fields: [queryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  language               String?
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  platform               String
+  username               String
+  userFans               Int?
+  userHearts             Int?
+  userVideos             Int?
+  userHeartsAvg          Int?
+  userPlayAvg            Int?
+  userShareAvg           Int?
+  videoUrl               String?
+  videoHearts            Int?
+  videoComments          Int?
+  videoShares            Int?
+  videoViews             Int?
+  userId                 String
+  user                   User                  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tiktokUsernameViralsId String?
+  tiktokUsernameVirals   TiktokUsernameVirals? @relation(fields: [tiktokUsernameViralsId], references: [id])
+  Transcription          Transcription[]
+
+  @@index([videoUrl, id], name: "videoUrl_id")
 }
 
 enum TranscriptionType {
@@ -132,6 +146,8 @@ model Transcription {
   user              User               @relation(fields: [userId], references: [id])
   FriendlifiedTexts FriendlifiedText[]
   Translation       Translation[]
+
+  @@index([shortcode, id], name: "shortcode_id")
 }
 
 model Translation {
@@ -145,6 +161,8 @@ model Translation {
   userId            String
   user              User               @relation(fields: [userId], references: [id])
   FriendlifiedTexts FriendlifiedText[]
+
+  @@index([text, id], name: "text_id_translation")
 }
 
 model FriendlifiedText {
@@ -159,4 +177,18 @@ model FriendlifiedText {
   transcription   Transcription? @relation(fields: [transcriptionId], references: [id])
   translationId   String?
   translation     Translation?   @relation(fields: [translationId], references: [id])
+
+  @@index([text, id], name: "text_id_friendlifiedText")
+}
+
+model TiktokUsernameVirals {
+  id        String   @id @default(cuid())
+  usernames String[]
+  videos    Video[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([usernames, id], name: "usernames")
 }

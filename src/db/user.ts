@@ -24,6 +24,10 @@ export const loginUser = async ({ email }: { email: string }) => {
   })
 }
 
+export const getAllUsers = async () => {
+  return await prisma.user.findMany()
+}
+
 export const createUser = async ({
   email,
   passwordHash,
@@ -44,6 +48,25 @@ export const createUser = async ({
       name,
       token,
       role: role || 'User'
+    }
+  })
+}
+
+export const addSpentUSD = async ({
+  userId,
+  spentUSD
+}: {
+  userId: string
+  spentUSD: number
+}) => {
+  return await prisma.user.update({
+    where: {
+      id: userId
+    },
+    data: {
+      gastos: {
+        increment: spentUSD
+      }
     }
   })
 }
