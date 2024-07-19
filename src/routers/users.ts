@@ -12,7 +12,11 @@ usersRouter.get('/', async (req: RequestWithToken, res) => {
   }
   try {
     const user = await getUserById({ userId })
-    return res.json({ data: user })
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+    const { password, ...rest } = user
+    return res.json({ data: rest })
   } catch (error) {
     errorHandler(error)
     return res.status(500).json({ message: 'Internal server error' })
