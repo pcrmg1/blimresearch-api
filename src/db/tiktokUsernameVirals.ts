@@ -54,15 +54,18 @@ export const getTiktokViralUsernameById = async ({ id }: { id: string }) => {
 
 export const createTiktokUsernameViral = async ({
   userId,
-  usernames
+  usernames,
+  name
 }: {
   userId: string
   usernames: string[]
+  name: string
 }) => {
   const tiktokUsernameViral = await prisma.tiktokUsernameVirals.create({
     data: {
       userId,
-      usernames
+      usernames,
+      name
     }
   })
   return tiktokUsernameViral
@@ -78,17 +81,20 @@ export const deleteTiktokUsernameViralList = async ({ id }: { id: string }) => {
 
 export const updateTiktokUsernameViral = async ({
   id,
-  usernames
+  usernames,
+  name
 }: {
   id: string
   usernames: string[]
+  name: string
 }) => {
   return await prisma.tiktokUsernameVirals.update({
     where: {
       id
     },
     data: {
-      usernames
+      usernames,
+      name
     }
   })
 }
@@ -101,6 +107,18 @@ export const deleteTiktokViralVideoByListId = async ({
   return await prisma.video.deleteMany({
     where: {
       tiktokUsernameViralsId: listId
+    }
+  })
+}
+
+export const getTiktokViralVideosByListName = async ({
+  name
+}: {
+  name: string
+}) => {
+  return await prisma.tiktokUsernameVirals.findMany({
+    where: {
+      name
     }
   })
 }

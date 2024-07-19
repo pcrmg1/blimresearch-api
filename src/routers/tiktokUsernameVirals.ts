@@ -10,17 +10,9 @@ import {
   updateTiktokUsernameViral
 } from '../db/tiktokUsernameVirals'
 import { errorHandler } from '../utils/error'
-import {
-  getTiktokDataFromProfilesQuery,
-  getTiktokViralListFromUsernames,
-  getTiktokViralProfiles
-} from '../libs/apify/tiktok'
+import { getTiktokViralListFromUsernames } from '../libs/apify/tiktok'
 import { prisma } from '../db/prisma'
 import { addSpentUSD } from '../db/user'
-import {
-  getAverageByAuthorFromTiktokUsernamesResponse,
-  groupItemsFromTiktokUsernamesResponseByAuthor
-} from '../utils/videos/tiktok'
 
 export const tiktokUsernameViralsRouter = Router()
 
@@ -63,7 +55,7 @@ tiktokUsernameViralsRouter.get('/:id', async (req: RequestWithToken, res) => {
 
 tiktokUsernameViralsRouter.post('/', async (req: RequestWithToken, res) => {
   const userId = req.userId
-  const { usernames } = req.body
+  const { usernames, listName } = req.body
   if (!userId) {
     return res.status(401).json({ message: 'No userId' })
   }
@@ -74,7 +66,8 @@ tiktokUsernameViralsRouter.post('/', async (req: RequestWithToken, res) => {
     const usernamesString = usernames.split(',')
     const listCreated = await createTiktokUsernameViral({
       userId,
-      usernames: usernamesString
+      usernames: usernamesString,
+      name: listName
     })
     return res.json({ data: listCreated })
   } catch (error) {
@@ -104,7 +97,7 @@ tiktokUsernameViralsRouter.delete(
 tiktokUsernameViralsRouter.put('/:id', async (req: RequestWithToken, res) => {
   const userId = req.userId
   const { id } = req.params
-  const { usernames } = req.body
+  const { usernames, listName } = req.body
   if (!userId) {
     return res.status(401).json({ message: 'No userId' })
   }
@@ -113,11 +106,11 @@ tiktokUsernameViralsRouter.put('/:id', async (req: RequestWithToken, res) => {
   }
   try {
     const usernamesString = usernames.split(',')
-    console.log({ usernamesString })
     await deleteTiktokViralVideoByListId({ listId: id })
     const tiktokUsername = await updateTiktokUsernameViral({
       id,
-      usernames: usernamesString
+      usernames: usernamesString,
+      name: listName
     })
     return res.json({ data: tiktokUsername })
   } catch (error) {

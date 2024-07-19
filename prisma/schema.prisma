@@ -9,9 +9,9 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL")
 }
 
 enum Role {
@@ -183,6 +183,7 @@ model FriendlifiedText {
 
 model TiktokUsernameVirals {
   id        String   @id @default(cuid())
+  name      String?
   usernames String[]
   videos    Video[]
   createdAt DateTime @default(now())
