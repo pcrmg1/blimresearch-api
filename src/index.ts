@@ -4,7 +4,7 @@ import cors from 'cors'
 import compression from 'compression'
 
 import { authRouter } from './routers/auth'
-import { usersRouter } from './routers/admin/users'
+import { adminUsersRouter } from './routers/admin/users'
 import { transcriptionsRouter } from './routers/trancriptions'
 import { translationsRouter } from './routers/translations'
 import { friendlifyRouter } from './routers/friendlify'
@@ -16,6 +16,7 @@ import { resetDBRouter } from './routers/resetDb'
 
 import { PrismaClient } from '@prisma/client'
 import { tiktokUsernameViralsRouter } from './routers/tiktokUsernameVirals'
+import { usersRouter } from './routers/users'
 
 export const prismaDB = new PrismaClient({
   log:
@@ -39,7 +40,8 @@ app.get('/', (req, res) =>
   })
 )
 app.use('/api/auth', authRouter)
-app.use('/api/admin/users', verifyToken, isAdmin, usersRouter)
+app.use('/api/admin/users', verifyToken, isAdmin, adminUsersRouter)
+app.use('/api/users', verifyToken, usersRouter)
 app.use('/api/transcriptions', verifyToken, transcriptionsRouter)
 app.use('/api/translations', verifyToken, translationsRouter)
 app.use('/api/friendlify', verifyToken, friendlifyRouter)

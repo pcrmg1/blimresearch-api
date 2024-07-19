@@ -183,13 +183,114 @@ export const getTiktokViralProfiles = async ({
   return videos
 }
 
-const getTiktokViralListFromUsernames = async ({
+export const getTiktokViralListFromUsernames = async ({
   usernames
 }: {
   usernames: string[]
 }) => {
-  const { items, cost } = await getTiktokDataFromProfilesQuery({
+  const viralVideos = await getTiktokDataFromProfilesQuery({
     profiles: usernames
   })
-  const filteredResults = items.filter((item) => item.authorMeta)
+  const formattedItemOutput = viralVideos.items.map((item) => {
+    const {
+      commentCount,
+      diggCount,
+      playCount,
+      shareCount,
+      webVideoUrl,
+      authorMeta,
+      collectCount
+    } = item
+    if (!authorMeta) {
+      return {
+        name: null,
+        userFans: null,
+        userHearts: null,
+        diggCount,
+        shareCount,
+        playCount,
+        collectCount,
+        commentCount,
+        webVideoUrl
+      }
+    } else {
+      return {
+        name: authorMeta.name,
+        userFans: authorMeta.fans,
+        userHearts: authorMeta.heart,
+        diggCount,
+        shareCount,
+        playCount,
+        collectCount,
+        commentCount,
+        webVideoUrl
+      }
+    }
+  })
+  const filteredItems = formattedItemOutput.filter((item) => item.name !== null)
+  const videosGroupedByAuthor = groupItemsFromTiktokUsernamesResponseByAuthor({
+    items: filteredItems
+  })
+
+  const averageByAuthor = getAverageByAuthorFromTiktokUsernamesResponse({
+    items: videosGroupedByAuthor
+  })
+  const viralVideosGrouped = videosGroupedByAuthor.map((profile: any) => {
+    const { name, userFans, userHearts, videos } = profile
+    const averagesThisUsername = averageByAuthor.find(
+      (author: any) => author.name === name
+    )
+    const viralVideos = videos.filter((video: any) => {
+      const { diggCount } = video
+      const diggMinValue = averagesThisUsername.averageValues.diggCount * 3
+      return diggCount > diggMinValue
+    })
+    return {
+      name,
+      userFans,
+      userHearts,
+      averageValues: { ...averagesThisUsername.averageValues },
+      viralVideos
+    }
+  })
+
+  let videos: {
+    username: string
+    userFans: number
+    userHearts: number
+    userHeartsAvg: number
+    userPlayAvg: number
+    userShareAvg: number
+    videoUrl: string
+    videoHearts: number
+    videoViews: number
+    videoShares: number
+    videoComments: number
+  }[] = []
+  viralVideosGrouped.forEach((item: any) => {
+    const { name, userFans, userHearts, averageValues, viralVideos } = item
+    viralVideos.forEach((video: any) => {
+      const { commentCount, diggCount, playCount, shareCount, webVideoUrl } =
+        video
+      const itemInfo = {
+        username: name,
+        userFans,
+        userHearts,
+        userHeartsAvg: averageValues.diggCount,
+        userPlayAvg: averageValues.playCount,
+        userShareAvg: averageValues.shareCount,
+        videoUrl: webVideoUrl,
+        videoHearts: diggCount,
+        videoViews: playCount,
+        videoShares: shareCount,
+        videoComments: commentCount
+      }
+      if (itemInfo.videoViews > itemInfo.userFans) {
+        videos.push(itemInfo)
+      }
+    })
+    return
+  })
+
+  return { cost: viralVideos.cost, videos }
 }

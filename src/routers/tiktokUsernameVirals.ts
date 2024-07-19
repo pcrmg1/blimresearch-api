@@ -12,10 +12,15 @@ import {
 import { errorHandler } from '../utils/error'
 import {
   getTiktokDataFromProfilesQuery,
+  getTiktokViralListFromUsernames,
   getTiktokViralProfiles
 } from '../libs/apify/tiktok'
 import { prisma } from '../db/prisma'
 import { addSpentUSD } from '../db/user'
+import {
+  getAverageByAuthorFromTiktokUsernamesResponse,
+  groupItemsFromTiktokUsernamesResponseByAuthor
+} from '../utils/videos/tiktok'
 
 export const tiktokUsernameViralsRouter = Router()
 
@@ -137,11 +142,26 @@ tiktokUsernameViralsRouter.post(
       await deleteTiktokViralVideoByListId({
         listId: tiktokUsernameList?.id
       })
-      const viralVideos = await getTiktokDataFromProfilesQuery({
-        profiles: tiktokUsernameList.usernames
+      const { cost, videos } = await getTiktokViralListFromUsernames({
+        usernames: tiktokUsernameList.usernames
       })
-      await addSpentUSD({ userId, spentUSD: viralVideos.cost })
-      return res.json({ data: viralVideos.items, cost: viralVideos.cost })
+      await addSpentUSD({ userId, spentUSD: cost })
+      if (videos.length === 0) {
+        return res.json({ data: [], cost })
+      }
+
+      const formattedVideosForDB = videos.map((video) => ({
+        ...video,
+        tiktokUsernameViralsId: id,
+        platform: 'tiktok',
+        userId
+      }))
+      console.log({ formattedVideosForDB })
+      await prisma.video.createMany({
+        data: formattedVideosForDB
+      })
+
+      return res.json({ data: videos, cost })
     } catch (error) {
       errorHandler(error)
       return res.status(500).json({ message: 'Internal server error' })

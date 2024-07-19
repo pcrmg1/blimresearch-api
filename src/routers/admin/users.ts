@@ -3,9 +3,9 @@ import { NewUserSchema } from '../../models/user'
 import { createUser, getAllUsers } from '../../db/user'
 import { hashPassword } from '../../utils/password'
 
-export const usersRouter = Router()
+export const adminUsersRouter = Router()
 
-usersRouter.post('/createUser', async (req, res) => {
+adminUsersRouter.post('/createUser', async (req, res) => {
   try {
     const { email, password, role, name } = req.body
     const parsedCredentials = await NewUserSchema.safeParseAsync({
@@ -27,7 +27,7 @@ usersRouter.post('/createUser', async (req, res) => {
   }
 })
 
-usersRouter.get('/', async (req, res) => {
+adminUsersRouter.get('/', async (req, res) => {
   try {
     const users = await getAllUsers()
     return res.json(users)
