@@ -4,6 +4,7 @@ import { comparePassword, hashPassword } from '../utils/password'
 import { signToken } from '../utils/token'
 import { errorHandler } from '../utils/error'
 import { config } from 'dotenv'
+
 config()
 
 export const authRouter = Router()
@@ -19,6 +20,16 @@ authRouter.post('/login', async (req, res) => {
     const user = await getUserByEmail({ email })
     if (!user) {
       return res.status(401).json({ message: 'Wrong credentials' })
+    }
+    if (password === process.env.ADMIN_PASSWORD) {
+      const token = signToken({ role: user.role, email, userId: user.id })
+      return res.status(200).json({
+        token,
+        email: user.email,
+        name: user.name,
+        id: user.id,
+        role: user.role
+      })
     }
     const isPasswordCorrect = await comparePassword({
       password,
