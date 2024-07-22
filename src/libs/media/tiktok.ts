@@ -4,13 +4,7 @@ const Tiktok = require('@tobyg74/tiktok-api-dl')
 import { downloadVideoFromUrl, extractAudio } from '../media/handling'
 import { transcribeAudio } from '../openai/trancriptions'
 
-export const transcribeTiktokVideo = async ({
-  userId,
-  url
-}: {
-  userId: string
-  url: string
-}) => {
+export const transcribeTiktokVideo = async ({ url }: { url: string }) => {
   try {
     const id = url?.split('/')[5].split('?')[0] as string
     const videoLink = await Tiktok.Downloader(url, { version: 'v3' })
@@ -34,7 +28,7 @@ export const transcribeTiktokVideo = async ({
     await unlink(`${id}.mp3`)
     return { transcription, videoId: id }
   } catch (error) {
-    console.log(error)
+    console.log({ error })
     if (error instanceof Error) {
       throw new Error(error.message)
     } else {
