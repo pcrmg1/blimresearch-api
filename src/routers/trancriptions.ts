@@ -78,8 +78,7 @@ transcriptionsRouter.post(
           return response.json({ data: transcriptionsExists })
         }
         const { transcription } = await transcribeTiktokVideo({
-          url,
-          userId
+          url
         })
         console.log('Guardando en base de datos')
         const transcriptionSaved = await createVideoTranscription({
@@ -164,12 +163,10 @@ transcriptionsRouter.post('/transcribe_carrusel', async (req, res) => {
     return res.json({ data: transcriptionsWithUrl })
   } catch (error) {
     console.log({ error })
-    return res
-      .status(500)
-      .json({
-        message:
-          'Hubo un error con el servidor, compruebe que el carrusel tiene solo imagenes, por favor'
-      })
+    return res.status(500).json({
+      message:
+        'Hubo un error con el servidor, compruebe que el carrusel tiene solo imagenes, por favor'
+    })
   }
 })
 
