@@ -57,6 +57,7 @@ export const getInstagramVirals = async ({
     const carruselQuery = await createCarruselQuery({
       query,
       userId,
+      language,
       carruseles: viralSidecars
     })
 
