@@ -1,3 +1,4 @@
+import { addSpentUSD } from '../../db/user'
 import { createQueryVirals } from '../../db/virals'
 import {
   getTiktokViralProfiles,
@@ -22,15 +23,16 @@ export const getTiktokVirals = async ({
     text: query,
     toLanguage: language
   })
-  const virals = await getTiktokViralVideos({
+  const { items: virals, cost } = await getTiktokViralVideos({
     query: translatedQuery as string,
     minFans: minNumberOfFans
   })
   const viralProfiles = virals.map((profile) => profile.name)
-  const profiles = await getTiktokViralProfiles({
-    profiles: viralProfiles,
-    maxDurationVideo
-  })
+  const { items: profiles, cost: costFromProfiles } =
+    await getTiktokViralProfiles({
+      profiles: viralProfiles,
+      maxDurationVideo
+    })
   const languageAdded = profiles
     .filter((profile: any) => profile.videoUrl)
     .map((profile: any) => ({
@@ -46,5 +48,7 @@ export const getTiktokVirals = async ({
     viralVideos: languageAdded,
     platform: 'tiktok'
   })
+  const totalCost = cost + costFromProfiles
+  await addSpentUSD({ userId, spentUSD: totalCost })
   return queryCreated
 }

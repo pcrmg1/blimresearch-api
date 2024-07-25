@@ -5,9 +5,11 @@ import { getTiktokVirals } from '../controller/videos/tiktok'
 import { getInstagramVirals } from '../controller/videos/instagram'
 import {
   deleteViralQueryById,
+  getCarruselesByUserId,
   getCarruseles,
   getVirals,
-  getViralsByQuery
+  getViralsByQuery,
+  getViralsByUserId
 } from '../db/virals'
 import { QueryParamsSchema } from '../models/queryParams'
 
@@ -19,6 +21,10 @@ viralsRouter.get('/videos', async (req: RequestWithToken, res) => {
     return res.status(401).json({ message: 'No userId' })
   }
   const { page, limit, query, orderBy } = req.query
+  if (Number(limit) === 0) {
+    const videos = await getViralsByUserId({ userId })
+    return res.json({ data: videos })
+  }
   const parsedQuery = await QueryParamsSchema.safeParseAsync({
     page: Number(page),
     limit: Number(limit),
@@ -51,6 +57,10 @@ viralsRouter.get('/carruseles', async (req: RequestWithToken, res) => {
     return res.status(401).json({ message: 'No userId' })
   }
   const { page, limit, query, orderBy } = req.query
+  if (Number(limit) === 0) {
+    const videos = await getCarruselesByUserId({ userId })
+    return res.json({ data: videos })
+  }
   const parsedQuery = await QueryParamsSchema.safeParseAsync({
     page: Number(page),
     limit: Number(limit),

@@ -36,7 +36,11 @@ export const getInstagramDataByDirectUrl = async ({
   }
   const run = await apifyClient.actor('shu8hvrXbJbY3Eb9W').call(input)
   const { items } = await apifyClient.dataset(run.defaultDatasetId).listItems()
-  return items as unknown as InstagramDirectURLRun[]
+  const COST_PER_ITEM = 0.004
+  return {
+    items: items as unknown as InstagramDirectURLRun[],
+    cost: COST_PER_ITEM * items.length
+  }
 }
 
 export const getInstagramDataByUsernames = async ({
@@ -49,11 +53,17 @@ export const getInstagramDataByUsernames = async ({
   }
   const run = await apifyClient.actor('dSCLg0C3YEZ83HzYX').call(input)
   const { items } = await apifyClient.dataset(run.defaultDatasetId).listItems()
-  return items as unknown as InstagramDataByUsername[]
+  const COST_PER_ITEM = 2.3 / 1000
+  return {
+    items: items as unknown as InstagramDataByUsername[],
+    cost: COST_PER_ITEM * items.length
+  }
 }
 
 export const getImagesFromCarruselUrl = async ({ url }: { url: string }) => {
-  const items = await getInstagramDataByDirectUrl({ directUrls: [url] })
+  const { items, cost } = await getInstagramDataByDirectUrl({
+    directUrls: [url]
+  })
   const { images } = items[0]
-  return images
+  return { images, cost }
 }

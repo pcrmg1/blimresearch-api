@@ -1,3 +1,4 @@
+import { addSpentUSD } from '../../db/user'
 import { createCarruselQuery, createQueryVirals } from '../../db/virals'
 import {
   getInstagramDataByQuery,
@@ -30,15 +31,17 @@ export const getInstagramVirals = async ({
       items: foundItemsByQuery,
       minNumberOfLikes: minLikes
     })
-    const foundItemsByUrl = await getInstagramDataByDirectUrl({
-      directUrls: filteredUrls
-    })
+    const { items: foundItemsByUrl, cost: costFromDirectURL } =
+      await getInstagramDataByDirectUrl({
+        directUrls: filteredUrls
+      })
     const filteredUsers = await getInstagramUsersFromPosts({
       items: foundItemsByUrl
     })
-    const foundItemsByUsernames = await getInstagramDataByUsernames({
-      usernames: filteredUsers
-    })
+    const { items: foundItemsByUsernames, cost: costFromUsernames } =
+      await getInstagramDataByUsernames({
+        usernames: filteredUsers
+      })
 
     const filteredUsersByMinNumberOfLike = foundItemsByUsernames.filter(
       (item) => item.followersCount > minFollowers
@@ -67,6 +70,10 @@ export const getInstagramVirals = async ({
       language,
       viralVideos: viralVideos,
       platform: 'instagram'
+    })
+    await addSpentUSD({
+      userId,
+      spentUSD: costFromDirectURL + costFromUsernames
     })
 
     return {

@@ -24,7 +24,11 @@ export const getTiktokDataFromUsernames = async ({
   console.log('Starting tiktok Run')
   const run = await apifyClient.actor('ssOXktOBaQQiYfhc4').call(input)
   const response = await apifyClient.dataset(run.defaultDatasetId).listItems()
-  return response.items as unknown as TiktokProfileRun[]
+  const COST_PER_ITEM = 0.1 / 1000
+  return {
+    items: response.items as unknown as TiktokProfileRun[],
+    cost: COST_PER_ITEM * response.items.length
+  }
 }
 
 export const getTiktokDataFromQuery = async ({ query }: { query: string }) => {
@@ -44,7 +48,11 @@ export const getTiktokDataFromQuery = async ({ query }: { query: string }) => {
     const run = await apifyClient.actor('OtzYfK1ndEGdwWFKQ').call(input)
     const response = await apifyClient.dataset(run.defaultDatasetId).listItems()
     console.log('response received')
-    return response.items as unknown as TiktokQueryRun[]
+    const COST_PEE_ITEM = 4 / 1000
+    return {
+      items: response.items as unknown as TiktokQueryRun[],
+      cost: COST_PEE_ITEM * response.items.length
+    }
   } catch (error) {
     console.log('error', error)
     throw new Error('Error al obtener los datos de Tiktok')
@@ -89,7 +97,7 @@ export const getTiktokViralVideos = async ({
   minFans: number
 }) => {
   const minNumberOfFans = minFans ? minFans : 1000
-  const items = await getTiktokDataFromQuery({
+  const { items, cost } = await getTiktokDataFromQuery({
     query
   })
   const itemsMapped = formatItemsFromTiktokQueryResponse({ items })
@@ -100,7 +108,7 @@ export const getTiktokViralVideos = async ({
   const sortedItems = [...filteredUsers].sort(
     (a: any, b: any) => b.ratioFans - a.ratioFans
   )
-  return sortedItems
+  return { items: sortedItems, cost }
 }
 
 export const getTiktokViralProfiles = async ({
@@ -110,7 +118,9 @@ export const getTiktokViralProfiles = async ({
   profiles: string[]
   maxDurationVideo?: number
 }) => {
-  const items = await getTiktokDataFromUsernames({ usernames: profiles })
+  const { items, cost } = await getTiktokDataFromUsernames({
+    usernames: profiles
+  })
   const itemsFound = formatItemsFromTiktokUsernamesResponse({ items })
 
   const videosFound = filterItemsFromTiktokUsernamesResponseByDuration({
@@ -151,8 +161,6 @@ export const getTiktokViralProfiles = async ({
     }
   })
 
-  console.log('viralVideosGrouped', viralVideosGrouped)
-
   let videos: any = []
   viralVideosGrouped.forEach((item: any) => {
     const { name, userFans, userHearts, averageValues, viralVideos } = item
@@ -179,8 +187,7 @@ export const getTiktokViralProfiles = async ({
     return
   })
 
-  console.log('videos', videos)
-  return videos
+  return { items: videos, cost }
 }
 
 export const getTiktokViralListFromUsernames = async ({
