@@ -26,6 +26,26 @@ export const getVirals = async ({
   })
 }
 
+export const getViralsByUserId = async ({ userId }: { userId: string }) => {
+  return await prisma.videoQuery.findMany({
+    where: {
+      userId
+    },
+    include: { videos: true }
+  })
+}
+
+export const getCarruselesByUserId = async ({ userId }: { userId: string }) => {
+  return await prisma.carruselQuery.findMany({
+    where: {
+      userId
+    },
+    include: {
+      carruseles: true
+    }
+  })
+}
+
 export const getViralsCount = async ({ userId }: { userId: string }) => {
   return await prisma.videoQuery.count({
     where: {
