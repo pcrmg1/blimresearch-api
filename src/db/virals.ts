@@ -3,81 +3,61 @@ import { prisma } from './prisma'
 export const getVirals = async ({
   page,
   limit,
-  userId
+  userId,
+  orderBy
 }: {
   page: number
   limit: number
   userId: string
+  orderBy: string
 }) => {
-  let result: any[] = []
-  let fetchedItemsCount = 0
-  let skip = page * limit
-
-  while (result.length < limit) {
-    const items = await prisma.videoQuery.findMany({
-      where: {
-        userId
-      },
-      include: {
-        videos: true
-      },
-      take: limit,
-      skip: skip + fetchedItemsCount
-    })
-
-    fetchedItemsCount += items.length
-
-    // Filter out the items where `videos` is an empty array
-    const filteredItems = items.filter((item) => item.videos.length > 0)
-    result = result.concat(filteredItems)
-
-    // Break the loop if there are no more items to fetch
-    if (items.length < limit) {
-      break
+  return await prisma.videoQuery.findMany({
+    where: {
+      userId
+    },
+    include: {
+      videos: true
+    },
+    take: limit,
+    skip: page * limit,
+    orderBy: {
+      [orderBy]: 'desc'
     }
-  }
+  })
+}
 
-  return result.slice(0, limit)
+export const getViralsCount = async ({ userId }: { userId: string }) => {
+  return await prisma.videoQuery.count({
+    where: {
+      userId
+    }
+  })
 }
 
 export const getCarruseles = async ({
   page,
   limit,
-  userId
+  userId,
+  orderBy
 }: {
   page: number
   limit: number
   userId: string
+  orderBy: string
 }) => {
-  let result: any[] = []
-  let fetchedItemsCount = 0
-  let skip = page * limit
-
-  while (result.length < limit) {
-    const items = await prisma.carruselQuery.findMany({
-      where: {
-        userId
-      },
-      include: {
-        carruseles: true
-      },
-      take: limit,
-      skip: skip + fetchedItemsCount
-    })
-
-    fetchedItemsCount += items.length
-
-    // Filter out the items where `carruseles` is an empty array
-    const filteredItems = items.filter((item) => item.carruseles.length > 0)
-    result = result.concat(filteredItems)
-
-    // Break the loop if there are no more items to fetch
-    if (items.length < limit) {
-      break
+  return await prisma.carruselQuery.findMany({
+    where: {
+      userId
+    },
+    include: {
+      carruseles: true
+    },
+    take: limit,
+    skip: page * limit,
+    orderBy: {
+      [orderBy]: 'desc'
     }
-  }
-
-  return result.slice(0, limit)
+  })
 }
 
 export const getViralsByQuery = async ({

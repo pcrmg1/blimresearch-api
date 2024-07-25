@@ -3,11 +3,13 @@ import { prisma } from './prisma'
 export const getTranslationsWithPagination = async ({
   page,
   limit,
-  userId
+  userId,
+  orderBy
 }: {
   page: number
   limit: number
   userId: string
+  orderBy: string
 }) => {
   return await prisma.translation.findMany({
     where: { userId },
@@ -18,7 +20,15 @@ export const getTranslationsWithPagination = async ({
       FriendlifiedTexts: true
     },
     orderBy: {
-      createdAt: 'desc'
+      [orderBy]: 'desc'
+    }
+  })
+}
+
+export const getTranslationsCount = async ({ userId }: { userId: string }) => {
+  return await prisma.translation.count({
+    where: {
+      userId
     }
   })
 }

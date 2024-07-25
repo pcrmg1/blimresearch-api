@@ -24,8 +24,40 @@ export const loginUser = async ({ email }: { email: string }) => {
   })
 }
 
-export const getAllUsers = async () => {
-  return await prisma.user.findMany()
+export const getAllUsers = async ({
+  page,
+  limit,
+  query,
+  orderBy
+}: {
+  page: number
+  limit: number
+  query: string
+  orderBy: string
+}) => {
+  return await prisma.user.findMany({
+    where: {
+      OR: [
+        {
+          email: {
+            contains: query,
+            mode: 'insensitive'
+          }
+        },
+        {
+          name: {
+            contains: query,
+            mode: 'insensitive'
+          }
+        }
+      ]
+    },
+    skip: page * limit,
+    take: limit,
+    orderBy: {
+      [orderBy]: 'desc'
+    }
+  })
 }
 
 export const createUser = async ({
@@ -69,4 +101,8 @@ export const addSpentUSD = async ({
       }
     }
   })
+}
+
+export const getUsersCount = async () => {
+  return await prisma.user.count()
 }

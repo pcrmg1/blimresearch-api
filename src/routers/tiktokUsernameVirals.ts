@@ -13,20 +13,37 @@ import { errorHandler } from '../utils/error'
 import { getTiktokViralListFromUsernames } from '../libs/apify/tiktok'
 import { prisma } from '../db/prisma'
 import { addSpentUSD } from '../db/user'
+import { QueryParamsSchema } from '../models/queryParams'
 
 export const tiktokUsernameViralsRouter = Router()
 
 tiktokUsernameViralsRouter.get('/', async (req: RequestWithToken, res) => {
   const userId = req.userId
-  const { page, limit, type } = req.query
+  const { page, limit, type, orderBy } = req.query
   if (!userId) {
     return res.status(401).json({ message: 'No userId' })
   }
   try {
+    const parsedQuery = await QueryParamsSchema.safeParseAsync({
+      page: Number(page),
+      limit: Number(limit),
+      query: '',
+      orderBy
+    })
+    if (!parsedQuery.success) {
+      return res.status(400).json({ message: 'Query params are not valid' })
+    }
+    const {
+      page: parsedPage,
+      limit: parsedLimit,
+      orderBy: parsedOrderBy,
+      query: parsedQueryString
+    } = parsedQuery.data
     const tiktokUsernameList = await getTiktokViralsByUserId({
       userId,
-      limit: Number(limit) || 20,
-      page: Number(page) || 0
+      limit: parsedLimit,
+      page: parsedPage,
+      orderBy: parsedOrderBy
     })
     const count = await getTiktokViralsByUserIdCount({ userId })
     const nextPage = count > Number(limit) * (Number(page) + 1)

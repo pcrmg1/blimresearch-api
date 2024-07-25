@@ -4,9 +4,11 @@ import { friendlifyText } from '../libs/openai/friendlify'
 import {
   createFriendlifiedText,
   deleteFriendlifiedTextById,
+  getFriendlifiedTextCount,
   getFriendlifiedTextWithPagination
 } from '../db/friendlify'
 import { errorHandler } from '../utils/error'
+import { QueryParamsSchema } from '../models/queryParams'
 
 export const friendlifyRouter = Router()
 
@@ -37,17 +39,36 @@ friendlifyRouter.post('/', async (req: RequestWithToken, res) => {
 
 friendlifyRouter.get('/', async (req: RequestWithToken, res) => {
   const userId = req.userId
-  const { page, limit } = req.query
+  const { page, limit, orderBy } = req.query
   if (!userId) {
     return res.status(401).json({ message: 'No userId' })
   }
   try {
-    const friendlifiedTexts = await getFriendlifiedTextWithPagination({
-      limit: Number(limit) || 20,
-      page: Number(page) || 0,
-      userId
+    const parsedQuery = await QueryParamsSchema.safeParseAsync({
+      page: Number(page),
+      limit: Number(limit),
+      query: '',
+      orderBy: orderBy
     })
-    return res.json({ data: friendlifiedTexts })
+    if (!parsedQuery.success) {
+      return res.status(400).json({ message: 'Query params are not valid' })
+    }
+    const {
+      page: parsedPage,
+      limit: parsedLimit,
+      orderBy: parsedOrderBy,
+      query: parsedQueryString
+    } = parsedQuery.data
+    const friendlifiedTexts = await getFriendlifiedTextWithPagination({
+      limit: parsedLimit,
+      page: parsedPage,
+      userId,
+      orderBy: parsedOrderBy
+    })
+    const count = await getFriendlifiedTextCount({ userId })
+    const prevPage = parsedPage > 0
+    const nextPage = count > parsedPage * parsedLimit
+    return res.json({ data: friendlifiedTexts, count, nextPage, prevPage })
   } catch (error) {
     errorHandler(error)
     return res.status(500).json({ message: 'Failed to get texts' })

@@ -5,23 +5,49 @@ import {
   createTranslation,
   deleteTranslationById,
   getTranslationByTranscriptionId,
+  getTranslationsCount,
   getTranslationsWithPagination
 } from '../db/translations'
+import { QueryParamsSchema } from '../models/queryParams'
 
 export const translationsRouter = Router()
 
 translationsRouter.get('/', async (req: RequestWithToken, res) => {
-  const { limit, page } = req.query
+  const { limit, page, orderBy } = req.query
   const userId = req.userId
   if (!userId) {
     return res.status(401).json({ message: 'No userId' })
   }
-  const translations = await getTranslationsWithPagination({
-    limit: Number(limit) || 10,
-    page: Number(page) || 0,
-    userId
-  })
-  return res.json({ data: translations })
+  try {
+    const parsedQuery = await QueryParamsSchema.safeParseAsync({
+      page: Number(page),
+      limit: Number(limit),
+      query: '',
+      orderBy
+    })
+    if (!parsedQuery.success) {
+      return res.status(400).json({ message: 'Query params are not valid' })
+    }
+    const {
+      page: parsedPage,
+      limit: parsedLimit,
+      orderBy: parsedOrderBy,
+      query: parsedQueryString
+    } = parsedQuery.data
+    const translations = await getTranslationsWithPagination({
+      limit: parsedLimit,
+      page: parsedPage,
+      userId,
+      orderBy: parsedOrderBy
+    })
+    const count = await getTranslationsCount({ userId })
+    const prevPage = parsedPage > 0
+    const nextPage = count > parsedPage * parsedLimit
+    return res.json({ data: translations, nextPage, prevPage, count })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: 'Failed to get translations' })
+  }
 })
 
 translationsRouter.post('/translate', async (req: RequestWithToken, res) => {

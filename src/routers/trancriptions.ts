@@ -10,33 +10,53 @@ import {
   deleteTranscriptionById,
   getTranscriptionByVideoId,
   getTranscriptionsByTypeWithPagination,
+  getTranscriptionsCount,
   getTranscriptionsWithPagination
 } from '../db/transcriptions'
 import { getCarruselImgUrls } from '../libs/media/instagram'
+import { QueryParamsSchema } from '../models/queryParams'
 
 export const transcriptionsRouter = Router()
 
 transcriptionsRouter.get('/', async (req: RequestWithToken, res) => {
   const userId = req.userId
-  const { page, limit, type } = req.query
+  const { page, limit, type, orderBy } = req.query
   if (!userId) {
     return res.status(401).json({ message: 'No userId' })
   }
-  if (type === 'video' || type === 'image') {
-    const transcriptionsByType = await getTranscriptionsByTypeWithPagination({
-      limit: Number(limit) || 20,
-      page: Number(page) || 0,
-      userId,
-      type: type
+  try {
+    const parsedQuery = await QueryParamsSchema.safeParseAsync({
+      page: Number(page),
+      limit: Number(limit),
+      query: '',
+      orderBy
     })
-    return res.json({ data: transcriptionsByType })
+    if (!parsedQuery.success) {
+      return res.status(400).json({ message: 'Query params are not valid' })
+    }
+    const { page: parsedPage, limit: parsedLimit, ...rest } = parsedQuery.data
+    const count = await getTranscriptionsCount({ userId })
+    const prevPage = parsedPage > 0
+    const nextPage = count > parsedPage * parsedLimit
+    if (type === 'video' || type === 'image') {
+      const transcriptionsByType = await getTranscriptionsByTypeWithPagination({
+        limit: parsedLimit,
+        page: parsedPage,
+        userId,
+        type: type
+      })
+      return res.json({ data: transcriptionsByType, nextPage, prevPage, count })
+    }
+    const transcriptions = await getTranscriptionsWithPagination({
+      limit: parsedLimit,
+      page: parsedPage,
+      userId
+    })
+    return res.json({ data: transcriptions, nextPage, prevPage, count })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: 'Failed to get translations' })
   }
-  const transcriptions = await getTranscriptionsWithPagination({
-    limit: Number(limit) || 20,
-    page: Number(page) || 0,
-    userId
-  })
-  return res.json({ data: transcriptions })
 })
 
 transcriptionsRouter.post(

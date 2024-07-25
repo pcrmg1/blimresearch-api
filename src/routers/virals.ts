@@ -9,6 +9,7 @@ import {
   getVirals,
   getViralsByQuery
 } from '../db/virals'
+import { QueryParamsSchema } from '../models/queryParams'
 
 export const viralsRouter = Router()
 
@@ -17,12 +18,28 @@ viralsRouter.get('/videos', async (req: RequestWithToken, res) => {
   if (!userId) {
     return res.status(401).json({ message: 'No userId' })
   }
-  const { page, limit } = req.query
+  const { page, limit, query, orderBy } = req.query
+  const parsedQuery = await QueryParamsSchema.safeParseAsync({
+    page: Number(page),
+    limit: Number(limit),
+    query: '',
+    orderBy
+  })
+  if (!parsedQuery.success) {
+    return res.status(400).json({ message: 'Query params are not valid' })
+  }
+  const {
+    page: parsedPage,
+    limit: parsedLimit,
+    orderBy: parsedOrderBy,
+    query: parsedQueryString
+  } = parsedQuery.data
 
   const videos = await getVirals({
-    page: Number(page) || 0,
-    limit: Number(limit) || 20,
-    userId
+    page: parsedPage,
+    limit: parsedLimit,
+    userId,
+    orderBy: parsedOrderBy
   })
 
   res.json({ data: videos })
@@ -33,12 +50,28 @@ viralsRouter.get('/carruseles', async (req: RequestWithToken, res) => {
   if (!userId) {
     return res.status(401).json({ message: 'No userId' })
   }
-  const { page, limit } = req.query
+  const { page, limit, query, orderBy } = req.query
+  const parsedQuery = await QueryParamsSchema.safeParseAsync({
+    page: Number(page),
+    limit: Number(limit),
+    query: '',
+    orderBy
+  })
+  if (!parsedQuery.success) {
+    return res.status(400).json({ message: 'Query params are not valid' })
+  }
+  const {
+    page: parsedPage,
+    limit: parsedLimit,
+    orderBy: parsedOrderBy,
+    query: parsedQueryString
+  } = parsedQuery.data
 
   const videos = await getCarruseles({
-    page: Number(page) || 0,
-    limit: Number(limit) || 20,
-    userId
+    page: parsedPage,
+    limit: parsedLimit,
+    userId,
+    orderBy: parsedOrderBy
   })
 
   res.json({ data: videos })

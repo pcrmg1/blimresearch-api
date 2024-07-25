@@ -22,6 +22,16 @@ export const createVideoTranscription = async ({
   })
 }
 
+export const getTranscriptionsCount = async ({
+  userId
+}: {
+  userId: string
+}) => {
+  return await prisma.transcription.count({
+    where: { userId }
+  })
+}
+
 export const createImageTranscription = async ({
   language,
   text,

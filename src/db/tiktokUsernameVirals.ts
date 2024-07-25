@@ -3,11 +3,13 @@ import { prisma } from './prisma'
 export const getTiktokViralsByUserId = async ({
   userId,
   limit,
-  page
+  page,
+  orderBy
 }: {
   userId: string
   limit: number
   page: number
+  orderBy: string
 }) => {
   return await prisma.tiktokUsernameVirals.findMany({
     where: {
@@ -21,7 +23,10 @@ export const getTiktokViralsByUserId = async ({
       }
     },
     take: limit,
-    skip: page * limit
+    skip: page * limit,
+    orderBy: {
+      [orderBy]: 'desc'
+    }
   })
 }
 

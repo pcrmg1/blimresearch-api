@@ -27,11 +27,13 @@ export const createFriendlifiedText = async ({
 export const getFriendlifiedTextWithPagination = async ({
   page,
   limit,
-  userId
+  userId,
+  orderBy
 }: {
   page: number
   limit: number
   userId: string
+  orderBy: string
 }) => {
   return await prisma.friendlifiedText.findMany({
     where: { userId },
@@ -42,8 +44,18 @@ export const getFriendlifiedTextWithPagination = async ({
       translation: true
     },
     orderBy: {
-      createdAt: 'desc'
+      [orderBy]: 'desc'
     }
+  })
+}
+
+export const getFriendlifiedTextCount = async ({
+  userId
+}: {
+  userId: string
+}) => {
+  return await prisma.friendlifiedText.count({
+    where: { userId }
   })
 }
 
