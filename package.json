@@ -8,6 +8,7 @@
     "dev": "dotenv -e .env.development -- ts-node-dev ./src/index.ts",
     "dev:push": "dotenv -v DATABASE_URL=postgres://postgres:postgres@localhost:5432/blimresearch-dev?schema=public -- npx prisma db push",
     "dev:studio": "dotenv -v DATABASE_URL=postgres://postgres:postgres@localhost:5432/blimresearch-dev?schema=public -- npx prisma studio",
+    "db:push": "dotenv -e .env -- npx prisma db push",
     "start": "dotenv -e .env -- node ./dist/index.js"
   },
   "keywords": [],

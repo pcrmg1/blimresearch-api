@@ -100,6 +100,7 @@ model VideoQuery {
 
 model Video {
   id                     String                @id @default(cuid())
+  timestamp              DateTime              @default(now())
   queryId                String?
   query                  VideoQuery?           @relation(fields: [queryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   language               String?

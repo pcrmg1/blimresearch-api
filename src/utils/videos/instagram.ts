@@ -213,9 +213,9 @@ export const formatVideosFromInstagram = ({
     displayUrl: string
     url: string
     username: string
-    user_followers: number
-    user_follows: number
+    userFans: number
     profilePicUrl: string
+    videoHearts: number
     userId: string
     platform: string
   }[] = []
@@ -229,8 +229,8 @@ export const formatVideosFromInstagram = ({
         displayUrl,
         url,
         username,
-        user_followers: followersCount,
-        user_follows: followsCount,
+        userFans: followersCount,
+        videoHearts: likesCount,
         profilePicUrl,
         userId,
         platform: 'instagram'
