@@ -5,6 +5,7 @@ import {
   getTiktokViralVideos
 } from '../../libs/apify/tiktok'
 import { translateQuery } from '../../libs/openai/translations'
+import { formatCurrencyToAddToDB } from '../../utils/currency'
 
 export const getTiktokVirals = async ({
   query,
@@ -33,6 +34,9 @@ export const getTiktokVirals = async ({
       profiles: viralProfiles,
       maxDurationVideo
     })
+  const totalCost = formatCurrencyToAddToDB(cost + costFromProfiles)
+  await addSpentUSD({ userId, spentUSD: totalCost })
+
   const languageAdded = profiles
     .filter((profile: any) => profile.videoUrl)
     .map((profile: any) => ({
@@ -48,7 +52,5 @@ export const getTiktokVirals = async ({
     viralVideos: languageAdded,
     platform: 'tiktok'
   })
-  const totalCost = cost + costFromProfiles
-  await addSpentUSD({ userId, spentUSD: totalCost })
   return queryCreated
 }

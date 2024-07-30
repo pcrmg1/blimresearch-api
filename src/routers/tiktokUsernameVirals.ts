@@ -14,6 +14,7 @@ import { getTiktokViralListFromUsernames } from '../libs/apify/tiktok'
 import { prisma } from '../db/prisma'
 import { addSpentUSD } from '../db/user'
 import { QueryParamsSchema } from '../models/queryParams'
+import { formatCurrencyToAddToDB } from '../utils/currency'
 
 export const tiktokUsernameViralsRouter = Router()
 
@@ -155,7 +156,8 @@ tiktokUsernameViralsRouter.post(
       const { cost, videos } = await getTiktokViralListFromUsernames({
         usernames: tiktokUsernameList.usernames
       })
-      await addSpentUSD({ userId, spentUSD: cost })
+      const totalCost = formatCurrencyToAddToDB(cost)
+      await addSpentUSD({ userId, spentUSD: totalCost })
       if (videos.length === 0) {
         return res.json({ data: [], cost })
       }
@@ -171,7 +173,7 @@ tiktokUsernameViralsRouter.post(
         data: formattedVideosForDB
       })
 
-      return res.json({ data: videos, cost })
+      return res.json({ data: videos, totalCost })
     } catch (error) {
       errorHandler(error)
       return res.status(500).json({ message: 'Internal server error' })

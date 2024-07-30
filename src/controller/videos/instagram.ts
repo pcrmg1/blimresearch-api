@@ -5,6 +5,7 @@ import {
   getInstagramDataByDirectUrl,
   getInstagramDataByUsernames
 } from '../../libs/apify/instagram'
+import { formatCurrencyToAddToDB } from '../../utils/currency'
 import {
   filterInstagramPostsByLikes,
   getInstagramUsersFromPosts,
@@ -43,9 +44,12 @@ export const getInstagramVirals = async ({
         usernames: filteredUsers
       })
 
+    const totalCost = formatCurrencyToAddToDB(
+      costFromDirectURL + costFromUsernames
+    )
     await addSpentUSD({
       userId,
-      spentUSD: costFromDirectURL + costFromUsernames
+      spentUSD: totalCost
     })
 
     const filteredUsersByMinNumberOfLike = foundItemsByUsernames.filter(
