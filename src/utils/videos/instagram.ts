@@ -209,7 +209,6 @@ export const formatVideosFromInstagram = ({
   )
 
   const viralVideosFormatted: {
-    likes: number
     timestamp: Date | string
     displayUrl: string
     url: string
@@ -226,7 +225,6 @@ export const formatVideosFromInstagram = ({
     videos.forEach((video) => {
       const { likesCount, timestamp, displayUrl, url } = video
       viralVideosFormatted.push({
-        likes: likesCount,
         timestamp,
         displayUrl,
         url,
