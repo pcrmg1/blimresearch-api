@@ -43,6 +43,11 @@ export const getInstagramVirals = async ({
         usernames: filteredUsers
       })
 
+    await addSpentUSD({
+      userId,
+      spentUSD: costFromDirectURL + costFromUsernames
+    })
+
     const filteredUsersByMinNumberOfLike = foundItemsByUsernames.filter(
       (item) => item.followersCount > minFollowers
     )
@@ -70,10 +75,6 @@ export const getInstagramVirals = async ({
       language,
       viralVideos: viralVideos,
       platform: 'instagram'
-    })
-    await addSpentUSD({
-      userId,
-      spentUSD: costFromDirectURL + costFromUsernames
     })
 
     return {
