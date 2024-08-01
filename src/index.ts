@@ -17,6 +17,7 @@ import { resetDBRouter } from './routers/resetDb'
 import { PrismaClient } from '@prisma/client'
 import { tiktokUsernameViralsRouter } from './routers/tiktokUsernameVirals'
 import { usersRouter } from './routers/users'
+import { maintenanceRouter } from './routers/maintenance'
 
 export const prismaDB = new PrismaClient({
   log:
@@ -39,7 +40,9 @@ app.get('/', (req, res) =>
     message: 'Hello from blimAPI 🚀'
   })
 )
+
 app.use('/api/auth', authRouter)
+app.use('/api/maintenance', verifyToken, maintenanceRouter)
 app.use('/api/admin/users', verifyToken, isAdmin, adminUsersRouter)
 app.use('/api/users', verifyToken, usersRouter)
 app.use('/api/transcriptions', verifyToken, transcriptionsRouter)
