@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { NewUserSchema } from "../../models/user";
 import { createUser, getAllUsers, getUsersCount } from "../../db/user";
-import { hashPassword } from "../../utils/password";
 import { QueryParamsSchema } from "../../models/queryParams";
+import { NewUserSchema } from "../../models/user";
+import { hashPassword } from "../../utils/password";
 
 export const adminUsersRouter = Router();
 

@@ -1,9 +1,13 @@
 import { Router } from 'express'
 import { createUser, getUserByEmail } from '../db/user'
 import { comparePassword, hashPassword } from '../utils/password'
-import { signToken } from '../utils/token'
+import { generateRandomToken, signToken } from '../utils/token'
 import { errorHandler } from '../utils/error'
 import { config } from 'dotenv'
+import { DateTime } from 'luxon'
+import { prisma } from '../db/prisma'
+import { sendEmail } from '../libs/nodemailer/transporter'
+import { generateResetPasswordEmail } from '../libs/nodemailer/templates/resetPassword'
 
 config()
 
@@ -84,5 +88,89 @@ authRouter.post('/register', async (req, res) => {
   } catch (error) {
     errorHandler(error)
     return res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
+authRouter.post('/forgotPassword', async (req, res) => {
+  try {
+    const { email } = req.body
+    const user = await getUserByEmail({ email })
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+    const token = generateRandomToken({ length: 64 })
+    const expirationDate = DateTime.now().plus({ hours: 1 }).toJSDate()
+    const userUpdated = await prisma.user.update({
+      where: {
+        id: user.id
+      },
+      data: {
+        changePasswordToken: token,
+        changePasswordExpire: expirationDate
+      }
+    })
+    console.log('Enviando mail...')
+    const html = generateResetPasswordEmail({ href: token, email })
+    const nodemail = await sendEmail({
+      emailTo: 'valentingt22@gmail.com',
+      subject: 'Password updated',
+      html
+    })
+    console.log('Mail enviado.')
+    console.log({ userUpdated, nodemail })
+    return res.json({ message: 'Token generated successfully' })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: error })
+  }
+})
+
+authRouter.post('/resetPassword', async (req, res) => {
+  const { newPassword } = req.body
+  const { token } = req.query
+  if (!newPassword || !token) {
+    return res.status(400).json({ message: 'Password and token are required' })
+  }
+  if (typeof token !== 'string') {
+    return res.status(400).json({ message: 'Token must be a string' })
+  }
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        changePasswordToken: token
+      }
+    })
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid token' })
+    }
+    if (
+      user.changePasswordToken === null ||
+      user.changePasswordExpire === null ||
+      user.changePasswordExpire < new Date()
+    ) {
+      return res.status(400).json({ message: 'Token expired' })
+    }
+    const passwordHash = await hashPassword({ password: newPassword })
+    const userUpdated = await prisma.user.update({
+      where: {
+        id: user.id
+      },
+      data: {
+        password: passwordHash,
+        changePasswordToken: null,
+        changePasswordExpire: null
+      }
+    })
+    console.log(userUpdated)
+    const email = await sendEmail({
+      emailTo: 'valentingt22@gmail.com',
+      subject: 'Password updated',
+      html: `<p>Your password has been updated successfully</p>`
+    })
+    console.log(email)
+    return res.json({ message: 'Password updated successfully' })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: error })
   }
 })
