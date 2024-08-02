@@ -9,9 +9,9 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL")
 }
 
 enum Role {
@@ -26,6 +26,8 @@ model User {
   password             String
   role                 Role                   @default(User)
   token                String?
+  changePasswordToken  String?
+  changePasswordExpire DateTime?
   sessions             Session[]
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt

@@ -191,9 +191,11 @@ export const getTiktokViralProfiles = async ({
 }
 
 export const getTiktokViralListFromUsernames = async ({
-  usernames
+  usernames,
+  listaCreadaPorUsuario
 }: {
   usernames: string[]
+  listaCreadaPorUsuario?: boolean
 }) => {
   const viralVideos = await getTiktokDataFromProfilesQuery({
     profiles: usernames
@@ -292,12 +294,14 @@ export const getTiktokViralListFromUsernames = async ({
         videoShares: shareCount,
         videoComments: commentCount
       }
-      if (itemInfo.videoViews > itemInfo.userFans) {
+      if (itemInfo.videoViews > itemInfo.userFans && !listaCreadaPorUsuario) {
+        videos.push(itemInfo)
+      } else {
         videos.push(itemInfo)
       }
     })
     return
   })
-
+  console.log({ videos })
   return { cost: viralVideos.cost, videos }
 }

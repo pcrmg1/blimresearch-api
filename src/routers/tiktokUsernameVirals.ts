@@ -46,6 +46,7 @@ tiktokUsernameViralsRouter.get('/', async (req: RequestWithToken, res) => {
       page: parsedPage,
       orderBy: parsedOrderBy
     })
+    // TODO:: Enviar el mail y hacer la corroboracion.
     const count = await getTiktokViralsByUserIdCount({ userId })
     const nextPage = count > Number(limit) * (Number(page) + 1)
     const prevPage = Number(page) > 0
@@ -154,8 +155,10 @@ tiktokUsernameViralsRouter.post(
         listId: tiktokUsernameList?.id
       })
       const { cost, videos } = await getTiktokViralListFromUsernames({
-        usernames: tiktokUsernameList.usernames
+        usernames: tiktokUsernameList.usernames,
+        listaCreadaPorUsuario: true
       })
+
       const totalCost = formatCurrencyToAddToDB(cost)
       await addSpentUSD({ userId, spentUSD: totalCost })
       if (videos.length === 0) {
