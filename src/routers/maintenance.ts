@@ -16,14 +16,14 @@ maintenanceRouter.get('/', async (req, res) => {
 
 maintenanceRouter.post('/', async (req: RequestWithToken, res) => {
   const isAdmin = req.role === 'Admin'
-  const { serverStatus } = req.body
+  const { inMaintenance } = req.body
   if (!isAdmin) {
     return res.status(403).json({ message: 'Unauthorized' })
   }
-  if (!serverStatus) {
+  if (!inMaintenance) {
     return res.status(400).json({ message: 'Server status not provided' })
   }
-  process.env.MAINTENANCE_STATUS = serverStatus
-  await setMaintenanceStatus(serverStatus)
+  process.env.MAINTENANCE_STATUS = inMaintenance
+  await setMaintenanceStatus(inMaintenance)
   res.json({ message: 'Server status updated' })
 })

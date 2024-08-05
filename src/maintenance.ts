@@ -22,13 +22,13 @@ export async function setMaintenanceStatus(value: string): Promise<void> {
   }
 }
 
-export const getMaintenanceStatus = async (): Promise<string> => {
+export const getMaintenanceStatus = async (): Promise<Boolean> => {
   try {
     const envFileContent = await fs.readFile(envPath, 'utf-8')
     const envConfig = dotenv.parse(envFileContent)
-    return envConfig.MAINTENANCE_STATUS
+    return envConfig.MAINTENANCE_STATUS === 'true'
   } catch (error) {
     console.error('Error reading the .env file:', error)
-    return 'false'
+    return false
   }
 }
