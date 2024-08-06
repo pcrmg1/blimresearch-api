@@ -42,7 +42,6 @@ adminUsersRouter.get("/", async (req, res) => {
       query,
       orderBy,
     });
-    console.log(parsedQuery.error);
     if (!parsedQuery.success) {
       return res.status(400).json({ message: "Query params are not valid" });
     }
@@ -60,7 +59,6 @@ adminUsersRouter.get("/", async (req, res) => {
       orderBy: parsedOrderBy,
     });
     const count = await getUsersCount();
-    console.log({ count, brought: parsedPage * parsedLimit + users.length });
     const nextPage = count > parsedPage * parsedLimit + users.length;
     const prevPage = parsedPage > 0;
     return res.json({ data: users, nextPage, prevPage, count });
