@@ -66,7 +66,7 @@ authRouter.post('/register', async (req, res) => {
         .json({ message: 'Email, password and name are required' })
     }
     if (adminPasswordFromReq !== adminPassword) {
-      return res.status(401).json({ message: 'Wrong admin password' })
+      return res.status(401).json({ message: 'Wrong credentials' })
     }
     if (['Admin', 'User'].includes(role) === false) {
       return res
