@@ -95,3 +95,16 @@ friendlifyRouter.delete(
     }
   }
 )
+
+friendlifyRouter.post('/improveWithAI', async (req, res) => {
+  const { text } = req.body
+  try {
+    if (!text) {
+      return res.status(500).json({ error: 'Failed to friendlify text' })
+    }
+    return res.json({ data: text })
+  } catch (error) {
+    errorHandler(error)
+    return res.status(500).json({ error: 'Hubo un error procesando el texto' })
+  }
+})
