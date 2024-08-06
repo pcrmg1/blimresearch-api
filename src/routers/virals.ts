@@ -7,89 +7,125 @@ import {
   deleteViralQueryById,
   getCarruselesByUserId,
   getCarruseles,
-  getVirals,
+  getViralVideos,
+  getViralVideosCount,
   getViralsByQuery,
-  getViralsByUserId
+  getViralsByUserId,
+  deleteViralCarruselQueryById,
+  getCarruselesCount
 } from '../db/virals'
 import { QueryParamsSchema } from '../models/queryParams'
 
 export const viralsRouter = Router()
 
 viralsRouter.get('/videos', async (req: RequestWithToken, res) => {
-  const userId = req.userId
-  if (!userId) {
-    return res.status(401).json({ message: 'No userId' })
-  }
-  const { page, limit, query, orderBy } = req.query
-  if (Number(limit) === 0) {
-    const videos = await getViralsByUserId({ userId })
-    return res.json({ data: videos })
-  }
-  const parsedQuery = await QueryParamsSchema.safeParseAsync({
-    page: Number(page),
-    limit: Number(limit),
-    query: '',
-    orderBy
-  })
-  if (!parsedQuery.success) {
-    return res.status(400).json({ message: 'Query params are not valid' })
-  }
-  const {
-    page: parsedPage,
-    limit: parsedLimit,
-    orderBy: parsedOrderBy,
-    query: parsedQueryString
-  } = parsedQuery.data
+  try {
+    const userId = req.userId
+    if (!userId) {
+      return res.status(401).json({ message: 'No userId' })
+    }
+    const { page, limit, query, orderBy } = req.query
+    if (Number(limit) === 0) {
+      const videos = await getViralsByUserId({ userId })
+      return res.json({ data: videos })
+    }
+    const parsedParams = await QueryParamsSchema.safeParseAsync({
+      page: page,
+      limit: limit,
+      query,
+      orderBy
+    })
+    if (!parsedParams.success) {
+      return res.status(400).json({ message: 'Query params are not valid' })
+    }
+    const {
+      page: parsedPage,
+      limit: parsedLimit,
+      orderBy: parsedOrderBy,
+      query: parsedQueryString
+    } = parsedParams.data
 
-  const videos = await getVirals({
-    page: parsedPage,
-    limit: parsedLimit,
-    userId,
-    orderBy: parsedOrderBy
-  })
-
-  res.json({ data: videos })
+    const videos = await getViralVideos({
+      page: parsedPage,
+      limit: parsedLimit,
+      userId,
+      orderBy: parsedOrderBy,
+      query: parsedQueryString
+    })
+    const count = await getViralVideosCount({
+      userId,
+      query: parsedQueryString
+    })
+    const nextPage = count > parsedLimit * parsedPage + videos.length
+    const prevPage = parsedPage > 0
+    res.json({ data: videos, nextPage, prevPage, count })
+  } catch (error) {
+    console.log('error', error)
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message })
+    } else {
+      res.status(500).json({ error: 'Hubo un error con el servidor' })
+    }
+  }
 })
 
 viralsRouter.get('/carruseles', async (req: RequestWithToken, res) => {
-  const userId = req.userId
-  if (!userId) {
-    return res.status(401).json({ message: 'No userId' })
-  }
-  const { page, limit, query, orderBy } = req.query
-  if (Number(limit) === 0) {
-    const videos = await getCarruselesByUserId({ userId })
-    return res.json({ data: videos })
-  }
-  const parsedQuery = await QueryParamsSchema.safeParseAsync({
-    page: Number(page),
-    limit: Number(limit),
-    query: '',
-    orderBy
-  })
-  if (!parsedQuery.success) {
-    return res.status(400).json({ message: 'Query params are not valid' })
-  }
-  const {
-    page: parsedPage,
-    limit: parsedLimit,
-    orderBy: parsedOrderBy,
-    query: parsedQueryString
-  } = parsedQuery.data
+  try {
+    const userId = req.userId
+    if (!userId) {
+      return res.status(401).json({ message: 'No userId' })
+    }
+    const { page, limit, query, orderBy } = req.query
+    if (Number(limit) === 0) {
+      const videos = await getCarruselesByUserId({ userId })
+      return res.json({ data: videos })
+    }
+    const parsedParams = await QueryParamsSchema.safeParseAsync({
+      page: page,
+      limit: limit,
+      query,
+      orderBy
+    })
+    if (!parsedParams.success) {
+      return res.status(400).json({ message: 'Query params are not valid' })
+    }
+    const {
+      page: parsedPage,
+      limit: parsedLimit,
+      orderBy: parsedOrderBy,
+      query: parsedQueryString
+    } = parsedParams.data
 
-  const videos = await getCarruseles({
-    page: parsedPage,
-    limit: parsedLimit,
-    userId,
-    orderBy: parsedOrderBy
-  })
-
-  res.json({ data: videos })
+    const carruseles = await getCarruseles({
+      page: parsedPage,
+      limit: parsedLimit,
+      userId,
+      orderBy: parsedOrderBy,
+      query: parsedQueryString
+    })
+    const count = await getCarruselesCount({ userId, query: parsedQueryString })
+    const nextPage = count > parsedLimit * parsedPage + carruseles.length
+    const prevPage = parsedPage > 0
+    res.json({ data: carruseles, nextPage, prevPage, count })
+  } catch (error) {
+    console.log('error', error)
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message })
+    } else {
+      res.status(500).json({ error: 'Hubo un error con el servidor' })
+    }
+  }
 })
 
-viralsRouter.post('/findViralVideo', async (req: RequestWithToken, res) => {
-  const { search, minNumberOfFans, maxDurationVideo, platform, language } =
-    req.body
+viralsRouter.post('/findViral', async (req: RequestWithToken, res) => {
+  const {
+    search,
+    minNumberOfFans,
+    maxDurationVideo,
+    platform,
+    languages,
+    minLikes
+  } = req.body
   const userId = req.userId
 
   if (!userId) {
@@ -101,7 +137,10 @@ viralsRouter.post('/findViralVideo', async (req: RequestWithToken, res) => {
   if (!platform) {
     return res.status(400).json({ error: 'platform is required' })
   }
-
+  if (!languages) {
+    return res.status(400).json({ error: 'languages is required' })
+  }
+  // const languagesForVirals = languages.split(',') as string[]
   const isPlatformValid = ['tiktok', 'instagram'].includes(platform)
   if (!isPlatformValid) {
     return res.status(400).json({ error: 'platform is invalid' })
@@ -135,7 +174,7 @@ viralsRouter.post('/findViralVideo', async (req: RequestWithToken, res) => {
         getInstagramVirals({
           query: search as string,
           minFollowers: minNumberOfFans ?? 1000,
-          minLikes: 1000,
+          minLikes,
           userId,
           language
         })
@@ -155,19 +194,39 @@ viralsRouter.post('/findViralVideo', async (req: RequestWithToken, res) => {
   }
 })
 
-viralsRouter.delete('/:id', async (req: RequestWithToken, res) => {
+viralsRouter.delete('/videos/:id', async (req: RequestWithToken, res) => {
   const userId = req.userId
   if (!userId) {
     return res.status(401).json({ message: 'No userId' })
   }
   const { id } = req.params
-
   if (!id) {
     return res.status(400).json({ error: 'id is required' })
   }
-
   try {
     await deleteViralQueryById({ id })
+    res.json({ data: 'done' })
+  } catch (error) {
+    console.log('error', error)
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message })
+    } else {
+      res.status(500).json({ error: 'Hubo un error con el servidor' })
+    }
+  }
+})
+
+viralsRouter.delete('/carruseles/:id', async (req: RequestWithToken, res) => {
+  const userId = req.userId
+  if (!userId) {
+    return res.status(401).json({ message: 'No userId' })
+  }
+  const { id } = req.params
+  if (!id) {
+    return res.status(400).json({ error: 'id is required' })
+  }
+  try {
+    await deleteViralCarruselQueryById({ id })
     res.json({ data: 'done' })
   } catch (error) {
     console.log('error', error)

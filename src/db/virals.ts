@@ -1,19 +1,25 @@
 import { prisma } from './prisma'
 
-export const getVirals = async ({
+export const getViralVideos = async ({
   page,
   limit,
   userId,
-  orderBy
+  orderBy,
+  query
 }: {
   page: number
   limit: number
   userId: string
   orderBy: string
+  query: string
 }) => {
   return await prisma.videoQuery.findMany({
     where: {
-      userId
+      userId,
+      query: {
+        contains: query,
+        mode: 'insensitive'
+      }
     },
     include: {
       videos: true
@@ -22,6 +28,24 @@ export const getVirals = async ({
     skip: page * limit,
     orderBy: {
       [orderBy]: 'desc'
+    }
+  })
+}
+
+export const getViralVideosCount = async ({
+  userId,
+  query
+}: {
+  userId: string
+  query?: string
+}) => {
+  return await prisma.videoQuery.count({
+    where: {
+      userId,
+      query: {
+        contains: query,
+        mode: 'insensitive'
+      }
     }
   })
 }
@@ -40,17 +64,7 @@ export const getCarruselesByUserId = async ({ userId }: { userId: string }) => {
     where: {
       userId
     },
-    include: {
-      carruseles: true
-    }
-  })
-}
-
-export const getViralsCount = async ({ userId }: { userId: string }) => {
-  return await prisma.videoQuery.count({
-    where: {
-      userId
-    }
+    include: { carruseles: true }
   })
 }
 
@@ -58,16 +72,22 @@ export const getCarruseles = async ({
   page,
   limit,
   userId,
-  orderBy
+  orderBy,
+  query
 }: {
   page: number
   limit: number
   userId: string
   orderBy: string
+  query: string
 }) => {
   return await prisma.carruselQuery.findMany({
     where: {
-      userId
+      userId,
+      query: {
+        contains: query,
+        mode: 'insensitive'
+      }
     },
     include: {
       carruseles: true
@@ -76,6 +96,24 @@ export const getCarruseles = async ({
     skip: page * limit,
     orderBy: {
       [orderBy]: 'desc'
+    }
+  })
+}
+
+export const getCarruselesCount = async ({
+  userId,
+  query
+}: {
+  userId: string
+  query?: string
+}) => {
+  return await prisma.carruselQuery.count({
+    where: {
+      userId,
+      query: {
+        contains: query,
+        mode: 'insensitive'
+      }
     }
   })
 }
@@ -158,6 +196,14 @@ export const createCarruselQuery = async ({
 
 export const deleteViralQueryById = async ({ id }: { id: string }) => {
   return await prisma.videoQuery.deleteMany({
+    where: {
+      id
+    }
+  })
+}
+
+export const deleteViralCarruselQueryById = async ({ id }: { id: string }) => {
+  return await prisma.carruselQuery.deleteMany({
     where: {
       id
     }
