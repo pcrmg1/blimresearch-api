@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { RequestWithToken } from '../types/jwt'
-import { LANGUAGES_FOR_QUERIES } from '../consts'
+import { CREDITS_COST, LANGUAGES_FOR_QUERIES } from '../consts'
 import { getTiktokVirals } from '../controller/videos/tiktok'
 import { getInstagramVirals } from '../controller/videos/instagram'
 import {
@@ -15,6 +15,7 @@ import {
   getCarruselesCount
 } from '../db/virals'
 import { QueryParamsSchema } from '../models/queryParams'
+import { addUserCredits } from '../db/credits'
 
 export const viralsRouter = Router()
 
@@ -162,6 +163,11 @@ viralsRouter.post('/findViral', async (req: RequestWithToken, res) => {
 
   try {
     if (platform === 'tiktok') {
+      await addUserCredits({
+        userId,
+        credits: CREDITS_COST['busqueda_tiktok'] * LANGUAGES_FOR_QUERIES.length,
+        concepto: `busqueda_tiktok - ${search}`
+      })
       const promisesArray = LANGUAGES_FOR_QUERIES.map((language) =>
         getTiktokVirals({
           query: search as string,
@@ -175,6 +181,12 @@ viralsRouter.post('/findViral', async (req: RequestWithToken, res) => {
       await Promise.all(promisesArray)
       return res.json({ data: 'done' })
     } else if (platform === 'instagram') {
+      await addUserCredits({
+        userId,
+        credits:
+          CREDITS_COST['busqueda_instagram'] * LANGUAGES_FOR_QUERIES.length,
+        concepto: `busqueda_instagram - ${search}`
+      })
       const promisesArray = LANGUAGES_FOR_QUERIES.map((language) =>
         getInstagramVirals({
           query: search as string,

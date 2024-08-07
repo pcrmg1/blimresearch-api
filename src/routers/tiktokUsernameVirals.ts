@@ -15,6 +15,8 @@ import { prisma } from '../db/prisma'
 import { addSpentUSD } from '../db/user'
 import { QueryParamsSchema } from '../models/queryParams'
 import { formatCurrencyToAddToDB } from '../utils/currency'
+import { addUserCredits } from '../db/credits'
+import { CREDITS_COST } from '../consts'
 
 export const tiktokUsernameViralsRouter = Router()
 
@@ -164,6 +166,14 @@ tiktokUsernameViralsRouter.post(
       if (videos.length === 0) {
         return res.json({ data: [], cost })
       }
+      const totalCostCredits =
+        CREDITS_COST['busqueda_virales_cada_5'] *
+        Math.ceil(tiktokUsernameList.usernames.length / 5)
+      await addUserCredits({
+        userId,
+        credits: totalCostCredits,
+        concepto: 'busqueda_virales_cada_5'
+      })
 
       const formattedVideosForDB = videos.map((video) => ({
         ...video,
@@ -171,7 +181,6 @@ tiktokUsernameViralsRouter.post(
         platform: 'tiktok',
         userId
       }))
-      console.log({ formattedVideosForDB })
       await prisma.video.createMany({
         data: formattedVideosForDB
       })

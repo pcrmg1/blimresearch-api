@@ -305,6 +305,5 @@ export const getTiktokViralListFromUsernames = async ({
     })
     return
   })
-  console.log({ videos })
   return { cost: viralVideos.cost, videos }
 }
