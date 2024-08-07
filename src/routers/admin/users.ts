@@ -1,12 +1,18 @@
 import { Router } from 'express'
-import { createUser, getAllUsers, getUsersCount } from '../../db/user'
+import {
+  createUser,
+  getAllUsers,
+  getUserById,
+  getUsersCount
+} from '../../db/user'
 import { QueryParamsSchema } from '../../models/queryParams'
 import { NewUserSchema } from '../../models/user'
 import { hashPassword } from '../../utils/password'
+import { adminCreditsRouter } from './credits'
 
 export const adminUsersRouter = Router()
 
-adminUsersRouter.post('/createUser', async (req, res) => {
+adminUsersRouter.post('/', async (req, res) => {
   try {
     const { email, password, role, name } = req.body
     const parsedCredentials = await NewUserSchema.safeParseAsync({
@@ -67,3 +73,16 @@ adminUsersRouter.get('/', async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' })
   }
 })
+
+adminUsersRouter.get('/:id', async (req, res) => {
+  const { id } = req.params
+  try {
+    const user = await getUserById({ userId: id })
+    return res.json({ data: user })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
+adminUsersRouter.use('/:id/credits', adminCreditsRouter)
