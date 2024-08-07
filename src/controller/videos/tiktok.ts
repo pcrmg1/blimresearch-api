@@ -12,13 +12,15 @@ export const getTiktokVirals = async ({
   language,
   minNumberOfFans,
   userId,
-  maxDurationVideo
+  maxDurationVideo,
+  minDurationVideo
 }: {
   query: string
   language: string
   minNumberOfFans: number
   userId: string
   maxDurationVideo?: number
+  minDurationVideo?: number
 }) => {
   const translatedQuery = await translateQuery({
     text: query,
@@ -32,7 +34,8 @@ export const getTiktokVirals = async ({
   const { items: profiles, cost: costFromProfiles } =
     await getTiktokViralProfiles({
       profiles: viralProfiles,
-      maxDurationVideo
+      maxDurationVideo,
+      minDurationVideo
     })
   const totalCost = formatCurrencyToAddToDB(cost + costFromProfiles)
   await addSpentUSD({ userId, spentUSD: totalCost })

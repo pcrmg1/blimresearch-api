@@ -113,10 +113,12 @@ export const getTiktokViralVideos = async ({
 
 export const getTiktokViralProfiles = async ({
   profiles,
-  maxDurationVideo
+  maxDurationVideo,
+  minDurationVideo
 }: {
   profiles: string[]
   maxDurationVideo?: number
+  minDurationVideo?: number
 }) => {
   const { items, cost } = await getTiktokDataFromUsernames({
     usernames: profiles
@@ -125,7 +127,8 @@ export const getTiktokViralProfiles = async ({
 
   const videosFound = filterItemsFromTiktokUsernamesResponseByDuration({
     items: itemsFound,
-    maxDurationVideos: maxDurationVideo
+    maxDurationVideos: maxDurationVideo,
+    minDurationVideos: minDurationVideo
   })
 
   console.log('videosFound', videosFound)

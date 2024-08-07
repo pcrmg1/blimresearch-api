@@ -83,14 +83,18 @@ export const formatItemsFromTiktokUsernamesResponse = ({
 
 export const filterItemsFromTiktokUsernamesResponseByDuration = ({
   items,
-  maxDurationVideos
+  maxDurationVideos,
+  minDurationVideos
 }: {
   items: ReturnType<typeof formatItemsFromTiktokUsernamesResponse>
   maxDurationVideos?: number
+  minDurationVideos?: number
 }) => {
   if (!items) {
     throw new Error('No se encontraron perfiles para formatear')
   }
+
+  const minDurationForVideo = minDurationVideos ? minDurationVideos : 0
 
   return items
     .filter((item) => item?.channel)
@@ -120,35 +124,26 @@ export const filterItemsFromTiktokUsernamesResponseByDuration = ({
         postPage
       } = item
 
-      if (maxDurationVideos) {
-        if (item?.video.duration < maxDurationVideos) {
-          return {
-            name: channel.name,
-            userFans: channel.followers,
-            userHearts: 0,
-            diggCount: likes,
-            shareCount: shares,
-            playCount: views,
-            collectCount: bookmarks,
-            commentCount: comments,
-            webVideoUrl: postPage
-          }
-        } else {
-          return {
-            name: null,
-            userFans: channel.followers,
-            userHearts: 0,
-            diggCount: likes,
-            shareCount: shares,
-            playCount: views,
-            collectCount: bookmarks,
-            commentCount: comments,
-            webVideoUrl: postPage
-          }
+      const hasMaxDurationVideos =
+        maxDurationVideos && video?.duration < maxDurationVideos
+      const hasMinDurationVideos =
+        minDurationForVideo && video?.duration > minDurationForVideo
+
+      if (hasMaxDurationVideos && hasMinDurationVideos) {
+        return {
+          name: channel.name,
+          userFans: channel.followers,
+          userHearts: 0,
+          diggCount: likes,
+          shareCount: shares,
+          playCount: views,
+          collectCount: bookmarks,
+          commentCount: comments,
+          webVideoUrl: postPage
         }
       } else {
         return {
-          name: channel.name,
+          name: null,
           userFans: channel.followers,
           userHearts: 0,
           diggCount: likes,
