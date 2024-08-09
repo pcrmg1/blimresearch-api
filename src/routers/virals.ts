@@ -34,8 +34,8 @@ viralsRouter.get('/videos', async (req: RequestWithToken, res) => {
       return res.json({ data: videos })
     }
     const parsedParams = await QueryParamsSchema.safeParseAsync({
-      page: Number(page),
-      limit: Number(limit),
+      page: page,
+      limit: limit,
       query,
       orderBy
     })
@@ -85,8 +85,8 @@ viralsRouter.get('/carruseles', async (req: RequestWithToken, res) => {
       return res.json({ data: videos })
     }
     const parsedParams = await QueryParamsSchema.safeParseAsync({
-      page: Number(page),
-      limit: Number(limit),
+      page: page,
+      limit: limit,
       query,
       orderBy
     })
@@ -131,8 +131,7 @@ viralsRouter.post('/findViral', async (req: RequestWithToken, res) => {
     maxDurationVideo,
     minDurationVideo,
     platform,
-    languages,
-    minLikes
+    languages
   } = req.body
 
   const userId = req.userId
@@ -150,17 +149,6 @@ viralsRouter.post('/findViral', async (req: RequestWithToken, res) => {
     const { status: statusReq, error: errorReq } = checkReqBody(req)
     if (statusReq !== 200) {
       return res.status(statusReq).json({ error: errorReq })
-    }
-
-    const existsQuery = await getViralsByQuery({
-      query: search as string,
-      userId,
-      platform
-    })
-    if (existsQuery.length > 0) {
-      return res
-        .status(400)
-        .json({ error: 'query already exists', data: existsQuery })
     }
     const costOfRequest =
       platform === 'tiktok'
@@ -181,8 +169,8 @@ viralsRouter.post('/findViral', async (req: RequestWithToken, res) => {
         credits: CREDITS_COST['busqueda_tiktok'] * languages.length,
         concepto: `busqueda_tiktok - ${search}`
       })
-      const promisesArray = languages.map((language: string) =>
-        getTiktokVirals({
+      const promisesArray = languages.map((language: string) => {
+        return getTiktokVirals({
           query: search as string,
           language,
           minNumberOfFans,
@@ -190,7 +178,7 @@ viralsRouter.post('/findViral', async (req: RequestWithToken, res) => {
           maxDurationVideo,
           minDurationVideo
         })
-      )
+      })
       await Promise.all(promisesArray)
       return res.json({ data: 'done' })
     } else if (platform === 'instagram') {
@@ -199,16 +187,14 @@ viralsRouter.post('/findViral', async (req: RequestWithToken, res) => {
         credits: CREDITS_COST['busqueda_instagram'] * languages.length,
         concepto: `busqueda_instagram - ${search}`
       })
-      //TODO: Filtrar bien por numero de seguidores, no de likes de cada post!!!!!!!
-      const promisesArray = languages.map((language: string) =>
-        getInstagramVirals({
+      const promisesArray = languages.map((language: string) => {
+        return getInstagramVirals({
           query: search as string,
           minFollowers: minNumberOfFans ?? 1000,
-          minLikes,
           userId,
           language
         })
-      )
+      })
       await Promise.all(promisesArray)
       return res.json({ data: 'done' })
     } else {
@@ -217,9 +203,9 @@ viralsRouter.post('/findViral', async (req: RequestWithToken, res) => {
   } catch (error) {
     console.log('error', error)
     if (error instanceof Error) {
-      res.status(500).json({ error: error.message })
+      return res.status(500).json({ error: error.message })
     } else {
-      res.status(500).json({ error: 'Hubo un error con el servidor' })
+      return res.status(500).json({ error: 'Hubo un error con el servidor' })
     }
   }
 })

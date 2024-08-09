@@ -6,34 +6,22 @@ import {
 
 function filterUrlsFromPostsArray({
   item,
-  minNumberOfLikes,
   urlsArray
 }: {
   item: InstagramQueryRun
-  minNumberOfLikes: number
   urlsArray: string[]
 }) {
   const { topPosts, latestPosts } = item
   if (Array.isArray(topPosts)) {
     for (const post of topPosts) {
-      if (minNumberOfLikes && post.likesCount > minNumberOfLikes) {
-        if (urlsArray.includes(post.url)) return
-        urlsArray.push(post.url)
-      } else {
-        if (urlsArray.includes(post.url)) return
-        urlsArray.push(post.url)
-      }
+      if (urlsArray.includes(post.url)) return
+      urlsArray.push(post.url)
     }
   }
   if (Array.isArray(latestPosts)) {
     for (const post of latestPosts) {
-      if (minNumberOfLikes && post.likesCount > minNumberOfLikes) {
-        if (urlsArray.includes(post.url)) return
-        urlsArray.push(post.url)
-      } else {
-        if (urlsArray.includes(post.url)) return
-        urlsArray.push(post.url)
-      }
+      if (urlsArray.includes(post.url)) return
+      urlsArray.push(post.url)
     }
   }
   if (!Array.isArray(topPosts) && !Array.isArray(latestPosts)) {
@@ -42,17 +30,14 @@ function filterUrlsFromPostsArray({
 }
 
 export const filterInstagramPostsByLikes = async ({
-  minNumberOfLikes,
   items
 }: {
-  minNumberOfLikes: number
   items: InstagramQueryRun[]
 }) => {
   let filteredUrls: string[] = []
   items.forEach((item) => {
     filterUrlsFromPostsArray({
       item,
-      minNumberOfLikes,
       urlsArray: filteredUrls
     })
   })
