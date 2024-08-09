@@ -154,6 +154,7 @@ viralsRouter.post('/findViral', async (req: RequestWithToken, res) => {
 
     const { status: statusReq, error: errorReq } = checkReqBody(req)
     if (statusReq !== 200) {
+      console.log({ errorReq })
       return res.status(statusReq).json({ error: errorReq })
     }
     const costOfRequest =
