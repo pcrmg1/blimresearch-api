@@ -92,3 +92,28 @@ export const translateQuery = async ({
   })
   return translation.choices[0].message.content
 }
+
+export const translateInstagramQuery = async ({
+  query,
+  toLanguage
+}: {
+  query: string
+  toLanguage: string
+}) => {
+  const translation = await openAI.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [
+      {
+        role: 'system',
+        content: `You will be provided with a sentence in any language, you have to detect which one is it, translate it into ${toLanguage}. It will be an instagram search query so you have to only translate it thinking in the best suitable translation given they are for an instagram search and can be with hashtags, you have to only translate and return the query, do not improve the sentence, and if it has any hashtags remove them.`
+      },
+      {
+        role: 'user',
+        content: `${query}`
+      }
+    ],
+    temperature: 0.8,
+    top_p: 1
+  })
+  return translation.choices[0].message.content
+}
