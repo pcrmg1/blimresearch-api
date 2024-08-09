@@ -48,10 +48,10 @@ export const getTiktokDataFromQuery = async ({ query }: { query: string }) => {
     const run = await apifyClient.actor('OtzYfK1ndEGdwWFKQ').call(input)
     const response = await apifyClient.dataset(run.defaultDatasetId).listItems()
     console.log('response received')
-    const COST_PEE_ITEM = 4 / 1000
+    const COST_PER_ITEM = 4 / 1000
     return {
       items: response.items as unknown as TiktokQueryRun[],
-      cost: COST_PEE_ITEM * response.items.length
+      cost: COST_PER_ITEM * response.items.length
     }
   } catch (error) {
     console.log('error', error)
@@ -105,10 +105,8 @@ export const getTiktokViralVideos = async ({
   const filteredUsers = itemsMapped.filter(
     (user) => user.fans > minNumberOfFans
   )
-  const sortedItems = [...filteredUsers].sort(
-    (a: any, b: any) => b.ratioFans - a.ratioFans
-  )
-  return { items: sortedItems, cost }
+
+  return { items: filteredUsers, cost }
 }
 
 export const getTiktokViralProfiles = async ({
@@ -131,19 +129,13 @@ export const getTiktokViralProfiles = async ({
     minDurationVideos: minDurationVideo
   })
 
-  console.log('videosFound', videosFound)
-
   const videosGroupedByAuthor = groupItemsFromTiktokUsernamesResponseByAuthor({
     items: videosFound
   })
 
-  console.log('videosGroupedByAuthor', videosGroupedByAuthor)
-
   const averageByAuthor = getAverageByAuthorFromTiktokUsernamesResponse({
     items: videosGroupedByAuthor
   })
-
-  console.log('averageByAuthor', averageByAuthor)
 
   const viralVideosGrouped = videosGroupedByAuthor.map((profile: any) => {
     const { name, userFans, userHearts, videos } = profile

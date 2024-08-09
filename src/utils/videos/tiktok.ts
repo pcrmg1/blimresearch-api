@@ -27,8 +27,8 @@ export const formatItemsFromTiktokQueryResponse = ({
       playCount * PLAY_COUNT_VALUE +
       commentCount * COMMENT_COUNT_VALUE
     return {
-      name: name,
-      fans: fans,
+      name,
+      fans,
       signature: signature,
       nickName: nickName,
       webVideoUrl: webVideoUrl,
@@ -131,7 +131,7 @@ export const filterItemsFromTiktokUsernamesResponseByDuration = ({
 
       if (hasMaxDurationVideos && hasMinDurationVideos) {
         return {
-          name: channel.name,
+          name: channel.username,
           userFans: channel.followers,
           userHearts: 0,
           diggCount: likes,

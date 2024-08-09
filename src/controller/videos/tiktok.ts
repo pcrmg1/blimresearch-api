@@ -37,6 +37,7 @@ export const getTiktokVirals = async ({
       maxDurationVideo,
       minDurationVideo
     })
+
   const totalCost = formatCurrencyToAddToDB(cost + costFromProfiles)
   await addSpentUSD({ userId, spentUSD: totalCost })
 
