@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import {
   createUser,
+  deleteUser,
   getAllUsers,
   getUserById,
   getUsersCount
@@ -79,6 +80,20 @@ adminUsersRouter.get('/:id', async (req, res) => {
   try {
     const user = await getUserById({ userId: id })
     return res.json({ data: user })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
+adminUsersRouter.delete('/:id', async (req, res) => {
+  const { id } = req.params
+  try {
+    const user = await deleteUser({ userId: id })
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+    return res.json({ message: 'User deleted' })
   } catch (error) {
     console.log(error)
     return res.status(500).json({ message: 'Internal server error' })

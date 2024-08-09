@@ -8,6 +8,14 @@ export const getUserById = async ({ userId }: { userId: string }) => {
   })
 }
 
+export const deleteUser = async ({ userId }: { userId: string }) => {
+  return await prisma.user.delete({
+    where: {
+      id: userId
+    }
+  })
+}
+
 export const getUserByEmail = async ({ email }: { email: string }) => {
   return await prisma.user.findUnique({
     where: {
