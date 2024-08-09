@@ -1,6 +1,4 @@
-import { RequestWithToken } from '../types/jwt'
-
-export const checkCreditsCost = async ({
+export const checkCreditsCost = ({
   costOfRequest,
   creditLimit
 }: {
@@ -8,6 +6,7 @@ export const checkCreditsCost = async ({
   costOfRequest: number
 }) => {
   if (creditLimit < costOfRequest) {
+    console.log({ creditLimit, costOfRequest })
     return { status: 400, error: 'Not enough credits' }
   } else {
     return { status: 200, message: 'Enough credits' }

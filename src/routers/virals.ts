@@ -157,11 +157,16 @@ viralsRouter.post('/findViral', async (req: RequestWithToken, res) => {
       console.log({ errorReq })
       return res.status(statusReq).json({ error: errorReq })
     }
-    const costOfRequest =
-      platform === 'tiktok'
-        ? CREDITS_COST['busqueda_tiktok'] * languages.length
-        : CREDITS_COST['busqueda_instagram'] * languages.length
-    const { status, error } = await checkCreditsCost({
+    let costOfRequest = 0
+    if (platform === 'tiktok') {
+      costOfRequest =
+        CREDITS_COST['busqueda_tiktok'] * languages.length + user.creditosUsados
+    } else {
+      costOfRequest =
+        CREDITS_COST['busqueda_instagram'] * languages.length +
+        user.creditosUsados
+    }
+    const { status, error } = checkCreditsCost({
       costOfRequest,
       creditLimit: user?.limiteCreditos
     })
