@@ -37,6 +37,7 @@ export const getInstagramDataByDirectUrl = async ({
   const run = await apifyClient.actor('shu8hvrXbJbY3Eb9W').call(input)
   const { items } = await apifyClient.dataset(run.defaultDatasetId).listItems()
   const COST_PER_ITEM = 0.004
+  console.log({ items })
   return {
     items: items as unknown as InstagramDirectURLRun[],
     cost: COST_PER_ITEM * items.length

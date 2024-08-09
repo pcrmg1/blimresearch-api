@@ -12,11 +12,12 @@ import {
 import { errorHandler } from '../utils/error'
 import { getTiktokViralListFromUsernames } from '../libs/apify/tiktok'
 import { prisma } from '../db/prisma'
-import { addSpentUSD } from '../db/user'
+import { addSpentUSD, getUserById } from '../db/user'
 import { QueryParamsSchema } from '../models/queryParams'
 import { formatCurrencyToAddToDB } from '../utils/currency'
 import { addUserCredits } from '../db/credits'
 import { CREDITS_COST } from '../consts'
+import { checkCreditsCost } from '../controller/credits'
 
 export const tiktokUsernameViralsRouter = Router()
 
@@ -149,10 +150,30 @@ tiktokUsernameViralsRouter.post(
       return res.status(401).json({ message: 'No userId' })
     }
     try {
+      const user = await getUserById({ userId })
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' })
+      }
+
       const tiktokUsernameList = await getTiktokViralUsernameById({ id })
+
       if (!tiktokUsernameList) {
         return res.status(404).json({ message: 'No list found' })
       }
+
+      const totalCostCredits =
+        CREDITS_COST['busqueda_virales_cada_5'] *
+        Math.ceil(tiktokUsernameList.usernames.length / 5)
+
+      const { status, error } = await checkCreditsCost({
+        costOfRequest: totalCostCredits,
+        creditLimit: user.limiteCreditos
+      })
+
+      if (status !== 200) {
+        return res.status(status).json({ error })
+      }
+
       await deleteTiktokViralVideoByListId({
         listId: tiktokUsernameList?.id
       })
@@ -166,9 +187,7 @@ tiktokUsernameViralsRouter.post(
       if (videos.length === 0) {
         return res.json({ data: [], cost })
       }
-      const totalCostCredits =
-        CREDITS_COST['busqueda_virales_cada_5'] *
-        Math.ceil(tiktokUsernameList.usernames.length / 5)
+
       await addUserCredits({
         userId,
         credits: totalCostCredits,

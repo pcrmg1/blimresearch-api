@@ -5,6 +5,7 @@ import {
   getInstagramDataByDirectUrl,
   getInstagramDataByUsernames
 } from '../../libs/apify/instagram'
+import { translateText } from '../../libs/openai/translations'
 import { formatCurrencyToAddToDB } from '../../utils/currency'
 import {
   filterInstagramPostsByLikes,
@@ -27,18 +28,37 @@ export const getInstagramVirals = async ({
   language: string
 }) => {
   try {
-    const foundItemsByQuery = await getInstagramDataByQuery({ query })
+    const queryTranslated = await translateText({
+      text: query,
+      toLanguage: language
+    })
+    if (!queryTranslated) {
+      throw new Error('Failed to translate query')
+    }
+    const foundItemsByQuery = await getInstagramDataByQuery({
+      query: queryTranslated
+    })
+
+    console.log({ foundItemsByQuery })
+
     const filteredUrls = await filterInstagramPostsByLikes({
       items: foundItemsByQuery,
       minNumberOfLikes: minLikes
     })
+
+    console.log({ filteredUrls })
+
     const { items: foundItemsByUrl, cost: costFromDirectURL } =
       await getInstagramDataByDirectUrl({
         directUrls: filteredUrls
       })
+
+    console.log({ foundItemsByUrl })
+
     const filteredUsers = await getInstagramUsersFromPosts({
       items: foundItemsByUrl
     })
+
     const { items: foundItemsByUsernames, cost: costFromUsernames } =
       await getInstagramDataByUsernames({
         usernames: filteredUsers

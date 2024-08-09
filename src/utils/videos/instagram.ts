@@ -4,6 +4,43 @@ import {
   InstagramDataByUsername
 } from '../../types/apify'
 
+function filterUrlsFromPostsArray({
+  item,
+  minNumberOfLikes,
+  urlsArray
+}: {
+  item: InstagramQueryRun
+  minNumberOfLikes: number
+  urlsArray: string[]
+}) {
+  const { topPosts, latestPosts } = item
+  if (Array.isArray(topPosts)) {
+    for (const post of topPosts) {
+      if (minNumberOfLikes && post.likesCount > minNumberOfLikes) {
+        if (urlsArray.includes(post.url)) return
+        urlsArray.push(post.url)
+      } else {
+        if (urlsArray.includes(post.url)) return
+        urlsArray.push(post.url)
+      }
+    }
+  }
+  if (Array.isArray(latestPosts)) {
+    for (const post of latestPosts) {
+      if (minNumberOfLikes && post.likesCount > minNumberOfLikes) {
+        if (urlsArray.includes(post.url)) return
+        urlsArray.push(post.url)
+      } else {
+        if (urlsArray.includes(post.url)) return
+        urlsArray.push(post.url)
+      }
+    }
+  }
+  if (!Array.isArray(topPosts) && !Array.isArray(latestPosts)) {
+    throw new Error('No posts found')
+  }
+}
+
 export const filterInstagramPostsByLikes = async ({
   minNumberOfLikes,
   items
@@ -13,18 +50,11 @@ export const filterInstagramPostsByLikes = async ({
 }) => {
   let filteredUrls: string[] = []
   items.forEach((item) => {
-    for (const post of item.topPosts) {
-      if (post.likesCount > minNumberOfLikes) {
-        if (filteredUrls.includes(post.url)) return
-        filteredUrls.push(post.url)
-      }
-    }
-    for (const post of item.latestPosts) {
-      if (post.likesCount > minNumberOfLikes) {
-        if (filteredUrls.includes(post.url)) return
-        filteredUrls.push(post.url)
-      }
-    }
+    filterUrlsFromPostsArray({
+      item,
+      minNumberOfLikes,
+      urlsArray: filteredUrls
+    })
   })
   return filteredUrls
 }
@@ -211,27 +241,22 @@ export const formatVideosFromInstagram = ({
   const viralVideosFormatted: {
     timestamp: Date | string
     videoUrl: string
-    url: string
     username: string
     userFans: number
-    profilePicUrl: string
     videoHearts: number
     userId: string
     platform: string
   }[] = []
   viralVideos.forEach((item) => {
-    const { username, followersCount, followsCount, videos, profilePicUrl } =
-      item
+    const { username, followersCount, videos, profilePicUrl } = item
     videos.forEach((video) => {
-      const { likesCount, timestamp, displayUrl, url } = video
+      const { likesCount, timestamp, url } = video
       viralVideosFormatted.push({
         timestamp,
-        videoUrl: displayUrl,
-        url,
+        videoUrl: url,
         username,
         userFans: followersCount,
         videoHearts: likesCount,
-        profilePicUrl,
         userId,
         platform: 'instagram'
       })

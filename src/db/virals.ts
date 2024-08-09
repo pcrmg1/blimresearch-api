@@ -175,7 +175,7 @@ export const createCarruselQuery = async ({
   carruseles
 }: {
   query: string
-  language?: string
+  language: string
   userId: string
   carruseles: any[]
 }) => {
