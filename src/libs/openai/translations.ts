@@ -16,11 +16,10 @@ export const translateText = async ({
         role: 'system',
         content: `You will be provided with a sentence in any language, you have to detect which one is it, translate it into ${toLanguage}. You also have to improve the punctuation marks.
         If there are any errors in the sentence, you should correct them, provide '/n' when there is a new line
-        ${
-          addedSuggestions
+        ${addedSuggestions
             ? `Here are some added suggestions for you to take account when doing the translation and fixing the text: ${addedSuggestions}`
             : ''
-        }`
+          }`
       },
       {
         role: 'user',
@@ -51,11 +50,10 @@ export const translateMedia = async ({
         Separate the HOOK, the BODY and the CTA very well with line breaks.
         Make the script easier to read, making it interesting and more digestible.
         If there are any errors in the sentence, you should correct them, provide '/n' when there is a new line
-        ${
-          addedSuggestions
+        ${addedSuggestions
             ? `Here are some added suggestions for you to take account when doing the translation and fixing the text: ${addedSuggestions}`
             : ''
-        }`
+          }`
       },
       {
         role: 'user',
@@ -76,7 +74,7 @@ export const translateQuery = async ({
   toLanguage: string
 }) => {
   const translation = await openAI.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'gpt-3.5-turbo',
     messages: [
       {
         role: 'system',
@@ -101,7 +99,7 @@ export const translateInstagramQuery = async ({
   toLanguage: string
 }) => {
   const translation = await openAI.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'gpt-3.5-turbo',
     messages: [
       {
         role: 'system',
