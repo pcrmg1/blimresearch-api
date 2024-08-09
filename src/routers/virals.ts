@@ -33,9 +33,11 @@ viralsRouter.get('/videos', async (req: RequestWithToken, res) => {
       const videos = await getViralsByUserId({ userId })
       return res.json({ data: videos })
     }
+    const numberPage = Number(page)
+    const numberLimit = Number(limit)
     const parsedParams = await QueryParamsSchema.safeParseAsync({
-      page: page,
-      limit: limit,
+      page: isNaN(numberPage) ? 0 : numberPage,
+      limit: isNaN(numberLimit) ? 10 : numberLimit,
       query,
       orderBy
     })
@@ -84,12 +86,16 @@ viralsRouter.get('/carruseles', async (req: RequestWithToken, res) => {
       const videos = await getCarruselesByUserId({ userId })
       return res.json({ data: videos })
     }
+
+    const numberPage = Number(page)
+    const numberLimit = Number(limit)
     const parsedParams = await QueryParamsSchema.safeParseAsync({
-      page: page,
-      limit: limit,
+      page: isNaN(numberPage) ? 0 : numberPage,
+      limit: isNaN(numberLimit) ? 10 : numberLimit,
       query,
       orderBy
     })
+
     if (!parsedParams.success) {
       return res.status(400).json({ message: 'Query params are not valid' })
     }
