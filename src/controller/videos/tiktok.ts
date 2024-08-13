@@ -49,6 +49,7 @@ export const getTiktokVirals = async ({
       platform: 'tiktok',
       userId
     }))
+
   const queryCreated = await createQueryVirals({
     query: query as string,
     language,

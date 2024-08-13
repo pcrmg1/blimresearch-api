@@ -94,8 +94,6 @@ export const filterItemsFromTiktokUsernamesResponseByDuration = ({
     throw new Error('No se encontraron perfiles para formatear')
   }
 
-  const minDurationForVideo = minDurationVideos ? minDurationVideos : 0
-
   return items
     .filter((item) => item?.channel)
     .map((item) => {
@@ -124,12 +122,13 @@ export const filterItemsFromTiktokUsernamesResponseByDuration = ({
         postPage
       } = item
 
-      const hasMaxDurationVideos =
-        maxDurationVideos && video?.duration < maxDurationVideos
-      const hasMinDurationVideos =
-        minDurationForVideo && video?.duration > minDurationForVideo
+      const isValidDuration =
+        (typeof maxDurationVideos !== 'number' ||
+          video?.duration <= maxDurationVideos) &&
+        (typeof minDurationVideos !== 'number' ||
+          video?.duration >= minDurationVideos)
 
-      if (hasMaxDurationVideos && hasMinDurationVideos) {
+      if (isValidDuration) {
         return {
           name: channel.username,
           userFans: channel.followers,
