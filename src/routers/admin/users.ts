@@ -44,8 +44,8 @@ adminUsersRouter.get('/', async (req, res) => {
   const { page, limit, query, orderBy } = req.query
   try {
     const parsedQuery = await QueryParamsSchema.safeParseAsync({
-      page: Number(page),
-      limit: Number(limit),
+      page: isNaN(Number(page)) ? 0 : Number(page),
+      limit: isNaN(Number(limit)) ? 20 : Number(limit),
       query,
       orderBy
     })
