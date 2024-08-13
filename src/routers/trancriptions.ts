@@ -15,6 +15,7 @@ import {
 } from '../db/transcriptions'
 import { getCarruselImgUrls } from '../libs/media/instagram'
 import { QueryParamsSchema } from '../models/queryParams'
+import { z } from 'zod'
 
 export const transcriptionsRouter = Router()
 
@@ -164,23 +165,50 @@ transcriptionsRouter.post('/transcribe_carrusel', async (req, res) => {
     if (!carruselUrls) {
       return res.status(500).json({ message: 'Error al obtener carrusel' })
     }
-    console.log({ carruselUrls })
-    const transcriptionPromises = carruselUrls.map((carrusel) => {
-      return transcribeImage({ imgUrl: carrusel.download_link })
-    })
-    console.log('Transcribiendo imagenes')
-    const transcriptions = await Promise.all(transcriptionPromises)
-    const parsedTranscriptions = transcriptions.map((transcription) => {
-      const parsedTransc = parseImageTranscription({ transcription })
-      return parsedTransc
-    })
-    const transcriptionsWithUrl = parsedTranscriptions.map(
-      (transcription, index) => ({
-        transcription: transcription,
-        url: carruselUrls[index].download_link
+    const isImageArray = await z
+      .array(
+        z.object({ download_link: z.string(), thumbnail_link: z.string() })
+      )
+      .safeParseAsync(carruselUrls)
+    if (isImageArray.success) {
+      const transcriptionPromises = carruselUrls.map((carrusel) => {
+        return transcribeImage({ imgUrl: carrusel.download_link })
       })
-    )
-    return res.json({ data: transcriptionsWithUrl })
+      console.log('Transcribiendo imagenes')
+      const transcriptions = await Promise.all(transcriptionPromises)
+      const parsedTranscriptions = transcriptions.map((transcription) => {
+        const parsedTransc = parseImageTranscription({ transcription })
+        return parsedTransc
+      })
+      const transcriptionsWithUrl = parsedTranscriptions.map(
+        (transcription, index) => ({
+          transcription: transcription,
+          url: carruselUrls[index].download_link
+        })
+      )
+      return res.json({ data: transcriptionsWithUrl })
+    }
+
+    const isImage = await z
+      .object({ download_link: z.string(), thumbnail_link: z.string() })
+      .safeParseAsync(carruselUrls)
+    if (isImage.success) {
+      const transcription = await transcribeImage({
+        imgUrl: isImage.data.download_link
+      })
+      const parsedTranscription = parseImageTranscription({ transcription })
+      return res.json({
+        data: {
+          transcription: parsedTranscription,
+          url: isImage.data.download_link
+        }
+      })
+    }
+
+    return res.status(500).json({
+      message:
+        'Hubo un error con el servidor, compruebe que el carrusel tiene solo imagenes, por favor'
+    })
   } catch (error) {
     console.log({ error })
     return res.status(500).json({
