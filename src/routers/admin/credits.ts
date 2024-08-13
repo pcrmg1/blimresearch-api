@@ -5,7 +5,9 @@ import {
   modifyUserCredits
 } from '../../db/credits'
 
-export const adminCreditsRouter = Router()
+export const adminCreditsRouter = Router({
+  mergeParams: true
+})
 
 interface CreditsRequest extends Request {
   params: {
@@ -14,7 +16,7 @@ interface CreditsRequest extends Request {
 }
 
 adminCreditsRouter.patch('/', async (req: CreditsRequest, res: Response) => {
-  // Modifica los creditos de un usuario seteando el valor
+  // Modifica los creditos usados de un usuario seteando el valor
   const { id } = req.params
   const { credits, concepto } = req.body
   try {
@@ -27,7 +29,7 @@ adminCreditsRouter.patch('/', async (req: CreditsRequest, res: Response) => {
 })
 
 adminCreditsRouter.put('/', async (req: CreditsRequest, res: Response) => {
-  // Modifica los creditos de un usuario incrementando el valor
+  // Modifica los creditos usados de un usuario incrementando el valor (sumandole a los que ya tiene)
   const { id } = req.params
   const { credits, concepto } = req.body
   try {
