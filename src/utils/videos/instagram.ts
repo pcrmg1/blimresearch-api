@@ -29,7 +29,7 @@ function filterUrlsFromPostsArray({
   }
 }
 
-export const filterInstagramPostsByLikes = async ({
+export const filterInstagramPostsByLikes = ({
   items
 }: {
   items: InstagramQueryRun[]
@@ -44,7 +44,7 @@ export const filterInstagramPostsByLikes = async ({
   return filteredUrls
 }
 
-export const getInstagramUsersFromPosts = async ({
+export const getInstagramUsersFromPosts = ({
   items
 }: {
   items: InstagramDirectURLRun[]
