@@ -5,13 +5,15 @@ export const getViralVideos = async ({
   limit,
   userId,
   orderBy,
-  query
+  query,
+  platform
 }: {
   page: number
   limit: number
   userId: string
   orderBy: string
   query: string
+  platform: string
 }) => {
   return await prisma.videoQuery.findMany({
     where: {
@@ -19,7 +21,8 @@ export const getViralVideos = async ({
       query: {
         contains: query,
         mode: 'insensitive'
-      }
+      },
+      platform
     },
     include: {
       videos: true
