@@ -9,7 +9,6 @@ import {
   getCarruseles,
   getViralVideos,
   getViralVideosCount,
-  getViralsByQuery,
   getViralsByUserId,
   deleteViralCarruselQueryById,
   getCarruselesCount
@@ -33,11 +32,9 @@ viralsRouter.get('/videos/tiktok', async (req: RequestWithToken, res) => {
       const videos = await getViralsByUserId({ userId })
       return res.json({ data: videos })
     }
-    const numberPage = Number(page)
-    const numberLimit = Number(limit)
     const parsedParams = await QueryParamsSchema.safeParseAsync({
-      page: isNaN(numberPage) ? 0 : numberPage,
-      limit: isNaN(numberLimit) ? 10 : numberLimit,
+      page: isNaN(Number(page)) ? 0 : Number(page),
+      limit: isNaN(Number(limit)) ? 10 : Number(limit),
       query,
       orderBy
     })
@@ -87,11 +84,9 @@ viralsRouter.get('/videos/instagram', async (req: RequestWithToken, res) => {
       const videos = await getViralsByUserId({ userId })
       return res.json({ data: videos })
     }
-    const numberPage = Number(page)
-    const numberLimit = Number(limit)
     const parsedParams = await QueryParamsSchema.safeParseAsync({
-      page: isNaN(numberPage) ? 0 : numberPage,
-      limit: isNaN(numberLimit) ? 10 : numberLimit,
+      page: isNaN(Number(page)) ? 0 : Number(page),
+      limit: isNaN(Number(limit)) ? 10 : Number(limit),
       query,
       orderBy
     })

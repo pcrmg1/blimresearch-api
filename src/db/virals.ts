@@ -13,7 +13,7 @@ export const getViralVideos = async ({
   userId: string
   orderBy: string
   query: string
-  platform: string
+  platform: 'instagram' | 'tiktok'
 }) => {
   return await prisma.videoQuery.findMany({
     where: {
