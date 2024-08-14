@@ -53,10 +53,11 @@ export const getViralVideosCount = async ({
   })
 }
 
-export const getViralsByUserId = async ({ userId }: { userId: string }) => {
+export const getViralsByUserId = async ({ userId, platform }: { userId: string, platform:'instagram'|'tiktok' }) => {
   return await prisma.videoQuery.findMany({
     where: {
-      userId
+      userId,
+      platform
     },
     include: { videos: true }
   })

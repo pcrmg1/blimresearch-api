@@ -29,7 +29,7 @@ viralsRouter.get('/videos/tiktok', async (req: RequestWithToken, res) => {
     }
     const { page, limit, query, orderBy } = req.query
     if (Number(limit) === 0) {
-      const videos = await getViralsByUserId({ userId })
+      const videos = await getViralsByUserId({ userId, platform: 'tiktok' })
       return res.json({ data: videos })
     }
     const parsedParams = await QueryParamsSchema.safeParseAsync({
@@ -81,7 +81,7 @@ viralsRouter.get('/videos/instagram', async (req: RequestWithToken, res) => {
     }
     const { page, limit, query, orderBy } = req.query
     if (Number(limit) === 0) {
-      const videos = await getViralsByUserId({ userId })
+      const videos = await getViralsByUserId({ userId, platform: 'instagram' })
       return res.json({ data: videos })
     }
     const parsedParams = await QueryParamsSchema.safeParseAsync({
