@@ -22,7 +22,7 @@ import { checkReqBody } from '../controller/videos/virals'
 
 export const viralsRouter = Router()
 
-viralsRouter.get('/videos', async (req: RequestWithToken, res) => {
+viralsRouter.get('/videos/tiktok', async (req: RequestWithToken, res) => {
   try {
     const userId = req.userId
     if (!userId) {
@@ -56,7 +56,62 @@ viralsRouter.get('/videos', async (req: RequestWithToken, res) => {
       limit: parsedLimit,
       userId,
       orderBy: parsedOrderBy,
+      query: parsedQueryString,
+      platform: 'tiktok'
+    })
+    const count = await getViralVideosCount({
+      userId,
       query: parsedQueryString
+    })
+    const nextPage = count > parsedLimit * parsedPage + videos.length
+    const prevPage = parsedPage > 0
+    res.json({ data: videos, nextPage, prevPage, count })
+  } catch (error) {
+    console.log('error', error)
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message })
+    } else {
+      res.status(500).json({ error: 'Hubo un error con el servidor' })
+    }
+  }
+})
+
+viralsRouter.get('/videos/instagram', async (req: RequestWithToken, res) => {
+  try {
+    const userId = req.userId
+    if (!userId) {
+      return res.status(401).json({ message: 'No userId' })
+    }
+    const { page, limit, query, orderBy } = req.query
+    if (Number(limit) === 0) {
+      const videos = await getViralsByUserId({ userId })
+      return res.json({ data: videos })
+    }
+    const numberPage = Number(page)
+    const numberLimit = Number(limit)
+    const parsedParams = await QueryParamsSchema.safeParseAsync({
+      page: isNaN(numberPage) ? 0 : numberPage,
+      limit: isNaN(numberLimit) ? 10 : numberLimit,
+      query,
+      orderBy
+    })
+    if (!parsedParams.success) {
+      return res.status(400).json({ message: 'Query params are not valid' })
+    }
+    const {
+      page: parsedPage,
+      limit: parsedLimit,
+      orderBy: parsedOrderBy,
+      query: parsedQueryString
+    } = parsedParams.data
+
+    const videos = await getViralVideos({
+      page: parsedPage,
+      limit: parsedLimit,
+      userId,
+      orderBy: parsedOrderBy,
+      query: parsedQueryString,
+      platform: 'instagram'
     })
     const count = await getViralVideosCount({
       userId,
