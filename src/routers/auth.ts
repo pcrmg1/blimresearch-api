@@ -110,7 +110,8 @@ authRouter.post('/forgotPassword', async (req, res) => {
       }
     })
     console.log('Enviando mail...')
-    const html = generateResetPasswordEmail({ href: token, email })
+    const href = `${process.env.FRONTEND_URL}/resetPassword?token=${token}`
+    const html = generateResetPasswordEmail({ href, email })
     const nodemail = await sendEmail({
       emailTo: 'valentingt22@gmail.com',
       subject: 'Password updated',

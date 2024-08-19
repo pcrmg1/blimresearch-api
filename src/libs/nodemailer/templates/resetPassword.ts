@@ -4,13 +4,13 @@ export const generateResetPasswordEmail = ({
 }: {
   href: string
   email: string
-}) =>
-  `<!DOCTYPE html>
+}) => `<!DOCTYPE html>
 <html lang="es">
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <style>
     * {
       box-sizing: border-box;
@@ -21,7 +21,7 @@ export const generateResetPasswordEmail = ({
       margin: 0;
       padding: 0;
       background-color: #f4f4f4;
-      height: 100%
+      height: 100%;
     }
 
     .container {
@@ -43,10 +43,10 @@ export const generateResetPasswordEmail = ({
 
     .content {
       padding: 20px;
-      display:flex;
+      display: flex;
       flex-direction: column;
-        justify-content: center;
-        gap: 1rem;
+      justify-content: center;
+      gap: 1rem;
     }
 
     .content h2 {
@@ -89,9 +89,9 @@ export const generateResetPasswordEmail = ({
     }
 
     .babidi {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
     }
 
     .linkButton {
@@ -126,16 +126,16 @@ export const generateResetPasswordEmail = ({
     <div class="header">
       <h1>Blimbooster</h1>
     </div>
-    <div class="container">
-      <div class="content">
-        <h2>Hola, ${email}</h2>
-        <div class="babidi">
+    <div class="content">
+    <div class="babidi">
+      <h2>Hola, ${email}</h2>
+      <div>
         <p>Recibimos una solicitud para restablecer tu contraseña. Haz clic en el siguiente enlace para continuar.</p>
+      </div>
+      <div>
         <p>Este enlace expirará en 1 hora.</p>
-        <div>
-            <a href="${href}" class="linkButton">Restablecer contraseña</a>
-        </div>
-        </div>
+      </div>
+        <a href="${href}" class="linkButton">Restablecer contraseña</a>
       </div>
     </div>
     <div class="footer">
