@@ -31,7 +31,7 @@ export const transcribeImage = async ({
               hashtagsToCompare &&
               'and the other will be a boolean indicating if the image has something in common with the next hashtags: '
             } ${hashtagsToCompare}. Remember how the output has to be: 
-              a json with these two values: {text, hasCommonHashtags} where text is the text in the image and hasCommonHashtags is a boolean indicating if the image has something in common with the next hashtags. If there is no text in the image, just give me 'null' as an answer. If there is no hashtags to compare, just ignore this part of the prompt.`
+              a json with these two values: {text, hasCommonHashtags} where text is the text in the image and hasCommonHashtags is a boolean indicating if the image has something in common with the next hashtags. If there is no text in the image, just give me 'null' as an answer. If there is no hashtags to compare, just ignore this part of the prompt. Remember the text also has to be parseable by the API, so if you have to use special characters, use the escape character '\\'`
           },
           {
             type: 'image_url',

@@ -1,18 +1,24 @@
-const instagramDl = require('@sasmeee/igdl')
+const instagramGetUrl = require('instagram-url-direct')
+
+interface InstagramResponse {
+  results_number: number
+  url_list: string[]
+}
 
 export const getInstagramVideoURL = async ({ url }: { url: string }) => {
   try {
-    const res = await instagramDl(url)
-    return res[0].download_link
+    const res = (await instagramGetUrl(url)) as unknown as InstagramResponse
+    return res.url_list[0]
   } catch (error) {
     console.error(error)
   }
 }
 
-export const getCarruselImgUrls = async ({ url }: { url: string }) => {
+export const getCarruselImgUrls = async (url: string) => {
   try {
-    const res = await instagramDl(url)
-    return res as { download_link: string; thumbnail_link: string }[]
+    const res = (await instagramGetUrl(url)) as unknown as InstagramResponse
+    console.log(res)
+    return res.url_list
   } catch (error) {
     console.error(error)
   }

@@ -50,7 +50,7 @@ export const getInstagramVirals = async ({
     const { items: foundItemsByUrl, cost: costFromDirectURL } =
       await getInstagramDataByDirectUrl({
         directUrls:
-          filteredUrls.length > 50 ? filteredUrls.slice(0, 50) : filteredUrls
+          filteredUrls.length > 40 ? filteredUrls.slice(0, 40) : filteredUrls
       })
 
     const filteredUsers = getInstagramUsersFromPosts({
@@ -60,7 +60,7 @@ export const getInstagramVirals = async ({
     const { items: foundItemsByUsernames, cost: costFromUsernames } =
       await getInstagramDataByUsernames({
         usernames:
-          filteredUsers.length > 50 ? filteredUsers.slice(0, 50) : filteredUsers
+          filteredUsers.length > 40 ? filteredUsers.slice(0, 40) : filteredUsers
       })
 
     const totalCost = formatCurrencyToAddToDB(
