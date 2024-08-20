@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { RequestWithToken } from '../types/jwt'
-import { friendlifyText } from '../libs/openai/friendlify'
+import { friendlifyText, improveWithAI } from '../libs/openai/friendlify'
 import {
   createFriendlifiedText,
   deleteFriendlifiedTextById,
@@ -102,7 +102,8 @@ friendlifyRouter.post('/improveWithAI', async (req, res) => {
     if (!text) {
       return res.status(500).json({ error: 'Failed to friendlify text' })
     }
-    return res.json({ data: text })
+    const improvedText = await improveWithAI({ text })
+    return res.json({ data: improvedText })
   } catch (error) {
     errorHandler(error)
     return res.status(500).json({ error: 'Hubo un error procesando el texto' })
