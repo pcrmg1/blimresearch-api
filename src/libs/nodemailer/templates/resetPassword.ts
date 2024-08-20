@@ -132,15 +132,18 @@ export const generateResetPasswordEmail = ({
       <h1>Blimbooster</h1>
     </div>
     <div class="content">
-    <div class="babidi">
-      <h2>Hola, ${email}</h2>
-      <div>
-        <p>Recibimos una solicitud para restablecer tu contraseña. Haz clic en el siguiente enlace para continuar.</p>
-      </div>
-      <div>
-        <p>Este enlace expirará en 1 hora.</p>
-      </div>
-        <a href="${href}" class="linkButton">Restablecer contraseña</a>
+      <div class="babidi">
+        <h2>Hola, ${email}</h2>
+        <div>
+          <p>Recibimos una solicitud para restablecer tu contraseña. Haz clic en el siguiente enlace para
+            continuar.</p>
+        </div>
+        <div>
+          <p>Este enlace expirará en 1 hora.</p>
+        </div>
+        <div>
+          <a href="${href}" class="linkButton">Restablecer contraseña</a>
+        </div>
       </div>
     </div>
     <div class="footer">
@@ -278,8 +281,7 @@ export const generatePasswordUpdatedEmail = () => `<!DOCTYPE html>
       <h1>Blimbooster</h1>
     </div>
     <div class="content">
-    <div class="babidi">
-      <div>
+      <div class="babidi">
         <p>Su contraseña ha sido actualizada.</p>
       </div>
     </div>
