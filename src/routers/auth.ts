@@ -116,7 +116,7 @@ authRouter.post('/forgotPassword', async (req, res) => {
     const href = `${process.env.FRONTEND_URL}/resetPassword?token=${token}`
     const html = generateResetPasswordEmail({ href, email })
     await sendMail({
-      emailTo: 'valentingt22@gmail.com',
+      emailTo: email,
       subject: 'Reset password',
       html
     })
@@ -165,7 +165,7 @@ authRouter.post('/resetPassword', async (req, res) => {
     })
     const html = generatePasswordUpdatedEmail()
     await sendMail({
-      emailTo: 'valentingt22@gmail.com',
+      emailTo: user.email,
       subject: 'Password updated',
       html
     })
