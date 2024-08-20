@@ -40,6 +40,5 @@ export const improveWithAI = async ({ text }: { text: string }) => {
       type: 'text'
     }
   })
-  console.log({ response })
   return response.choices[0].message.content
 }
