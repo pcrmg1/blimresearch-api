@@ -6,8 +6,11 @@ import { errorHandler } from '../utils/error'
 import { config } from 'dotenv'
 import { DateTime } from 'luxon'
 import { prisma } from '../db/prisma'
-import { sendEmail } from '../libs/nodemailer/transporter'
-import { generateResetPasswordEmail } from '../libs/nodemailer/templates/resetPassword'
+import { sendMail } from '../libs/nodemailer/transporter'
+import {
+  generatePasswordUpdatedEmail,
+  generateResetPasswordEmail
+} from '../libs/nodemailer/templates/resetPassword'
 
 config()
 
@@ -112,13 +115,12 @@ authRouter.post('/forgotPassword', async (req, res) => {
     console.log('Enviando mail...')
     const href = `${process.env.FRONTEND_URL}/resetPassword?token=${token}`
     const html = generateResetPasswordEmail({ href, email })
-    const nodemail = await sendEmail({
+    await sendMail({
       emailTo: 'valentingt22@gmail.com',
-      subject: 'Password updated',
+      subject: 'Reset password',
       html
     })
     console.log('Mail enviado.')
-    console.log({ userUpdated, nodemail })
     return res.json({ message: 'Token generated successfully' })
   } catch (error) {
     console.log(error)
@@ -127,8 +129,7 @@ authRouter.post('/forgotPassword', async (req, res) => {
 })
 
 authRouter.post('/resetPassword', async (req, res) => {
-  const { newPassword } = req.body
-  const { token } = req.query
+  const { newPassword, token } = req.body
   if (!newPassword || !token) {
     return res.status(400).json({ message: 'Password and token are required' })
   }
@@ -162,13 +163,12 @@ authRouter.post('/resetPassword', async (req, res) => {
         changePasswordExpire: null
       }
     })
-    console.log(userUpdated)
-    const email = await sendEmail({
+    const html = generatePasswordUpdatedEmail()
+    await sendMail({
       emailTo: 'valentingt22@gmail.com',
       subject: 'Password updated',
-      html: `<p>Your password has been updated successfully</p>`
+      html
     })
-    console.log(email)
     return res.json({ message: 'Password updated successfully' })
   } catch (error) {
     console.log(error)

@@ -1,18 +1,18 @@
-import nodemailer from 'nodemailer'
 import { config } from 'dotenv'
 config()
 
-export const transporter = nodemailer.createTransport({
-  host: 'smtp.zoho.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL,
-    pass: process.env.NODEMAILER_PASS
-  }
-})
+const sgMail = require('@sendgrid/mail')
+sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
-export const sendEmail = async ({
+const msg = {
+  to: 'agustinmaillet47@gmail.com', // Change to your recipient
+  from: 'no_reply@m.blimbooster.com', // Change to your verified sender
+  subject: 'Sending with SendGrid is Fun',
+  text: 'and easy to do anywhere, even with Node.js',
+  html: '<strong>and easy to do anywhere, even with Node.js</strong>'
+}
+
+export async function sendMail({
   emailTo,
   subject,
   html
@@ -20,19 +20,11 @@ export const sendEmail = async ({
   emailTo: string
   subject: string
   html: string
-}) => {
-  try {
-    await transporter.sendMail({
-      from: '"Blimbooster mailing service 📧" <no_reply@blimbooster.com>',
-      to: emailTo,
-      subject,
-      html
-    })
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(error.message)
-    } else {
-      throw new Error('Error sending email')
-    }
-  }
+}) {
+  return await sgMail.send({
+    to: emailTo,
+    from: 'no_reply@m.blimbooster.com',
+    subject,
+    html
+  })
 }
