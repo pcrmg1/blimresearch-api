@@ -14,6 +14,7 @@ export interface InstagramDirectURLRun {
   dimensionsWidth: number
   displayUrl: string
   images: string[]
+  videoUrl?: string
   alt: string
   likesCount: number | null
   timestamp: Date | null
