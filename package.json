@@ -43,7 +43,7 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.14",
-    "openai": "^4.50.0",
+    "openai": "^4.56.0",
     "tiktokapi-src": "^1.2.0",
     "zod": "^3.23.8"
   },

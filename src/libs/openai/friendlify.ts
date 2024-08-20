@@ -19,7 +19,7 @@ export const friendlifyText = async ({ text }: { text: string }) => {
 
 export const improveWithAI = async ({ text }: { text: string }) => {
   const response = await openAI.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'gpt-4o-2024-08-06',
     messages: [
       {
         role: 'system',
