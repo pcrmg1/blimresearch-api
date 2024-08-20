@@ -130,22 +130,33 @@ transcriptionsRouter.post(
 transcriptionsRouter.post(
   '/transcribe_image',
   async (request: RequestWithToken, response) => {
-    const { imgUrl, hashtagsToCompare, language } = request.body
+    const { imgUrl, language } = request.body
     const userId = request.userId
     if (!userId) {
       return response.status(400).json({ message: 'userId is required' })
     }
     try {
-      const transcription = await transcribeImage({ imgUrl, hashtagsToCompare })
+      const carruselUrls = await getCarruselImgUrls(imgUrl)
+      if (!carruselUrls || carruselUrls.length === 0) {
+        return response.status(404).json({
+          message: 'No se encontro la imagen en el link proporcionado'
+        })
+      }
+      if (carruselUrls.length > 1) {
+        return response.status(500).json({
+          message:
+            'En el link habia mas de una imagen, compruebe que el post no es un carrusel'
+        })
+      }
+      const transcription = await transcribeImage({ imgUrl })
       if (!transcription || transcription === null) {
         return response
           .status(500)
           .json({ message: 'Hubo un error con el servidor' })
       }
-      const data = parseImageTranscription({ transcription })
       const savedImageTranscription = await createImageTranscription({
         language,
-        text: data,
+        text: transcription,
         userId
       })
       return response.json({ data: savedImageTranscription })
@@ -160,30 +171,18 @@ transcriptionsRouter.post(
 transcriptionsRouter.post('/transcribe_carrusel', async (req, res) => {
   const { url } = req.body
   try {
-    console.log('Transcribiendo carrusel: ', url)
     const carruselUrls = await getCarruselImgUrls(url)
-    if (!carruselUrls) {
+    console.log({ carruselUrls })
+    if (!carruselUrls || carruselUrls.length === 0) {
       return res.status(500).json({ message: 'Error al obtener carrusel' })
     }
-
-    const transcriptionPromises = carruselUrls.map((carrusel) => {
-      return transcribeImage({ imgUrl: carrusel })
+    const transcriptionPromises = carruselUrls.map(async (carrusel) => {
+      return await transcribeImage({ imgUrl: carrusel })
     })
     console.log('Transcribiendo imagenes')
     const transcriptions = await Promise.all(transcriptionPromises)
-    const parsedTranscriptions = transcriptions.map((transcription) => {
-      console.log({ transcription })
-      const parsedTransc = parseImageTranscription({ transcription })
-      console.log({ parsedTransc })
-      return parsedTransc
-    })
-    const transcriptionsWithUrl = parsedTranscriptions.map(
-      (transcription, index) => ({
-        transcription: transcription,
-        url: carruselUrls[index]
-      })
-    )
-    return res.json({ data: transcriptionsWithUrl })
+    console.log({ transcriptions })
+    return res.json({ data: transcriptions })
   } catch (error) {
     console.log({ error })
     return res.status(500).json({

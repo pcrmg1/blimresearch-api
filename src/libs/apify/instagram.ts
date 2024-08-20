@@ -7,6 +7,23 @@ import {
   type InstagramDirectURLRun
 } from '../../types/apify'
 
+export const getInstagramDataForOneUrl = async ({ url }: { url: string }) => {
+  const input = {
+    directUrls: [url],
+    addParentData: false,
+    enhanceUserSearchWithFacebookPage: false,
+    isUserReelFeedURL: false,
+    isUserTaggedFeedURL: false,
+    resultsLimit: 1,
+    resultsType: 'details',
+    searchLimit: 1,
+    searchType: 'hashtag'
+  }
+  const run = await apifyClient.actor('shu8hvrXbJbY3Eb9W').call(input)
+  const { items } = await apifyClient.dataset(run.defaultDatasetId).listItems()
+  return items[0] as unknown as InstagramDirectURLRun
+}
+
 export const getInstagramDataByQuery = async ({ query }: { query: string }) => {
   const input = {
     search: query,

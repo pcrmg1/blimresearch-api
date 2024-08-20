@@ -12,13 +12,7 @@ export const transcribeAudio = async (path: string) => {
   return transcription.text
 }
 
-export const transcribeImage = async ({
-  imgUrl,
-  hashtagsToCompare
-}: {
-  imgUrl: string
-  hashtagsToCompare?: string
-}) => {
+export const transcribeImage = async ({ imgUrl }: { imgUrl: string }) => {
   const response = await openAI.chat.completions.create({
     model: 'gpt-4o',
     messages: [
@@ -27,11 +21,7 @@ export const transcribeImage = async ({
         content: [
           {
             type: 'text',
-            text: `I want you to read this image and provide me the text thats written in it, if there is no text, just give me 'null' as an answer, i want the answer in a JSON format and with two items in the object, one has to be the text in the image (Remember, if there is none, give me 'null') ${
-              hashtagsToCompare &&
-              'and the other will be a boolean indicating if the image has something in common with the next hashtags: '
-            } ${hashtagsToCompare}. Remember how the output has to be: 
-              a json with these two values: {text, hasCommonHashtags} where text is the text in the image and hasCommonHashtags is a boolean indicating if the image has something in common with the next hashtags. If there is no text in the image, just give me 'null' as an answer. If there is no hashtags to compare, just ignore this part of the prompt. Remember the text also has to be parseable by the API, so if you have to use special characters, use the escape character '\\'`
+            text: `I want you to read this image and provide me the text thats written in it, if there is no text, just give me 'null' as an answer. Only provide me with the text in the image, nothing else. The image is the following:`
           },
           {
             type: 'image_url',

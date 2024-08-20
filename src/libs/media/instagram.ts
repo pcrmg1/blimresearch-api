@@ -1,14 +1,19 @@
-const instagramGetUrl = require('instagram-url-direct')
-
-interface InstagramResponse {
-  results_number: number
-  url_list: string[]
-}
+import { getInstagramDataForOneUrl } from '../apify/instagram'
 
 export const getInstagramVideoURL = async ({ url }: { url: string }) => {
   try {
-    const res = (await instagramGetUrl(url)) as unknown as InstagramResponse
-    return res.url_list[0]
+    const res = await getInstagramDataForOneUrl({ url })
+    const { type } = res
+    if (type !== 'Video') {
+      throw new Error(
+        'No se encontro el video o el link proporcionado no corresponde a uno'
+      )
+    }
+    if (!res.videoUrl) {
+      throw new Error('No se encontro el video')
+    }
+    console.log({ videoUrl: res.videoUrl })
+    return res.videoUrl
   } catch (error) {
     console.error(error)
   }
@@ -16,10 +21,25 @@ export const getInstagramVideoURL = async ({ url }: { url: string }) => {
 
 export const getCarruselImgUrls = async (url: string) => {
   try {
-    const res = (await instagramGetUrl(url)) as unknown as InstagramResponse
-    console.log(res)
-    return res.url_list
+    const urlLists: string[] = []
+    console.log({ url })
+    const res = await getInstagramDataForOneUrl({ url })
+    if (res.type !== 'Sidecar' && res.type !== 'Image') {
+      throw new Error(
+        'El link proporcionado no corresponde a un carrusel o una imagen'
+      )
+    }
+    if (res.type === 'Image') {
+      urlLists.push(res.displayUrl)
+      console.log({ urlLists })
+      return urlLists
+    }
+    for (const url of res.images) {
+      urlLists.push(url)
+    }
+    console.log({ urlLists })
+    return urlLists
   } catch (error) {
-    console.error(error)
+    console.error({ error })
   }
 }
