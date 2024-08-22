@@ -16,6 +16,7 @@ import {
 import { getCarruselImgUrls } from '../libs/media/instagram'
 import { QueryParamsSchema } from '../models/queryParams'
 import { z } from 'zod'
+import { prisma } from '../db/prisma'
 
 export const transcriptionsRouter = Router()
 
@@ -128,69 +129,68 @@ transcriptionsRouter.post(
 )
 
 transcriptionsRouter.post(
-  '/transcribe_image',
-  async (request: RequestWithToken, response) => {
-    const { imgUrl, language } = request.body
-    const userId = request.userId
-    if (!userId) {
-      return response.status(400).json({ message: 'userId is required' })
-    }
+  '/transcribe_carrusel',
+  async (req: RequestWithToken, res) => {
+    const { url } = req.body
+    const userId = req.userId
     try {
-      const carruselUrls = await getCarruselImgUrls(imgUrl)
-      if (!carruselUrls || carruselUrls.length === 0) {
-        return response.status(404).json({
-          message: 'No se encontro la imagen en el link proporcionado'
-        })
-      }
-      if (carruselUrls.length > 1) {
-        return response.status(500).json({
-          message:
-            'En el link habia mas de una imagen, compruebe que el post no es un carrusel'
-        })
-      }
-      const transcription = await transcribeImage({ imgUrl })
-      if (!transcription || transcription === null) {
-        return response
-          .status(500)
-          .json({ message: 'Hubo un error con el servidor' })
-      }
-      const savedImageTranscription = await createImageTranscription({
-        language,
-        text: transcription,
-        userId
+      const carruselUrlFromReq = new URL(url)
+      const parsedUrl = carruselUrlFromReq.origin + carruselUrlFromReq.pathname
+      const existsTranscription = await prisma.carrusel.findFirst({
+        where: { url: parsedUrl },
+        include: { transcription: true }
       })
-      return response.json({ data: savedImageTranscription })
+      if (existsTranscription) {
+        return res.json({ data: existsTranscription.transcription?.text })
+      }
+      const carrusel = await getCarruselImgUrls(url)
+      if (!userId) {
+        return res.status(400).json({ message: 'No userId' })
+      }
+      if (!carrusel) {
+        return res.status(404).json({ message: 'No se encontro el carrusel' })
+      }
+      const { url: carruselUrl, urlLists: carruselUrlsArr } = carrusel
+
+      if (!carruselUrlsArr || carruselUrlsArr.length === 0) {
+        return res.status(500).json({ message: 'Error al obtener carrusel' })
+      }
+      const transcriptionPromises = carruselUrlsArr.map(async (carrusel) => {
+        return await transcribeImage({ imgUrl: carrusel })
+      })
+      const transcriptions = await Promise.all(transcriptionPromises)
+      const checkedTranscription = await z
+        .array(z.string())
+        .safeParseAsync(transcriptions)
+      if (checkedTranscription.error) {
+        return res.status(500).json({
+          message:
+            'Hubo un error con el servidor, compruebe que el carrusel tiene solo imagenes, por favor'
+        })
+      }
+      const carruselCreated = await prisma.carrusel.create({
+        data: {
+          url: carruselUrl,
+          username: carrusel.username,
+          userId,
+          timestamp: new Date(),
+          transcription: {
+            create: {
+              text: checkedTranscription.data
+            }
+          }
+        }
+      })
+      return res.json({ data: transcriptions })
     } catch (error) {
-      return response
-        .status(500)
-        .json({ message: 'Hubo un error con el sevidor' })
+      console.log({ error })
+      return res.status(500).json({
+        message:
+          'Hubo un error con el servidor, compruebe que el carrusel tiene solo imagenes, por favor'
+      })
     }
   }
 )
-
-transcriptionsRouter.post('/transcribe_carrusel', async (req, res) => {
-  const { url } = req.body
-  try {
-    const carruselUrls = await getCarruselImgUrls(url)
-    console.log({ carruselUrls })
-    if (!carruselUrls || carruselUrls.length === 0) {
-      return res.status(500).json({ message: 'Error al obtener carrusel' })
-    }
-    const transcriptionPromises = carruselUrls.map(async (carrusel) => {
-      return await transcribeImage({ imgUrl: carrusel })
-    })
-    console.log('Transcribiendo imagenes')
-    const transcriptions = await Promise.all(transcriptionPromises)
-    console.log({ transcriptions })
-    return res.json({ data: transcriptions })
-  } catch (error) {
-    console.log({ error })
-    return res.status(500).json({
-      message:
-        'Hubo un error con el servidor, compruebe que el carrusel tiene solo imagenes, por favor'
-    })
-  }
-})
 
 transcriptionsRouter.delete(
   '/deleteById/:id',

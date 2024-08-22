@@ -22,7 +22,6 @@ export const getInstagramVideoURL = async ({ url }: { url: string }) => {
 export const getCarruselImgUrls = async (url: string) => {
   try {
     const urlLists: string[] = []
-    console.log({ url })
     const res = await getInstagramDataForOneUrl({ url })
     if (res.type !== 'Sidecar' && res.type !== 'Image') {
       throw new Error(
@@ -32,13 +31,13 @@ export const getCarruselImgUrls = async (url: string) => {
     if (res.type === 'Image') {
       urlLists.push(res.displayUrl)
       console.log({ urlLists })
-      return urlLists
+      return { urlLists, url: res.url, username: res.ownerUsername }
     }
     for (const url of res.images) {
       urlLists.push(url)
     }
-    console.log({ urlLists })
-    return urlLists
+    console.log({ urlLists, url: res.url })
+    return { urlLists, url: res.url, username: res.ownerUsername }
   } catch (error) {
     console.error({ error })
   }
