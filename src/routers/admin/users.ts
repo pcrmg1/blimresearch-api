@@ -3,6 +3,7 @@ import {
   createUser,
   deleteUser,
   getAllUsers,
+  getUserByEmail,
   getUserById,
   getUsersCount
 } from '../../db/user'
@@ -28,6 +29,10 @@ adminUsersRouter.post('/', async (req, res) => {
       return res.status(400).json({
         message: 'Credenciales no validas para crear el usuario'
       })
+    }
+    const userFound = await getUserByEmail({ email })
+    if (userFound) {
+      return res.status(400).json({ message: 'El usuario ya existe' })
     }
     const hashedPassword = await hashPassword({ password })
     const user = createUser({
