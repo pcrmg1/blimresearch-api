@@ -10,6 +10,8 @@ import { QueryParamsSchema } from '../../models/queryParams'
 import { NewUserSchema } from '../../models/user'
 import { hashPassword } from '../../utils/password'
 import { adminCreditsRouter } from './credits'
+import { generateNewUserEmail } from '../../libs/nodemailer/templates/newUser'
+import { sendMail } from '../../libs/nodemailer/transporter'
 
 export const adminUsersRouter = Router()
 
@@ -33,6 +35,12 @@ adminUsersRouter.post('/', async (req, res) => {
       passwordHash: hashedPassword,
       role,
       name
+    })
+    const html = generateNewUserEmail({ username: email, password })
+    await sendMail({
+      emailTo: email,
+      subject: 'Bienvenido a Blimbooster! 🚀',
+      html
     })
     return res.json(user)
   } catch (error) {
