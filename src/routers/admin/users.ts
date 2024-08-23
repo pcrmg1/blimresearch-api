@@ -44,7 +44,7 @@ adminUsersRouter.post('/', async (req, res) => {
     const html = generateNewUserEmail({ username: email, password })
     await sendMail({
       emailTo: email,
-      subject: 'Bienvenido a Blimbooster! 🚀',
+      subject: 'Bienvenido a SocialBoost! 🚀',
       html
     })
     return res.json(user)
@@ -65,7 +65,6 @@ adminUsersRouter.get('/', async (req, res) => {
     if (!parsedQuery.success) {
       return res.status(400).json({ message: 'Query params are not valid' })
     }
-
     const {
       page: parsedPage,
       limit: parsedLimit,
