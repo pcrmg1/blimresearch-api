@@ -137,7 +137,7 @@ export const generateNewUserEmail = ({
             <p>Le enviamos los datos de sesion, recuerde que la contraseña es generada automaticamente, puede cambiarla cuando lo desee. Tambien recuerde que es personal y no debe compartirla con nadie.</p>  
         <p>Usuario: ${username}</p>
         <p>Contraseña: ${password}</p>
-        <a href="https://blim.neurcrm.com/login" class="linkButton">Restablecer contraseña</a>
+        <a href="https://blim.neurcrm.com/login" class="linkButton">Acceder a la plataforma</a>
         </div>
       </div>
       <div class="footer">
