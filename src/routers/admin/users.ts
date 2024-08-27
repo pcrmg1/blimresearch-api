@@ -5,6 +5,7 @@ import {
   getAllUsers,
   getUserByEmail,
   getUserById,
+  getUserCreditsInfo,
   getUsersCount
 } from '../../db/user'
 import { QueryParamsSchema } from '../../models/queryParams'
@@ -13,6 +14,7 @@ import { hashPassword } from '../../utils/password'
 import { adminCreditsRouter } from './credits'
 import { generateNewUserEmail } from '../../libs/nodemailer/templates/newUser'
 import { sendMail } from '../../libs/nodemailer/transporter'
+import { prisma } from '../../db/prisma'
 
 export const adminUsersRouter = Router()
 
@@ -54,13 +56,15 @@ adminUsersRouter.post('/', async (req, res) => {
 })
 
 adminUsersRouter.get('/', async (req, res) => {
-  const { page, limit, query, orderBy } = req.query
+  const { page, limit, query, orderBy, order } = req.query
+  console.log({ reqQuery: req.query })
   try {
     const parsedQuery = await QueryParamsSchema.safeParseAsync({
       page: isNaN(Number(page)) ? 0 : Number(page),
       limit: isNaN(Number(limit)) ? 20 : Number(limit),
       query,
-      orderBy
+      orderBy,
+      order
     })
     if (!parsedQuery.success) {
       return res.status(400).json({ message: 'Query params are not valid' })
@@ -69,13 +73,16 @@ adminUsersRouter.get('/', async (req, res) => {
       page: parsedPage,
       limit: parsedLimit,
       orderBy: parsedOrderBy,
-      query: parsedQueryString
+      query: parsedQueryString,
+      order: parsedOrder
     } = parsedQuery.data
+    console.log({ parsedQuery: parsedQuery.data })
     const users = await getAllUsers({
       limit: parsedLimit,
       page: parsedPage,
       query: parsedQueryString,
-      orderBy: parsedOrderBy
+      orderBy: parsedOrderBy,
+      order: parsedOrder
     })
     const count = await getUsersCount()
     const nextPage = count > parsedPage * parsedLimit + users.length
@@ -106,6 +113,35 @@ adminUsersRouter.delete('/:id', async (req, res) => {
       return res.status(404).json({ message: 'User not found' })
     }
     return res.json({ message: 'User deleted' })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
+adminUsersRouter.get('/count', async (req, res) => {
+  try {
+    const count = await getUsersCount()
+    const users = await getUserCreditsInfo()
+    const creditosSinGastar = users.reduce((acc, user) => {
+      const creditosSinGastar = user.limiteCreditos - user.creditosUsados
+      return acc + creditosSinGastar
+    }, 0)
+    return res.json({ data: creditosSinGastar, count })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
+adminUsersRouter.get('/filter', async (req, res) => {
+  const { creditsLeft } = req.query
+  try {
+    const users = await prisma.user.findMany()
+    const filteredUsers = users.filter(
+      (user) => user.limiteCreditos - user.creditosUsados <= Number(creditsLeft)
+    )
+    return res.json({ data: filteredUsers, count: filteredUsers.length })
   } catch (error) {
     console.log(error)
     return res.status(500).json({ message: 'Internal server error' })

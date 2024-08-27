@@ -36,12 +36,14 @@ export const getAllUsers = async ({
   page,
   limit,
   query,
-  orderBy
+  orderBy,
+  order
 }: {
   page: number
   limit: number
   query: string
   orderBy: string
+  order: 'asc' | 'desc'
 }) => {
   return await prisma.user.findMany({
     where: {
@@ -63,7 +65,17 @@ export const getAllUsers = async ({
     skip: page * limit,
     take: limit,
     orderBy: {
-      [orderBy]: 'desc'
+      [orderBy]: order
+    }
+  })
+}
+
+export const getUserCreditsInfo = async () => {
+  return await prisma.user.findMany({
+    select: {
+      creditosUsados: true,
+      gastos: true,
+      limiteCreditos: true
     }
   })
 }
