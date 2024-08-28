@@ -84,10 +84,20 @@ adminUsersRouter.get('/', async (req, res) => {
       orderBy: parsedOrderBy,
       order: parsedOrder
     })
+    const usersCredits = await getUserCreditsInfo()
+    const creditosSinGastar = usersCredits.reduce((acc, user) => {
+      const creditosSinGastar = user.limiteCreditos - user.creditosUsados
+      return acc + creditosSinGastar
+    }, 0)
     const count = await getUsersCount()
     const nextPage = count > parsedPage * parsedLimit + users.length
     const prevPage = parsedPage > 0
-    return res.json({ data: users, nextPage, prevPage, count })
+    return res.json({
+      data: { users, creditosSinGastar },
+      nextPage,
+      prevPage,
+      count
+    })
   } catch (error) {
     console.log(error)
     return res.status(500).json({ message: 'Internal server error' })
