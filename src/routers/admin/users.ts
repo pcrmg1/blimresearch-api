@@ -55,6 +55,42 @@ adminUsersRouter.post('/', async (req, res) => {
   }
 })
 
+adminUsersRouter.post('/bulk', async (req, res) => {
+  try {
+    const { users } = req.body
+    const usersPromises = users.map(async (user: any) => {
+      const { email } = user
+      const userFound = await getUserByEmail({ email })
+      if (userFound) {
+        return res.status(400).json({ message: 'El usuario ya existe' })
+      }
+      const randomPassword = Math.random().toString(36).slice(-12)
+      const hashedPassword = await hashPassword({ password: randomPassword })
+      const newUser = await createUser({
+        email,
+        passwordHash: hashedPassword,
+        role: 'User',
+        name: email
+      })
+      const html = generateNewUserEmail({
+        username: email,
+        password: randomPassword
+      })
+      await sendMail({
+        emailTo: email,
+        subject: 'Bienvenido a SocialBoost! 🚀',
+        html
+      })
+      return newUser
+    })
+    const usersCreated = await Promise.all(usersPromises)
+    return res.json(usersCreated)
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
 adminUsersRouter.get('/', async (req, res) => {
   const { page, limit, query, orderBy, order } = req.query
   console.log({ reqQuery: req.query })
