@@ -9,9 +9,9 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL")
 }
 
 enum Role {
@@ -20,29 +20,33 @@ enum Role {
 }
 
 model User {
-  id                   String                 @id @default(cuid())
-  email                String                 @unique
-  name                 String?
-  password             String
-  role                 Role                   @default(User)
-  token                String?
-  changePasswordToken  String?
-  changePasswordExpire DateTime?
-  limiteCreditos       Float                  @default(0)
-  creditosUsados       Float                  @default(0)
-  sessions             Session[]
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @updatedAt
-  carruselQuery        CarruselQuery[]
-  carruseles           Carrusel[]
-  TiktokVideoQuery     VideoQuery[]
-  TiktokVideo          Video[]
-  Transcription        Transcription[]
-  Translation          Translation[]
-  FriendlifiedTexts    FriendlifiedText[]
-  TiktokUsernameVirals TiktokUsernameVirals[]
-  gastos               Float                  @default(0)
-  UsoCreditos          UsoCreditos[]
+  id                      String                    @id @default(cuid())
+  email                   String                    @unique
+  name                    String?
+  password                String
+  role                    Role                      @default(User)
+  token                   String?
+  information             String?
+  changePasswordToken     String?
+  changePasswordExpire    DateTime?
+  limiteCreditos          Float                     @default(0)
+  creditosUsados          Float                     @default(0)
+  sessions                Session[]
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  carruselQuery           CarruselQuery[]
+  carruseles              Carrusel[]
+  TiktokVideoQuery        VideoQuery[]
+  TiktokVideo             Video[]
+  Transcription           Transcription[]
+  Translation             Translation[]
+  FriendlifiedTexts       FriendlifiedText[]
+  TiktokUsernameVirals    TiktokUsernameVirals[]
+  gastos                  Float                     @default(0)
+  UsoCreditos             UsoCreditos[]
+  InstagramUsernameVirals InstagramUsernameVirals[]
+  Guion                   Guion[]
+  Lista_Guiones           Lista_Guiones[]
 
   @@index([email], name: "email")
 }
@@ -70,23 +74,25 @@ model CarruselQuery {
 }
 
 model Carrusel {
-  id              String                 @id @default(cuid())
-  createdAt       DateTime               @default(now())
-  updatedAt       DateTime               @updatedAt
-  url             String
-  imagesUrl       String[]
-  transcriptionId String?
-  transcription   CarruselTranscription?
-  username        String?
-  profilePicUrl   String?
-  user_followers  Int?
-  user_follows    Int?
-  likes           Int?
-  timestamp       DateTime?
-  userId          String
-  user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  carruselQueryId String?
-  carruselQuery   CarruselQuery?         @relation(fields: [carruselQueryId], references: [id])
+  id                        String                   @id @default(cuid())
+  createdAt                 DateTime                 @default(now())
+  updatedAt                 DateTime                 @updatedAt
+  url                       String
+  imagesUrl                 String[]
+  transcriptionId           String?
+  transcription             CarruselTranscription?
+  username                  String?
+  profilePicUrl             String?
+  user_followers            Int?
+  user_follows              Int?
+  likes                     Int?
+  timestamp                 DateTime?
+  userId                    String
+  user                      User                     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  carruselQueryId           String?
+  carruselQuery             CarruselQuery?           @relation(fields: [carruselQueryId], references: [id])
+  InstagramUsernameVirals   InstagramUsernameVirals? @relation(fields: [instagramUsernameViralsId], references: [id])
+  instagramUsernameViralsId String?
 
   @@index([url, id], name: "url")
 }
@@ -117,31 +123,33 @@ model VideoQuery {
 }
 
 model Video {
-  id                     String                @id @default(cuid())
-  timestamp              DateTime              @default(now())
-  queryId                String?
-  query                  VideoQuery?           @relation(fields: [queryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  language               String?
-  createdAt              DateTime              @default(now())
-  updatedAt              DateTime              @updatedAt
-  platform               String
-  username               String
-  userFans               Int?
-  userHearts             Int?
-  userVideos             Int?
-  userHeartsAvg          Int?
-  userPlayAvg            Int?
-  userShareAvg           Int?
-  videoUrl               String?
-  videoHearts            Int?
-  videoComments          Int?
-  videoShares            Int?
-  videoViews             Int?
-  userId                 String
-  user                   User                  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  tiktokUsernameViralsId String?
-  tiktokUsernameVirals   TiktokUsernameVirals? @relation(fields: [tiktokUsernameViralsId], references: [id])
-  Transcription          Transcription[]
+  id                        String                   @id @default(cuid())
+  timestamp                 DateTime                 @default(now())
+  queryId                   String?
+  query                     VideoQuery?              @relation(fields: [queryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  language                  String?
+  createdAt                 DateTime                 @default(now())
+  updatedAt                 DateTime                 @updatedAt
+  platform                  String
+  username                  String
+  userFans                  Int?
+  userHearts                Int?
+  userVideos                Int?
+  userHeartsAvg             Int?
+  userPlayAvg               Int?
+  userShareAvg              Int?
+  videoUrl                  String?
+  videoHearts               Int?
+  videoComments             Int?
+  videoShares               Int?
+  videoViews                Int?
+  userId                    String
+  user                      User                     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tiktokUsernameViralsId    String?
+  tiktokUsernameVirals      TiktokUsernameVirals?    @relation(fields: [tiktokUsernameViralsId], references: [id])
+  Transcription             Transcription[]
+  InstagramUsernameVirals   InstagramUsernameVirals? @relation(fields: [instagramUsernameViralsId], references: [id])
+  instagramUsernameViralsId String?
 
   @@index([videoUrl, id], name: "videoUrl_id")
 }
@@ -213,6 +221,20 @@ model TiktokUsernameVirals {
   @@index([usernames, id], name: "usernames")
 }
 
+model InstagramUsernameVirals {
+  id         String     @id @default(cuid())
+  name       String?
+  usernames  String[]
+  videos     Video[]
+  carruseles Carrusel[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  userId     String
+  user       User       @relation(fields: [userId], references: [id])
+
+  @@index([usernames, id], name: "usernames_instagram")
+}
+
 model UsoCreditos {
   id             String   @id @default(cuid())
   creditosUsados Int
@@ -223,4 +245,35 @@ model UsoCreditos {
   user           User     @relation(fields: [userId], references: [id])
 
   @@index([concepto, id], name: "creditos")
+}
+
+model Guion {
+  id           String         @id @default(cuid())
+  nombre       String?
+  text         String
+  language     String?
+  hook         String?
+  contenido    String?
+  cta          String?
+  estado       String?
+  fecha_uso    DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  listaGuionId String?
+  listaGuion   Lista_Guiones? @relation(fields: [listaGuionId], references: [id])
+  userId       String
+  user         User           @relation(fields: [userId], references: [id])
+
+  @@index([text, id], name: "text_id_guion")
+}
+
+model Lista_Guiones {
+  id        String   @id @default(cuid())
+  guiones   Guion[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([id], name: "id_listaGuiones")
 }
