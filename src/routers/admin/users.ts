@@ -15,6 +15,7 @@ import { adminCreditsRouter } from './credits'
 import { generateNewUserEmail } from '../../libs/nodemailer/templates/newUser'
 import { sendMail } from '../../libs/nodemailer/transporter'
 import { prisma } from '../../db/prisma'
+import { z } from 'zod'
 
 export const adminUsersRouter = Router()
 
@@ -58,7 +59,16 @@ adminUsersRouter.post('/', async (req, res) => {
 adminUsersRouter.post('/bulk', async (req, res) => {
   try {
     const { users } = req.body
-    const usersPromises = users.map(async (user: any) => {
+    const parsedUsers = await z.array(z.string()).safeParseAsync(users)
+    if (!parsedUsers.success) {
+      return res
+        .status(400)
+        .json({
+          message:
+            'Users are not valid, it has to be an array of strings with their emails'
+        })
+    }
+    const usersPromises = parsedUsers.data.map(async (user: any) => {
       const { email } = user
       const userFound = await getUserByEmail({ email })
       if (userFound) {
