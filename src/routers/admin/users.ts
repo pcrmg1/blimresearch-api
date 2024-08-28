@@ -16,6 +16,7 @@ import { generateNewUserEmail } from '../../libs/nodemailer/templates/newUser'
 import { sendMail } from '../../libs/nodemailer/transporter'
 import { prisma } from '../../db/prisma'
 import { z } from 'zod'
+import { error } from 'node:console'
 
 export const adminUsersRouter = Router()
 
@@ -59,44 +60,85 @@ adminUsersRouter.post('/', async (req, res) => {
 adminUsersRouter.post('/bulk', async (req, res) => {
   try {
     const { users } = req.body
-    const parsedUsers = await z.array(z.string()).safeParseAsync(users)
-    if (!parsedUsers.success) {
-      return res
-        .status(400)
-        .json({
-          message:
-            'Users are not valid, it has to be an array of strings with their emails'
+    console.log({ users })
+
+    const usersPromises = users.map(async (email: string) => {
+      try {
+        const parsedUser = await z.string().email().safeParseAsync(email)
+        if (!parsedUser.success) {
+          throw new Error('Email no válido: ' + email)
+        }
+        const userFound = await getUserByEmail({ email })
+        if (userFound) {
+          throw new Error('El usuario ya existe: ' + email)
+        }
+
+        const randomPassword = Math.random().toString(36).slice(-12)
+        const hashedPassword = await hashPassword({ password: randomPassword })
+
+        const newUser = await createUser({
+          email,
+          passwordHash: hashedPassword,
+          role: 'User',
+          name: email
         })
-    }
-    const usersPromises = parsedUsers.data.map(async (user: any) => {
-      const { email } = user
-      const userFound = await getUserByEmail({ email })
-      if (userFound) {
-        return res.status(400).json({ message: 'El usuario ya existe' })
+
+        const html = generateNewUserEmail({
+          username: email,
+          password: randomPassword
+        })
+
+        await sendMail({
+          emailTo: email,
+          subject: 'Bienvenido a SocialBoost! 🚀',
+          html
+        })
+
+        return { success: true, data: newUser }
+      } catch (error) {
+        if (error instanceof Error) {
+          return { success: false, error: error.message }
+        } else {
+          return { success: false, error: 'Hubo un error al crear el usuario' }
+        }
       }
-      const randomPassword = Math.random().toString(36).slice(-12)
-      const hashedPassword = await hashPassword({ password: randomPassword })
-      const newUser = await createUser({
-        email,
-        passwordHash: hashedPassword,
-        role: 'User',
-        name: email
-      })
-      const html = generateNewUserEmail({
-        username: email,
-        password: randomPassword
-      })
-      await sendMail({
-        emailTo: email,
-        subject: 'Bienvenido a SocialBoost! 🚀',
-        html
-      })
-      return newUser
     })
-    const usersCreated = await Promise.all(usersPromises)
-    return res.json(usersCreated)
+
+    const usersCreated = await Promise.allSettled(usersPromises)
+
+    console.log({ usersCreated })
+
+    const successfulUsers = usersCreated
+      .filter(
+        (result) =>
+          result.status === 'fulfilled' && result.value && result.value.success
+      )
+      .map((result) => {
+        console.log({ result })
+        return result.status === 'fulfilled' && result.value.data
+      })
+
+    const failedUsers = usersCreated
+      .filter((result) => result.status === 'rejected' || !result.value.success)
+      .map((result) => {
+        console.log({ error: result })
+        if (result.status === 'rejected' && result.reason instanceof Error) {
+          return { error: result.reason.message }
+        } else if (result.status === 'fulfilled') {
+          return { error: result.value.error }
+        } else {
+          return { error: 'Error desconocido' }
+        }
+      })
+
+    return res.json({
+      success: successfulUsers,
+      usuariosCreados: successfulUsers.length,
+      failed: failedUsers,
+      usuariosFallidos: failedUsers.length
+    })
   } catch (error) {
-    console.log(error)
+    console.error(error)
     return res.status(500).json({ message: 'Internal server error' })
   }
 })
