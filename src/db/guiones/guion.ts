@@ -6,17 +6,24 @@ export const getGuiones = async ({ userId }: { userId: string }) => {
 
 export const getGuionesWithPagination = async ({
   userId,
-  skip,
-  take
+  page,
+  limit,
+  orderBy,
+  order
 }: {
   userId: string
-  skip: number
-  take: number
+  page: number
+  limit: number
+  orderBy: string
+  order: 'asc' | 'desc'
 }) => {
   return await prisma.guion.findMany({
     where: { userId },
-    skip,
-    take
+    skip: page * limit,
+    take: limit,
+    orderBy: {
+      [orderBy]: order
+    }
   })
 }
 
@@ -24,8 +31,14 @@ export const getGuionesCount = async ({ userId }: { userId: string }) => {
   return await prisma.guion.count({ where: { userId } })
 }
 
-export const getGuionById = async ({ id }: { id: string }) => {
-  return await prisma.guion.findUnique({ where: { id } })
+export const getGuionById = async ({
+  id,
+  userId
+}: {
+  id: string
+  userId: string
+}) => {
+  return await prisma.guion.findUnique({ where: { id, userId } })
 }
 
 export const createGuion = async ({
@@ -48,12 +61,53 @@ export const createGuion = async ({
   cta?: string
   tipoCta?: string
   estado?: string
-  fecha_uso?: string
+  fecha_uso?: Date
   listaGuionId?: string
 }) => {
   return await prisma.guion.create({
     data: {
       userId,
+      nombre,
+      text,
+      hook,
+      contenido,
+      cta,
+      tipoCta,
+      estado,
+      fecha_uso,
+      listaGuionId
+    }
+  })
+}
+
+export const updateGuion = async ({
+  id,
+  userId,
+  nombre,
+  text,
+  hook,
+  contenido,
+  cta,
+  tipoCta,
+  estado,
+  fecha_uso,
+  listaGuionId
+}: {
+  id: string
+  userId: string
+  nombre?: string
+  text?: string
+  hook?: string
+  contenido?: string
+  cta?: string
+  tipoCta?: string
+  estado?: string
+  fecha_uso?: Date
+  listaGuionId?: string
+}) => {
+  return await prisma.guion.update({
+    where: { id, userId },
+    data: {
       nombre,
       text,
       hook,

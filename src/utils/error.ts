@@ -1,3 +1,3 @@
 export const errorHandler = (error: any) => {
-  console.log({ error })
+  return process.env.NODE_ENV === 'development' ? console.log({ error }) : null
 }
