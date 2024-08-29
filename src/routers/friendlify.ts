@@ -9,6 +9,7 @@ import {
 } from '../db/friendlify'
 import { errorHandler } from '../utils/error'
 import { QueryParamsSchema } from '../models/queryParams'
+import { mejorarGuion } from '../libs/openai/guiones'
 
 export const friendlifyRouter = Router()
 
@@ -96,13 +97,16 @@ friendlifyRouter.delete(
   }
 )
 
-friendlifyRouter.post('/improveWithAI', async (req, res) => {
+friendlifyRouter.post('/mejorarGuion', async (req, res) => {
   const { text } = req.body
   try {
     if (!text) {
       return res.status(500).json({ error: 'Failed to friendlify text' })
     }
-    const improvedText = await improveWithAI({ text })
+    if (typeof text !== 'string') {
+      return res.status(400).json({ error: 'Text must be a string' })
+    }
+    const improvedText = await mejorarGuion({ guion: text })
     return res.json({ data: improvedText })
   } catch (error) {
     errorHandler(error)

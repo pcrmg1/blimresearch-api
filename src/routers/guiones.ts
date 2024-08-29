@@ -1,6 +1,5 @@
 import { Router } from 'express'
 import { QueryParamsSchema } from '../models/queryParams'
-import { prisma } from '../db/prisma'
 import { RequestWithToken } from '../types/jwt'
 import { errorHandler } from '../utils/error'
 import { NewGuionSchema } from '../models/guion'
@@ -69,6 +68,7 @@ guionesRouter.get('/:id', async (req: RequestWithToken, res) => {
 
 guionesRouter.post('/', async (req: RequestWithToken, res) => {
   const userId = req.userId
+  const { guion } = req.body
   if (!userId) {
     return res.status(401).json({ message: 'Unauthorized' })
   }
