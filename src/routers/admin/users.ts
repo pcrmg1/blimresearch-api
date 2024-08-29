@@ -16,7 +16,6 @@ import { generateNewUserEmail } from '../../libs/nodemailer/templates/newUser'
 import { sendMail } from '../../libs/nodemailer/transporter'
 import { prisma } from '../../db/prisma'
 import { z } from 'zod'
-import { error } from 'node:console'
 
 export const adminUsersRouter = Router()
 
@@ -217,7 +216,7 @@ adminUsersRouter.delete('/:id', async (req, res) => {
   }
 })
 
-adminUsersRouter.get('/count', async (req, res) => {
+adminUsersRouter.post('/count', async (req, res) => {
   try {
     const count = await getUsersCount()
     const users = await getUserCreditsInfo()
@@ -225,14 +224,14 @@ adminUsersRouter.get('/count', async (req, res) => {
       const creditosSinGastar = user.limiteCreditos - user.creditosUsados
       return acc + creditosSinGastar
     }, 0)
-    return res.json({ data: creditosSinGastar, count })
+    return res.json({ data: { creditosSinGastar, usersCount: count } })
   } catch (error) {
     console.log(error)
     return res.status(500).json({ message: 'Internal server error' })
   }
 })
 
-adminUsersRouter.get('/filter', async (req, res) => {
+adminUsersRouter.post('/filter', async (req, res) => {
   const { creditsLeft } = req.query
   try {
     const users = await prisma.user.findMany()
