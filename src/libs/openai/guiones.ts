@@ -30,6 +30,5 @@ export const mejorarGuion = async ({ guion }: { guion: string }) => {
     presence_penalty: 0,
     response_format: zodResponseFormat(GuionFromOpenAI, 'guion')
   })
-  console.log({ response })
   return response.choices[0].message.parsed
 }
