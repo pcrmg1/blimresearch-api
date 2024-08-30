@@ -232,7 +232,7 @@ adminUsersRouter.post('/count', async (req, res) => {
 })
 
 adminUsersRouter.post('/filter', async (req, res) => {
-  const { creditsLeft } = req.query
+  const { creditsLeft } = req.body
   try {
     const users = await prisma.user.findMany()
     const filteredUsers = users.filter((user) => {
