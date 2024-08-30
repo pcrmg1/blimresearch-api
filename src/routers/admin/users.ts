@@ -235,9 +235,10 @@ adminUsersRouter.post('/filter', async (req, res) => {
   const { creditsLeft } = req.query
   try {
     const users = await prisma.user.findMany()
-    const filteredUsers = users.filter(
-      (user) => user.limiteCreditos - user.creditosUsados <= Number(creditsLeft)
-    )
+    const filteredUsers = users.filter((user) => {
+      const creditsLeftPerUser = user.limiteCreditos - user.creditosUsados
+      return creditsLeftPerUser >= Number(creditsLeft)
+    })
     return res.json({ data: filteredUsers, count: filteredUsers.length })
   } catch (error) {
     console.log(error)
