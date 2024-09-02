@@ -68,7 +68,6 @@ guionesRouter.get('/:id', async (req: RequestWithToken, res) => {
 
 guionesRouter.post('/', async (req: RequestWithToken, res) => {
   const userId = req.userId
-  const { guion } = req.body
   if (!userId) {
     return res.status(401).json({ message: 'Unauthorized' })
   }

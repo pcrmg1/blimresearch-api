@@ -10,6 +10,8 @@ import {
   getListaGuionesWithPagination,
   updateListaGuion
 } from '../db/guiones/listas'
+import { NewGuionSchema, NewGuionSchemaWithLista } from '../models/guion'
+import { connect } from 'http2'
 
 export const listaGuionesRouter = Router()
 
@@ -92,23 +94,22 @@ listaGuionesRouter.post('/', async (req: RequestWithToken, res) => {
 })
 
 listaGuionesRouter.post('/guion', async (req: RequestWithToken, res) => {
-  const { guionId, listaGuionId } = req.body
+  const { guion } = req.body
   const userId = req.userId
-  if (!userId) {
-    return res.status(401).json({ message: 'Unauthorized' })
-  }
-  if (!guionId || !listaGuionId) {
-    return res
-      .status(400)
-      .json({ message: 'GuionId and listaGuionId are required' })
-  }
   try {
-    const guionActualizado = await prisma.guion.update({
-      where: {
-        id: guionId
-      },
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' })
+    }
+    const parsedGuion = await NewGuionSchemaWithLista.safeParseAsync(guion)
+    if (!parsedGuion.success) {
+      return res.status(400).json({ message: parsedGuion.error })
+    }
+    const { listaGuionId, ...rest } = parsedGuion.data
+    const guionActualizado = await prisma.guion.create({
       data: {
-        listaGuion: { connect: { id: listaGuionId } }
+        ...rest,
+        listaGuionId,
+        userId
       }
     })
     return guionActualizado
