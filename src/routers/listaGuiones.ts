@@ -112,6 +112,21 @@ listaGuionesRouter.post('/guion', async (req: RequestWithToken, res) => {
         userId
       }
     })
+    await prisma.guion.update({
+      where: {
+        id: guionActualizado.id
+      },
+      include: {
+        listaGuion: true
+      },
+      data: {
+        listaGuion: {
+          connect: {
+            id: listaGuionId
+          }
+        }
+      }
+    })
     return guionActualizado
   } catch (error) {
     errorHandler(error)
