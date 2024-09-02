@@ -91,6 +91,33 @@ listaGuionesRouter.post('/', async (req: RequestWithToken, res) => {
   }
 })
 
+listaGuionesRouter.post('/guion', async (req: RequestWithToken, res) => {
+  const { guionId, listaGuionId } = req.body
+  const userId = req.userId
+  if (!userId) {
+    return res.status(401).json({ message: 'Unauthorized' })
+  }
+  if (!guionId || !listaGuionId) {
+    return res
+      .status(400)
+      .json({ message: 'GuionId and listaGuionId are required' })
+  }
+  try {
+    const guionActualizado = await prisma.guion.update({
+      where: {
+        id: guionId
+      },
+      data: {
+        listaGuion: { connect: { id: listaGuionId } }
+      }
+    })
+    return guionActualizado
+  } catch (error) {
+    errorHandler(error)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
 listaGuionesRouter.put('/:id', async (req: RequestWithToken, res) => {
   const { id } = req.params
   const { nombre } = req.body
