@@ -20,6 +20,7 @@ import { usersRouter } from './routers/users'
 import { maintenanceRouter } from './routers/maintenance'
 import { guionesRouter } from './routers/guiones'
 import { listaGuionesRouter } from './routers/listaGuiones'
+import { instagramUsernameViralsRouter } from './routers/instagramUsernameVirals'
 
 export const prismaDB = new PrismaClient({
   log:
@@ -53,6 +54,11 @@ app.use('/api/friendlify', verifyToken, friendlifyRouter)
 app.use('/api/virals', verifyToken, viralsRouter)
 app.use('/api/mediaCreation', verifyToken, mediaCreationRouter)
 app.use('/api/tiktokUsernameVirals', verifyToken, tiktokUsernameViralsRouter)
+app.use(
+  '/api/instagramUsernameVirals',
+  verifyToken,
+  instagramUsernameViralsRouter
+)
 app.use('/api/resetDb', resetDBRouter)
 app.use('/api/guiones', verifyToken, guionesRouter)
 app.use('/api/listaGuiones', verifyToken, listaGuionesRouter)
