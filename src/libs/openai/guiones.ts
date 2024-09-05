@@ -32,3 +32,46 @@ export const mejorarGuion = async ({ guion }: { guion: string }) => {
   })
   return response.choices[0].message.parsed
 }
+
+export const mejorarGuionPorPartes = async ({
+  text,
+  mejorar,
+  contenidoAMejorar,
+  recomendaciones
+}: {
+  text: string
+  mejorar: ['hook' | 'contenido' | 'cta']
+  contenidoAMejorar: string
+  recomendaciones?: string
+}) => {
+  const response = await openAI.beta.chat.completions.parse({
+    model: 'gpt-4o-2024-08-06',
+    messages: [
+      {
+        role: 'system',
+        content:
+          'Eres una maquina superinteligente que mejora los contenidos de una red social, teniendo en cuenta que los contenidos tienen siempre un hook, contenido y un call to action. Tu objetivo en este caso es mejorar alguna de esas 3 partes, teniendo en cuenta el texto que se te provee. Debes mejorar el contenido que se te provee, teniendo en cuenta que el contenido debe ser relevante, interesante y que resuelva el hook.'
+      },
+      {
+        role: 'user',
+        content: `Este es el texto a partir del cual se creo:\n${text}\n. Solo quiero que mejores el ${mejorar}, que es el siguiente:\n${contenidoAMejorar}.${
+          recomendaciones &&
+          `\nRecomendaciones a tener en cuenta para la mejora: ${recomendaciones}`
+        }`
+      }
+    ],
+    temperature: 1,
+    max_tokens: 4096,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    response_format: zodResponseFormat(
+      z.object({
+        text: z.string(),
+        mejora: z.string()
+      }),
+      'guion'
+    )
+  })
+  return response.choices[0].message.parsed
+}

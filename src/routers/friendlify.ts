@@ -9,7 +9,8 @@ import {
 } from '../db/friendlify'
 import { errorHandler } from '../utils/error'
 import { QueryParamsSchema } from '../models/queryParams'
-import { mejorarGuion } from '../libs/openai/guiones'
+import { mejorarGuion, mejorarGuionPorPartes } from '../libs/openai/guiones'
+import { getGuionById } from '../db/guiones/guion'
 
 export const friendlifyRouter = Router()
 
@@ -101,7 +102,7 @@ friendlifyRouter.post('/mejorarGuion', async (req, res) => {
   const { text } = req.body
   try {
     if (!text) {
-      return res.status(500).json({ error: 'Failed to friendlify text' })
+      return res.status(500).json({ error: 'Text is needed' })
     }
     if (typeof text !== 'string') {
       return res.status(400).json({ error: 'Text must be a string' })
@@ -113,3 +114,37 @@ friendlifyRouter.post('/mejorarGuion', async (req, res) => {
     return res.status(500).json({ error: 'Hubo un error procesando el texto' })
   }
 })
+
+friendlifyRouter.post(
+  '/mejorarGuion/:id',
+  async (req: RequestWithToken, res) => {
+    const { mejorar, contenidoAMejorar, recomendaciones } = req.body
+    const { id } = req.params
+    const userId = req.userId
+    if (!userId) {
+      return res.status(401).json({ message: 'No userId' })
+    }
+    try {
+      const guion = await getGuionById({ id, userId })
+      if (!guion) {
+        return res.status(404).json({ error: 'Guion not found' })
+      }
+      if (['hook', 'contenido', 'cta'].includes(mejorar)) {
+        const improvedText = await mejorarGuionPorPartes({
+          text: guion.text,
+          contenidoAMejorar,
+          mejorar: mejorar,
+          recomendaciones
+        })
+        return res.json({ data: improvedText })
+      } else {
+        return res.status(400).json({ error: 'Invalid mejorar value' })
+      }
+    } catch (error) {
+      errorHandler(error)
+      return res
+        .status(500)
+        .json({ error: 'Hubo un error procesando el texto' })
+    }
+  }
+)
