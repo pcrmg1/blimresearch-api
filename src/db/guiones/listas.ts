@@ -44,7 +44,11 @@ export const getListaGuionById = async ({
   return await prisma.lista_Guiones.findUnique({
     where: { id, userId },
     include: {
-      guiones: true
+      guiones: {
+        orderBy: {
+          createdAt: 'desc'
+        }
+      }
     }
   })
 }
