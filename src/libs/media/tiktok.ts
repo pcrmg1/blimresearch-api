@@ -8,7 +8,6 @@ export const transcribeTiktokVideo = async ({ url }: { url: string }) => {
   try {
     const id = url?.split('/')[5].split('?')[0] as string
     const videoLink = await Tiktok.Downloader(url, { version: 'v3' })
-    console.log({ videoLink })
     const filename = `${id}.mp3`
     if (!videoLink || !videoLink.result || !videoLink.result.video1)
       throw new Error('No se pudo descargar el video')

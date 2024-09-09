@@ -21,7 +21,6 @@ export const getTiktokDataFromUsernames = async ({
     maxPostsPerQuery: 1,
     usernames
   }
-  console.log('Starting tiktok Run')
   const run = await apifyClient.actor('ssOXktOBaQQiYfhc4').call(input)
   const response = await apifyClient.dataset(run.defaultDatasetId).listItems()
   const COST_PER_ITEM = 0.1 / 1000
@@ -47,7 +46,6 @@ export const getTiktokDataFromQuery = async ({ query }: { query: string }) => {
     }
     const run = await apifyClient.actor('OtzYfK1ndEGdwWFKQ').call(input)
     const response = await apifyClient.dataset(run.defaultDatasetId).listItems()
-    console.log('response received')
     const COST_PER_ITEM = 4 / 1000
     return {
       items: response.items as unknown as TiktokQueryRun[],
@@ -78,7 +76,6 @@ export const getTiktokDataFromProfilesQuery = async ({
     const run = await apifyClient.actor('OtzYfK1ndEGdwWFKQ').call(input)
     const response = await apifyClient.dataset(run.defaultDatasetId).listItems()
     const COST_PER_ITEM = 0.004
-    console.log('response received')
     return {
       items: response.items as unknown as TiktokQueryRun[],
       cost: COST_PER_ITEM * response.items.length

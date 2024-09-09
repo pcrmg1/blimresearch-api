@@ -2,7 +2,6 @@ import { RequestWithToken } from '../../types/jwt'
 
 export const checkReqBody = (req: RequestWithToken) => {
   const { search, platform, languages } = req.body
-  console.log({ search, platform, languages })
 
   if (!search) {
     return { status: 400, error: 'search is required' }

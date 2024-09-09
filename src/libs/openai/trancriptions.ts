@@ -2,7 +2,6 @@ import { createReadStream } from 'fs'
 import { openAI } from './client'
 
 export const transcribeAudio = async (path: string) => {
-  console.log('Se comenzara a transcribir el audio, ', path)
   const transcription = await openAI.audio.transcriptions.create({
     file: createReadStream(`${path}`),
     model: 'whisper-1',

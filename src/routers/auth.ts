@@ -112,7 +112,6 @@ authRouter.post('/forgotPassword', async (req, res) => {
         changePasswordExpire: expirationDate
       }
     })
-    console.log('Enviando mail...')
     const href = `${process.env.FRONTEND_URL}/resetPassword?token=${token}`
     const html = generateResetPasswordEmail({ href, email })
     await sendMail({
@@ -120,7 +119,6 @@ authRouter.post('/forgotPassword', async (req, res) => {
       subject: 'Reset password',
       html
     })
-    console.log('Mail enviado.')
     return res.json({ message: 'Token generated successfully' })
   } catch (error) {
     console.log(error)

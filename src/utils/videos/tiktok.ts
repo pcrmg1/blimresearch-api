@@ -77,7 +77,6 @@ export const formatItemsFromTiktokUsernamesResponse = ({
   if (itemsFound.length === 0) {
     throw new Error('No se encontraron perfiles')
   }
-  console.log('itemsFound', itemsFound)
   return itemsFound
 }
 

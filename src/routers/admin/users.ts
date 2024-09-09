@@ -59,7 +59,6 @@ adminUsersRouter.post('/', async (req, res) => {
 adminUsersRouter.post('/bulk', async (req, res) => {
   try {
     const { users } = req.body
-    console.log({ users })
 
     const usersPromises = users.map(async (email: string) => {
       try {
@@ -105,22 +104,18 @@ adminUsersRouter.post('/bulk', async (req, res) => {
 
     const usersCreated = await Promise.allSettled(usersPromises)
 
-    console.log({ usersCreated })
-
     const successfulUsers = usersCreated
       .filter(
         (result) =>
           result.status === 'fulfilled' && result.value && result.value.success
       )
       .map((result) => {
-        console.log({ result })
         return result.status === 'fulfilled' && result.value.data
       })
 
     const failedUsers = usersCreated
       .filter((result) => result.status === 'rejected' || !result.value.success)
       .map((result) => {
-        console.log({ error: result })
         if (result.status === 'rejected' && result.reason instanceof Error) {
           return { error: result.reason.message }
         } else if (result.status === 'fulfilled') {
@@ -144,7 +139,6 @@ adminUsersRouter.post('/bulk', async (req, res) => {
 
 adminUsersRouter.get('/', async (req, res) => {
   const { page, limit, query, orderBy, order } = req.query
-  console.log({ reqQuery: req.query })
   try {
     const parsedQuery = await QueryParamsSchema.safeParseAsync({
       page: isNaN(Number(page)) ? 0 : Number(page),
@@ -163,7 +157,6 @@ adminUsersRouter.get('/', async (req, res) => {
       query: parsedQueryString,
       order: parsedOrder
     } = parsedQuery.data
-    console.log({ parsedQuery: parsedQuery.data })
     const users = await getAllUsers({
       limit: parsedLimit,
       page: parsedPage,

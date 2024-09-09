@@ -12,7 +12,6 @@ export const getInstagramVideoURL = async ({ url }: { url: string }) => {
     if (!res.videoUrl) {
       throw new Error('No se encontro el video')
     }
-    console.log({ videoUrl: res.videoUrl })
     return res.videoUrl
   } catch (error) {
     console.error(error)
@@ -30,13 +29,11 @@ export const getCarruselImgUrls = async (url: string) => {
     }
     if (res.type === 'Image') {
       urlLists.push(res.displayUrl)
-      console.log({ urlLists })
       return { urlLists, url: res.url, username: res.ownerUsername }
     }
     for (const url of res.images) {
       urlLists.push(url)
     }
-    console.log({ urlLists, url: res.url })
     return { urlLists, url: res.url, username: res.ownerUsername }
   } catch (error) {
     console.error({ error })

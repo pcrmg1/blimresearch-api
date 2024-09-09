@@ -67,11 +67,9 @@ transcriptionsRouter.post(
     try {
       const { url, platform, language } = request.body
       const userId = request.userId
-      console.log({ url, platform, language, userId })
       if (!userId) {
         return response.status(400).json({ error: 'userId is required' })
       }
-      console.log('URL recibida: ', url)
       if (platform === 'instagram') {
         const { transcription, videoId } = await transcribeInstagramVideo({
           url
@@ -88,14 +86,12 @@ transcriptionsRouter.post(
         const { transcription } = await transcribeTiktokVideo({
           url
         })
-        console.log('Guardando en base de datos')
         const transcriptionSaved = await createVideoTranscription({
           language,
           text: transcription,
           userId,
           shortcode: videoId
         })
-        console.log(transcriptionSaved)
         return response.json({ data: transcriptionSaved })
       } else {
         return response
