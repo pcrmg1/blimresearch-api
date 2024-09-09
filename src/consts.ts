@@ -5,7 +5,7 @@ export const LANGUAGES_FOR_QUERIES = [
   'italiano'
 ]
 
-export const RESULT_LIMITS_INSTAGRAM = 10
+export const RESULT_LIMITS_INSTAGRAM = 30
 
 //- 5 Créditos por idioma en búsquedas de tiktok
 // - 7 Créditos por idioma en búsqueda de instagram
