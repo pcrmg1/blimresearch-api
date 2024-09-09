@@ -168,7 +168,7 @@ instagramUsernameViralsRouter.post(
       }
 
       const totalCostCredits =
-        CREDITS_COST['busqueda_virales_cada_5'] *
+        CREDITS_COST['busqueda_instagram'] *
         Math.ceil(instagramUsernameList.usernames.length / 5)
 
       const { status, error } = await checkCreditsCost({
