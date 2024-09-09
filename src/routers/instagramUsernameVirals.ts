@@ -168,7 +168,7 @@ instagramUsernameViralsRouter.post(
       }
 
       const totalCostCredits =
-        CREDITS_COST['busqueda_virales_cada_5'] *
+        CREDITS_COST['busqueda_instagram'] *
         Math.ceil(instagramUsernameList.usernames.length / 5)
 
       const { status, error } = await checkCreditsCost({
@@ -186,8 +186,8 @@ instagramUsernameViralsRouter.post(
 
       const {
         cost,
-        viralSidecars: carruseles,
-        viralVideos: videos
+        totalSidecars: carruseles,
+        totalVideos: videos
       } = await getInstagramViralsFromUsernamesList({
         usernames: instagramUsernameList.usernames,
         userId
@@ -203,7 +203,7 @@ instagramUsernameViralsRouter.post(
       await addUserCredits({
         userId,
         credits: totalCostCredits,
-        concepto: 'busqueda_virales_cada_5'
+        concepto: 'busqueda_virales_cada_5_instagram'
       })
 
       const formattedVideosForDB = videos.map((video) => ({
@@ -219,11 +219,11 @@ instagramUsernameViralsRouter.post(
         userId
       }))
 
-      await prisma.video.createMany({
+      const data = await prisma.video.createMany({
         data: formattedVideosForDB
       })
 
-      await prisma.carrusel.createMany({
+      const data2 = await prisma.carrusel.createMany({
         data: formattedCarrouselForDB
       })
 

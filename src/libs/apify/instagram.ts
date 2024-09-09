@@ -7,14 +7,20 @@ import {
   type InstagramDirectURLRun
 } from '../../types/apify'
 
-export const getInstagramDataForOneUrl = async ({ url }: { url: string }) => {
+export const getInstagramDataForOneUrl = async ({
+  url,
+  resultsLimit
+}: {
+  url: string
+  resultsLimit?: number
+}) => {
   const input = {
     directUrls: [url],
     addParentData: false,
     enhanceUserSearchWithFacebookPage: false,
     isUserReelFeedURL: false,
     isUserTaggedFeedURL: false,
-    resultsLimit: 1,
+    resultsLimit: resultsLimit ? resultsLimit : 1,
     resultsType: 'details',
     searchLimit: 1,
     searchType: 'hashtag'
@@ -39,22 +45,23 @@ export const getInstagramDataByQuery = async ({ query }: { query: string }) => {
 }
 
 export const getInstagramDataByDirectUrl = async ({
-  directUrls
+  directUrls,
+  resultsLimit
 }: {
   directUrls: string[]
+  resultsLimit?: number
 }) => {
   const input = {
     directUrls,
     resultsType: 'posts',
-    resultsLimit: RESULT_LIMITS_INSTAGRAM,
+    resultsLimit: resultsLimit ? resultsLimit : RESULT_LIMITS_INSTAGRAM,
     searchType: 'hashtag',
-    searchLimit: RESULT_LIMITS_INSTAGRAM,
+    searchLimit: resultsLimit ? resultsLimit : RESULT_LIMITS_INSTAGRAM,
     addParentData: false
   }
   const run = await apifyClient.actor('shu8hvrXbJbY3Eb9W').call(input)
   const { items } = await apifyClient.dataset(run.defaultDatasetId).listItems()
   const COST_PER_ITEM = 0.0023
-  console.log({ items })
   return {
     items: items as unknown as InstagramDirectURLRun[],
     cost: COST_PER_ITEM * items.length
