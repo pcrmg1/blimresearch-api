@@ -101,13 +101,16 @@ export const deleteTranscriptionById = async ({ id }: { id: string }) => {
 }
 
 export const getTranscriptionByVideoId = async ({
-  shortcode
+  shortcode,
+  userId
 }: {
   shortcode: string
+  userId: string
 }) => {
-  return await prisma.transcription.findFirst({
+  return await prisma.transcription.findMany({
     where: {
-      shortcode
+      shortcode,
+      userId
     }
   })
 }

@@ -76,13 +76,6 @@ transcriptionsRouter.post(
         const { transcription, videoId } = await transcribeInstagramVideo({
           url
         })
-        const transcriptionsExists = await getTranscriptionByVideoId({
-          shortcode: videoId
-        })
-        if (transcriptionsExists) {
-          console.log('Transcripcion ya existe en la base de datos, enviando')
-          return response.json({ data: transcriptionsExists })
-        }
         const transcriptionSaved = await createVideoTranscription({
           language,
           text: transcription,
@@ -92,13 +85,6 @@ transcriptionsRouter.post(
         return response.json({ data: transcriptionSaved })
       } else if (platform === 'tiktok') {
         const { videoId } = getTiktokVideoId({ url })
-        const transcriptionsExists = await getTranscriptionByVideoId({
-          shortcode: videoId
-        })
-        if (transcriptionsExists) {
-          console.log('Transcripcion ya existe en la base de datos, enviando')
-          return response.json({ data: transcriptionsExists })
-        }
         const { transcription } = await transcribeTiktokVideo({
           url
         })
