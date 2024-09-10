@@ -7,7 +7,7 @@ export const transcribeAudio = async (path: string) => {
     file: createReadStream(`${path}`),
     model: 'whisper-1',
     prompt:
-      "Transcribe the following audio file, when a new line is spoken, write '/n' to indicate a new line."
+      "Transcribe el siguiente audio a español, si no hay texto, solo escribe 'null' como respuesta. Recuerda que no quiero que me agregues nada, solo traduce el texto proporcionado"
   })
   return transcription.text
 }
