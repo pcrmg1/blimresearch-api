@@ -56,12 +56,12 @@ export const getInstagramViralsFromUsernamesList = async ({
     const videosAverageLikes = videosLikesCount / videos.length
     for (const sideCar of sideCars) {
       if (sideCar.likesCount && sideCar.likesCount > sideCarsAverageLikes * 3) {
-        viralSidecars.push(sideCar)
+        viralSidecars.push({ ...sideCar, sideCarsAverageLikes })
       }
     }
     for (const video of videos) {
       if (video.likesCount && video.likesCount > videosAverageLikes * 3) {
-        viralVideos.push(video)
+        viralVideos.push({ ...video, videosAverageLikes })
       }
     }
   }
@@ -74,7 +74,14 @@ export const getInstagramViralsFromUsernamesList = async ({
     url: string
   }[] = []
   viralSidecars.forEach((sidecar) => {
-    const { timestamp, ownerUsername, images, url, likesCount } = sidecar
+    const {
+      timestamp,
+      ownerUsername,
+      images,
+      url,
+      likesCount,
+      sideCarsAverageLikes
+    } = sidecar
     if (ownerUsername) {
       totalSidecars.push({
         timestamp: timestamp ? timestamp : undefined,
@@ -92,16 +99,25 @@ export const getInstagramViralsFromUsernamesList = async ({
     videoHearts: number | undefined
     videoComments: number | undefined
     videoUrl: string
+    userPlayAvg: number | undefined
   }[] = []
   viralVideos.forEach((video) => {
-    const { timestamp, ownerUsername, likesCount, commentsCount, url } = video
+    const {
+      timestamp,
+      ownerUsername,
+      likesCount,
+      commentsCount,
+      url,
+      videosAverageLikes
+    } = video
     if (ownerUsername) {
       totalVideos.push({
         timestamp: timestamp ? timestamp : undefined,
         username: ownerUsername,
         videoHearts: likesCount ? likesCount : undefined,
         videoComments: commentsCount,
-        videoUrl: url
+        videoUrl: url,
+        userPlayAvg: videosAverageLikes
       })
     }
   })

@@ -113,9 +113,7 @@ export const formatCarrouselFromInstagram = ({
       profilePicUrl,
       sidecarsLikeAverage
     } = item
-    const filteredSidecars = sidecars.filter(
-      (sidecar) => sidecar.likesCount > sidecarsLikeAverage * 3
-    )
+    const filteredSidecars = sidecars.filter((sidecar) => sidecar.likesCount)
     sidecarsCount += filteredSidecars.length
     return {
       username,
