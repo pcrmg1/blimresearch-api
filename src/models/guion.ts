@@ -9,7 +9,7 @@ export const NewGuionSchema = z.object({
   cta: z.string().optional(),
   tipoCta: z.string().optional(),
   estado: z.string().optional(),
-  fecha_uso: z.date().optional(),
+  fecha_uso: z.string().optional(),
   listaGuionId: z.string().optional(),
   userId: z.string().optional()
 })
@@ -23,7 +23,7 @@ export const NewGuionSchemaWithLista = z.object({
   cta: z.string().optional(),
   tipoCta: z.string().optional(),
   estado: z.string().optional(),
-  fecha_uso: z.date().optional(),
+  fecha_uso: z.string().optional(),
   listaGuionId: z.string(),
   userId: z.string().optional()
 })
