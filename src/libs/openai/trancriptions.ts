@@ -4,9 +4,7 @@ import { openAI } from './client'
 export const transcribeAudio = async (path: string) => {
   const transcription = await openAI.audio.transcriptions.create({
     file: createReadStream(`${path}`),
-    model: 'whisper-1',
-    prompt:
-      "Transcribe el siguiente audio a español, si no hay texto, solo escribe 'null' como respuesta. Recuerda que no quiero que me agregues nada, solo traduce el texto proporcionado"
+    model: 'whisper-1'
   })
   return transcription.text
 }
