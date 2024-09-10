@@ -76,8 +76,10 @@ guionesRouter.post('/', async (req: RequestWithToken, res) => {
     if (!parsedGuion.success) {
       return res.status(400).json({ message: parsedGuion.error })
     }
+    const { fecha_uso, ...rest } = parsedGuion.data
     const guion = await createGuion({
-      ...parsedGuion.data,
+      ...rest,
+      fecha_uso: fecha_uso ? new Date(fecha_uso) : undefined,
       userId
     })
     res.json({ data: guion })
@@ -99,8 +101,10 @@ guionesRouter.put('/:id', async (req: RequestWithToken, res) => {
     if (!parsedGuion.success) {
       return res.status(400).json({ message: parsedGuion.error })
     }
+    const { fecha_uso, ...rest } = parsedGuion.data
     const guion = await updateGuion({
-      ...parsedGuion.data,
+      ...rest,
+      fecha_uso: fecha_uso ? new Date(fecha_uso) : undefined,
       id,
       userId
     })
