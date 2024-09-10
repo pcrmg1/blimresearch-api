@@ -74,14 +74,7 @@ export const getInstagramViralsFromUsernamesList = async ({
     url: string
   }[] = []
   viralSidecars.forEach((sidecar) => {
-    const {
-      timestamp,
-      ownerUsername,
-      images,
-      url,
-      likesCount,
-      sideCarsAverageLikes
-    } = sidecar
+    const { timestamp, ownerUsername, images, url, likesCount } = sidecar
     if (ownerUsername) {
       totalSidecars.push({
         timestamp: timestamp ? timestamp : undefined,
