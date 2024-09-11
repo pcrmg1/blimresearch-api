@@ -239,4 +239,23 @@ adminUsersRouter.post('/filter', async (req, res) => {
   }
 })
 
+adminUsersRouter.post('/:id/resetPassword', async (req, res) => {
+  const { id, newPassword } = req.body
+  try {
+    const user = await getUserById({ userId: id })
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+    const hashedPassword = await hashPassword({ password: newPassword })
+    await prisma.user.update({
+      where: { id },
+      data: { password: hashedPassword }
+    })
+    return res.json({ message: 'Password updated' })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
 adminUsersRouter.use('/:id/credits', adminCreditsRouter)
