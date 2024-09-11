@@ -1,10 +1,11 @@
 import jwt from 'jsonwebtoken'
 import { Response, NextFunction } from 'express'
 import { JwtPayload, RequestWithToken } from '../types/jwt'
+import { getUserById } from '../db/user'
 
 const secretKey = process.env.TOKEN_SECRET!!
 
-export function verifyToken(
+export async function verifyToken(
   req: RequestWithToken,
   res: Response,
   next: NextFunction
@@ -16,6 +17,10 @@ export function verifyToken(
   }
   try {
     const payload = jwt.verify(token, secretKey) as JwtPayload
+    const user = await getUserById({ userId: payload.userId })
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' })
+    }
     req.userId = payload.userId
     req.email = payload.email
     req.role = payload.role
