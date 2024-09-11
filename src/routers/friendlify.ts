@@ -1,6 +1,15 @@
 import { Router } from 'express'
 import { RequestWithToken } from '../types/jwt'
-import { friendlifyText, improveWithAI } from '../libs/openai/friendlify'
+import {
+  friendlifyText,
+  improveContenido,
+  improveCTAComentarios,
+  improveCTACompartidos,
+  improveCTAGuardados,
+  improveCTASeguidores,
+  improveHook,
+  improveWithAI
+} from '../libs/openai/friendlify'
 import {
   createFriendlifiedText,
   deleteFriendlifiedTextById,
@@ -118,7 +127,7 @@ friendlifyRouter.post('/mejorarGuion', async (req, res) => {
 friendlifyRouter.post(
   '/mejorarGuion/:id',
   async (req: RequestWithToken, res) => {
-    const { mejorar, contenidoAMejorar, recomendaciones } = req.body
+    const { mejorar, hook, contenido, cta } = req.body
     const { id } = req.params
     const userId = req.userId
     if (!userId) {
@@ -129,13 +138,38 @@ friendlifyRouter.post(
       if (!guion) {
         return res.status(404).json({ error: 'Guion not found' })
       }
-      if (['hook', 'contenido', 'cta'].includes(mejorar)) {
-        const improvedText = await mejorarGuionPorPartes({
-          text: guion.text,
-          contenidoAMejorar,
-          mejorar: mejorar,
-          recomendaciones
-        })
+      if (
+        [
+          'hook',
+          'contenido',
+          'cta-comentarios',
+          'cta-guardados',
+          'cta-seguidores',
+          'cta-compartidos'
+        ].includes(mejorar)
+      ) {
+        let improvedText
+        if (mejorar === 'contenido') {
+          improvedText = await improveContenido({ hook, contenido, cta })
+        } else if (mejorar === 'hook') {
+          improvedText = await improveHook({ hook, contenido, cta })
+        } else if (mejorar === 'cta-comentarios') {
+          improvedText = await improveCTAComentarios({
+            hook,
+            contenido,
+            cta
+          })
+        } else if (mejorar === 'cta-guardados') {
+          improvedText = await improveCTAGuardados({ hook, contenido, cta })
+        } else if (mejorar === 'cta-seguidores') {
+          improvedText = await improveCTASeguidores({ hook, contenido, cta })
+        } else if (mejorar === 'cta-compartidos') {
+          improvedText = await improveCTACompartidos({
+            hook,
+            contenido,
+            cta
+          })
+        }
         return res.json({ data: improvedText })
       } else {
         return res.status(400).json({ error: 'Invalid mejorar value' })

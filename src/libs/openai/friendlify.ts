@@ -42,3 +42,308 @@ export const improveWithAI = async ({ text }: { text: string }) => {
   })
   return response.choices[0].message.content
 }
+
+export const improveContenido = async ({
+  hook,
+  contenido,
+  cta
+}: {
+  hook: string
+  contenido: string
+  cta: string
+}) => {
+  const response = await openAI.chat.completions.create({
+    model: 'gpt-4o-2024-08-06',
+    messages: [
+      {
+        role: 'system',
+        content: [
+          {
+            type: 'text',
+            text: 'Reescribe únicamente el CONTENIDO de este guión, teniendo en cuenta los parametros. Cada frase debe aportar valor, eliminando lo innecesario. Un contenido efectivo se enfoca en mantener al usuario interesado desde el primer segundo hasta el último. Debe haber un desarrollo claro, pero sin extenderse en detalles irrelevantes. Todo lo que no sirva para resolver el hook principal resta retención. Dos párrafos como máximo, donde cada palabra tenga un propósito claro: guiar al lector hacia la resolución. El interés se pierde cuando el contenido deja de ser útil o entretenido. Mantén la atención del usuario llevando cada oración en dirección a la respuesta. La resolución del hook debe estar SIEMPRE AL FINAL del contenido, para mantener a la audiencia a la espectativa y espera de resolverlo, para que llegue al final.\nSolo retorna el CONTENIDO NUEVO reescrito y seguro de que cumple lo mencionado. El final debe responder EXPLICITAMENTE al hook.'
+          }
+        ]
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: `'[Hook]  \n${hook}\n[/Hook]\n\n[Contenido]\n${contenido}\n[/Contenido]\n\n[CTA]\n${cta}\n[/CTA]'`
+          }
+        ]
+      }
+    ],
+    temperature: 1,
+    max_tokens: -1,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    response_format: {
+      type: 'text'
+    }
+  })
+
+  return response.choices[0].message.content
+}
+
+export const improveHook = async ({
+  hook,
+  contenido,
+  cta
+}: {
+  hook: string
+  contenido: string
+  cta: string
+}) => {
+  const response = await openAI.chat.completions.create({
+    model: 'gpt-4o-2024-08-06',
+    messages: [
+      {
+        role: 'system',
+        content: [
+          {
+            type: 'text',
+            text: 'Elige un gancho de esta lista y adáptalo al tema del que hablarás:\n\nGancho negativo: "El mayor error que cometes al comunicar."\nGancho de conexiones discordantes: "¿Qué tiene que ver una rana con los negocios?"\nGancho cotilla: "Netflix ha hecho..."\nGancho reto: "Si puedes resolver este problema, eres parte del 10% de la población más inteligente."\nGancho hoyo: "Esto que voy a decir no lo has escuchado nunca y es increíblemente poderoso."\nGancho \'Había una vez\': "En el año 1908..."\nGancho de preguntas inducidas: "¿Cómo es posible que Burger King venda hamburguesas por solo 1 dólar?"\nGancho fórmula: "Cómo ganar 300 euros al día con..."\nGancho sorpresa: "Oye, cuidado con esto..."\nGancho de la regla del 3: "3 salsas fáciles para tus almuerzos."\nGancho de frase célebre: "Isaac Newton dijo..."\nGancho endémico común: "Eres feo por culpa de..."\nGancho de la regla del 2: "Tengo una buena y una mala noticia."\nGancho contracorriente: "Los feos ligan más que los guapos."\nGancho accionador: "Haz esto si..."\n\nEscoge el que mejor se ajuste a tu contenido. El usuario te proveerá un guión, debes retornar ÚNICAMENTE un NUEVO HOOK, que reemplace el actual.'
+          }
+        ]
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: `[Hook]  \n${hook}\n[/Hook]\n\n[Contenido]\n${contenido}\n[/Contenido]\n\n[CTA]\n${cta}\n[/CTA]`
+          }
+        ]
+      }
+    ],
+    temperature: 1,
+    max_tokens: -1,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    response_format: {
+      type: 'text'
+    }
+  })
+
+  return response.choices[0].message.content
+}
+
+export const improveCTASeguidores = async ({
+  hook,
+  contenido,
+  cta
+}: {
+  hook: string
+  contenido: string
+  cta: string
+}) => {
+  const response = await openAI.chat.completions.create({
+    model: 'gpt-4o-2024-08-06',
+    messages: [
+      {
+        role: 'system',
+        content: [
+          {
+            type: 'text',
+            text: 'Reescribe únicamente el CTA, el resultado debe ser del tipo: \n\n“Sígueme si eres (persona específica) para  (adaptación) (resultado)”\n\nTodas orientadas a seguir el contenido. La idea es incentivar la función "seguir"'
+          }
+        ]
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: '[Hook]  \\\\n¿Por qué la disciplina es más poderosa que la motivación?  \\\\n[/Hook]  \\\\n\\\\n[Contenido]  \\\\nLa motivación puede ser efímera; un día está en su punto más alto y al siguiente puede desvanecerse. Sin embargo, la disciplina es la verdadera clave del éxito a largo plazo. La disciplina es el hábito de seguir adelante incluso cuando no tienes ganas, y es lo que separa a los que logran sus objetivos de los que simplemente lo intentan. La disciplina te mantendrá avanzando, paso a paso, incluso en los días más desafiantes.  \\\\n[/Contenido]  \\\\n\\\\n[CTA]  \\\\nSi buscas desarrollar una disciplina inquebrantable, comenta \\\\\\"DISCIPLINA\\\\\\'
+          }
+        ]
+      },
+      {
+        role: 'assistant',
+        content: [
+          {
+            type: 'text',
+            text: '"Sígueme si eres una persona dedicada a alcanzar tus metas para aprender a desarrollar una disciplina inquebrantable y lograr el éxito a largo plazo."'
+          }
+        ]
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: `[Hook]  \n${hook}\n[/Hook]\n\n[Contenido]\n${contenido}\n[/Contenido]\n\n[CTA]\n${cta}\n[/CTA]`
+          }
+        ]
+      }
+    ],
+    temperature: 1,
+    max_tokens: -1,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    response_format: {
+      type: 'text'
+    }
+  })
+  return response.choices[0].message.content
+}
+
+export const improveCTACompartidos = async ({
+  hook,
+  contenido,
+  cta
+}: {
+  hook: string
+  contenido: string
+  cta: string
+}) => {
+  const response = await openAI.chat.completions.create({
+    model: 'gpt-4o-2024-08-06',
+    messages: [
+      {
+        role: 'system',
+        content: [
+          {
+            type: 'text',
+            text: 'Reescribe únicamente el CTA, el resultado debe ser del tipo: \n\n“Comparte con (persona específica) para que (adaptación) (resultado)”\n\nTodas orientadas a COMPARTIR el contenido. La idea es incentivar la función "COMPARTIR" a personas.'
+          }
+        ]
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: `[Hook]  \n${hook}\n[/Hook]\n\n[Contenido]\n${contenido}\n[/Contenido]\n\n[CTA]\n${cta}\n[/CTA]`
+          }
+        ]
+      }
+    ],
+    temperature: 1,
+    max_tokens: -1,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    response_format: {
+      type: 'text'
+    }
+  })
+  return response.choices[0].message.content
+}
+
+export const improveCTAGuardados = async ({
+  hook,
+  contenido,
+  cta
+}: {
+  hook: string
+  contenido: string
+  cta: string
+}) => {
+  const response = await openAI.chat.completions.create({
+    model: 'gpt-4o-2024-08-06',
+    messages: [
+      {
+        role: 'system',
+        content: [
+          {
+            type: 'text',
+            text: 'Reescribe únicamente el CTA, el resultado debe ser del tipo: \n\n“(Unión con moraleja) + si quieres (deseo de tu parte) + (accion que quieres que haga)”\n\nTodas orientadas a GUARDAR el contenido una palabra clave. La idea es incentivar la función "GUARDAR".'
+          }
+        ]
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: '[Hook]  \\n¿Por qué la disciplina es más poderosa que la motivación?  \\n[/Hook]  \\n\\n[Contenido]  \\nLa motivación puede ser efímera; un día está en su punto más alto y al siguiente puede desvanecerse. Sin embargo, la disciplina es la verdadera clave del éxito a largo plazo. La disciplina es el hábito de seguir adelante incluso cuando no tienes ganas, y es lo que separa a los que logran sus objetivos de los que simplemente lo intentan. La disciplina te mantendrá avanzando, paso a paso, incluso en los días más desafiantes.  \\n[/Contenido]  \\n\\n[CTA]  \\nSi buscas desarrollar una disciplina inquebrantable, comenta \\"DISCIPLINA\\".  \\n[/CTA]'
+          }
+        ]
+      },
+      {
+        role: 'assistant',
+        content: [
+          {
+            type: 'text',
+            text: 'La disciplina es la clave del éxito; si quieres seguir avanzando hacia tus objetivos, guarda este contenido para inspirarte en los días más desafiantes.'
+          }
+        ]
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: `[Hook]  \n${hook}\n[/Hook]\n\n[Contenido]\n${contenido}\n[/Contenido]\n\n[CTA]\n${cta}\n[/CTA]`
+          }
+        ]
+      }
+    ],
+    temperature: 1,
+    max_tokens: -1,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    response_format: {
+      type: 'text'
+    }
+  })
+  return response.choices[0].message.content
+}
+
+export const improveCTAComentarios = async ({
+  hook,
+  contenido,
+  cta
+}: {
+  hook: string
+  contenido: string
+  cta: string
+}) => {
+  const response = await openAI.chat.completions.create({
+    model: 'gpt-4o-2024-08-06',
+    messages: [
+      {
+        role: 'system',
+        content: [
+          {
+            type: 'text',
+            text: 'Reescribe únicamente el CTA, el resultado debe ser del tipo: \n\n“(Unión con moraleja) + si quieres (deseo de tu parte) + (accion que quieres que haga)”\n\nTodas orientadas a COMENTAR una palabra clave. La idea es incentivar los comentarios.'
+          }
+        ]
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: '[Hook]  \n¿Por qué la disciplina es más poderosa que la motivación?  \n[/Hook]  \n\n[Contenido]  \nLa motivación puede ser efímera; un día está en su punto más alto y al siguiente puede desvanecerse. Sin embargo, la disciplina es la verdadera clave del éxito a largo plazo. La disciplina es el hábito de seguir adelante incluso cuando no tienes ganas, y es lo que separa a los que logran sus objetivos de los que simplemente lo intentan. La disciplina te mantendrá avanzando, paso a paso, incluso en los días más desafiantes.  \n[/Contenido]  \n\n[CTA]  \nSi buscas desarrollar una disciplina inquebrantable, comenta "DISCIPLINA".  \n[/CTA]'
+          }
+        ]
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: `[Hook]  \n${hook}\n[/Hook]\n\n[Contenido]\n${contenido}\n[/Contenido]\n\n[CTA]\n${cta}\n[/CTA]`
+          }
+        ]
+      }
+    ],
+    temperature: 1,
+    max_tokens: -1,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    response_format: {
+      type: 'text'
+    }
+  })
+  return response.choices[0].message.content
+}
