@@ -168,7 +168,7 @@ instagramUsernameViralsRouter.post(
       }
 
       const totalCostCredits =
-        CREDITS_COST['busqueda_instagram'] *
+        CREDITS_COST['busqueda_virales_cada_5_ig'] *
         Math.ceil(instagramUsernameList.usernames.length / 5)
 
       const { status, error } = await checkCreditsCost({
@@ -195,7 +195,6 @@ instagramUsernameViralsRouter.post(
 
       const totalCost = formatCurrencyToAddToDB(cost)
       await addSpentUSD({ userId, spentUSD: totalCost })
-
       if (videos.length === 0) {
         return res.json({ data: [], cost })
       }
