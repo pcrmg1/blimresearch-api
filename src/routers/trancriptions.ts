@@ -124,12 +124,14 @@ transcriptionsRouter.post(
       const carruselUrlFromReq = new URL(url)
       const parsedUrl = carruselUrlFromReq.origin + carruselUrlFromReq.pathname
       const existsTranscription = await prisma.carrusel.findFirst({
-        where: { url: parsedUrl },
+        where: { url: parsedUrl, userId },
         include: { transcription: true }
       })
-      if (existsTranscription) {
+      if (existsTranscription && existsTranscription.transcription) {
+        console.log({ existsTranscription })
         return res.json({ data: existsTranscription })
       }
+      console.log('Aca paso a hacer la transcripcion')
       const carrusel = await getCarruselImgUrls(url)
       if (!userId) {
         return res.status(400).json({ message: 'No userId' })
@@ -155,21 +157,30 @@ transcriptionsRouter.post(
             'Hubo un error con el servidor, compruebe que el carrusel tiene solo imagenes, por favor'
         })
       }
+
       const carruselCreated = await prisma.carrusel.create({
         data: {
           url: carruselUrl,
           username: carrusel.username,
           userId,
-          timestamp: new Date(),
-          transcription: {
-            create: {
-              text: checkedTranscription.data
-            }
-          }
+          timestamp: new Date()
+        }
+      })
+      const transcriptionCreated = await prisma.carruselTranscription.create({
+        data: {
+          text: checkedTranscription.data,
+          carrusel: { connect: { id: carruselCreated.id } }
+        }
+      })
+      const carruselUpdated = await prisma.carrusel.update({
+        where: { id: carruselCreated.id },
+        data: {
+          transcriptionId: transcriptionCreated.id,
+          transcription: { connect: { id: transcriptionCreated.id } }
         },
         include: { transcription: true }
       })
-      return res.json({ data: carruselCreated })
+      return res.json({ data: carruselUpdated })
     } catch (error) {
       console.log({ error })
       return res.status(500).json({
@@ -183,12 +194,37 @@ transcriptionsRouter.post(
 transcriptionsRouter.delete(
   '/deleteById/:id',
   async (request: RequestWithToken, response) => {
-    const userId = request.userId
-    if (!userId) {
-      return response.status(400).json({ message: 'No userId' })
+    try {
+      const userId = request.userId
+      if (!userId) {
+        return response.status(400).json({ message: 'No userId' })
+      }
+      const { id } = request.params
+      const transcriptionFound = await prisma.transcription.findUnique({
+        where: { id }
+      })
+      const carruselTranscriptionFound =
+        await prisma.carruselTranscription.findUnique({
+          where: { id }
+        })
+      if (transcriptionFound) {
+        await deleteTranscriptionById({ id })
+      } else if (carruselTranscriptionFound) {
+        await prisma.carruselTranscription.delete({
+          where: { id }
+        })
+      } else if (!transcriptionFound && !carruselTranscriptionFound) {
+        return response.status(404).json({ message: 'Transcription not found' })
+      } else {
+        return response
+          .status(500)
+          .json({ message: 'Error deleting transcription' })
+      }
+    } catch (error) {
+      console.log({ error })
+      return response
+        .status(500)
+        .json({ message: 'Hubo un error con el servidor' })
     }
-    const { id } = request.params
-    const deletedTranscription = await deleteTranscriptionById({ id })
-    return response.status(200).json({ data: deletedTranscription })
   }
 )
