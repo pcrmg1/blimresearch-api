@@ -47,6 +47,7 @@ model User {
   InstagramUsernameVirals InstagramUsernameVirals[]
   Guion                   Guion[]
   Lista_Guiones           Lista_Guiones[]
+  CarruselTranslation     CarruselTranslation[]
 
   @@index([email], name: "email")
 }
@@ -98,14 +99,29 @@ model Carrusel {
 }
 
 model CarruselTranscription {
-  id         String   @id @default(cuid())
-  text       String[]
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  carruselId String   @unique
-  carrusel   Carrusel @relation(fields: [carruselId], references: [id])
+  id                  String               @id @default(cuid())
+  text                String[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  carruselId          String               @unique
+  carrusel            Carrusel             @relation(fields: [carruselId], references: [id])
+  CarruselTranslation CarruselTranslation?
 
   @@index([text, id], name: "text_id_carruselTranscription")
+}
+
+model CarruselTranslation {
+  id                      String                @id @default(cuid())
+  text                    String[]
+  language                String
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+  carruselTranscriptionId String                @unique
+  carruselTranscription   CarruselTranscription @relation(fields: [carruselTranscriptionId], references: [id])
+  userId                  String
+  user                    User                  @relation(fields: [userId], references: [id])
+
+  @@index([text, id], name: "text_id_carruselTranslation")
 }
 
 model VideoQuery {

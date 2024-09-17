@@ -127,11 +127,13 @@ transcriptionsRouter.post(
         where: { url: parsedUrl, userId },
         include: { transcription: true }
       })
-      if (existsTranscription && existsTranscription.transcription) {
-        console.log({ existsTranscription })
+      if (
+        existsTranscription &&
+        existsTranscription.transcription &&
+        existsTranscription.transcriptionId
+      ) {
         return res.json({ data: existsTranscription })
       }
-      console.log('Aca paso a hacer la transcripcion')
       const carrusel = await getCarruselImgUrls(url)
       if (!userId) {
         return res.status(400).json({ message: 'No userId' })

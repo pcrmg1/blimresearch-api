@@ -9,6 +9,7 @@ import {
   getTranslationsWithPagination
 } from '../db/translations'
 import { QueryParamsSchema } from '../models/queryParams'
+import { prisma } from '../db/prisma'
 
 export const translationsRouter = Router()
 
@@ -80,6 +81,68 @@ translationsRouter.post('/translate', async (req: RequestWithToken, res) => {
     return res.status(500).json({ message: 'Failed to translate text' })
   }
 })
+
+translationsRouter.post(
+  '/translate_carrusel',
+  async (req: RequestWithToken, res) => {
+    const userId = req.userId
+    if (!userId) {
+      return res.status(401).json({ message: 'No userId' })
+    }
+    const { language, carruselTranscriptionId } = req.body
+    try {
+      const existsTranslation = await prisma.carruselTranslation.findFirst({
+        where: {
+          language,
+          carruselTranscriptionId,
+          userId
+        }
+      })
+      const carruselTranscription =
+        await prisma.carruselTranscription.findFirst({
+          where: {
+            id: carruselTranscriptionId
+          }
+        })
+      if (existsTranslation) {
+        return res.json({ data: existsTranslation })
+      }
+      const transcriptions = await prisma.carruselTranscription.findFirst({
+        where: {
+          id: carruselTranscriptionId
+        }
+      })
+      if (!transcriptions) {
+        return res.status(404).json({ message: 'Transcription not found' })
+      }
+      const translatedTextPromises = await transcriptions.text.map(
+        async (transcription) => {
+          if (transcription !== 'null') {
+            return await translateText({
+              text: transcription,
+              toLanguage: language
+            })
+          } else {
+            return ''
+          }
+        }
+      )
+      const translatedText = await Promise.all(translatedTextPromises)
+      const translations = await prisma.carruselTranslation.create({
+        data: {
+          language,
+          text: translatedText.map((text) => (text ? text : '')),
+          userId,
+          carruselTranscriptionId
+        }
+      })
+      return res.json({ data: translations })
+    } catch (error) {
+      console.log(error)
+      return res.status(500).json({ message: 'Failed to translate text' })
+    }
+  }
+)
 
 translationsRouter.delete(
   '/deleteById/:id',
