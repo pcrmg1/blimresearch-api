@@ -41,7 +41,6 @@ export const getTiktokVideoCaption = async ({ url }: { url: string }) => {
   try {
     const { videoId: id } = getTiktokVideoId({ url })
     const videoLink = await Tiktok.Downloader(url, { version: 'v1' })
-    console.log({ videoLink: videoLink.result.video })
     if (!videoLink || !videoLink.result || !videoLink.result.video)
       throw new Error('No se pudo descargar el video')
     return { caption: videoLink.result.video.cover[1], videoId: id }
