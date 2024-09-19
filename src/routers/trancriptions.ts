@@ -214,7 +214,7 @@ transcriptionsRouter.post(
       if (platform === 'instagram') {
         const caption = await getInstagramVideoCaption({ url })
         displayUrl = caption?.displayUrl
-        videoId = caption?.shortcode
+        videoId = `${caption?.shortcode}_video_caption`
       } else if (platform === 'tiktok') {
         const { caption, videoId: tiktokVideoId } = await getTiktokVideoCaption(
           {
@@ -222,7 +222,7 @@ transcriptionsRouter.post(
           }
         )
         displayUrl = caption
-        videoId = tiktokVideoId
+        videoId = `${tiktokVideoId}_video_caption`
       } else {
         return res.status(400).json({ message: 'Platform not supported' })
       }
@@ -230,7 +230,7 @@ transcriptionsRouter.post(
         return res.status(404).json({ message: 'Caption not found' })
       }
       const existsTranscription = await prisma.transcription.findFirst({
-        where: { videoId, userId, language, type: 'video_caption' }
+        where: { shortcode: videoId, userId, language, type: 'video_caption' }
       })
       if (existsTranscription) {
         return res.json({ data: existsTranscription })
@@ -241,10 +241,10 @@ transcriptionsRouter.post(
       }
       const transcriptionSaved = await prisma.transcription.create({
         data: {
+          shortcode: videoId,
           language,
           text: transcription,
           userId,
-          videoId,
           type: 'video_caption'
         }
       })
