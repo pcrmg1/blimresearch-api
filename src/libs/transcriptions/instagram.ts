@@ -1,9 +1,10 @@
+import { getInstagramVideoId } from '../../utils/parser'
 import { downloadVideoFromUrl, extractAudio } from '../media/handling'
 import { getInstagramVideoURL } from '../media/instagram'
 import { transcribeAudio } from '../openai/trancriptions'
 
 export const transcribeInstagramVideo = async ({ url }: { url: string }) => {
-  const shortcode = new URL(url).pathname.split('/')[2]
+  const { shortcode } = getInstagramVideoId({ url })
   const videoLink = await getInstagramVideoURL({ url })
   if (!videoLink) {
     throw new Error('No se pudo obtener el video de la URL')

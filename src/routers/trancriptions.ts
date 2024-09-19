@@ -1,7 +1,10 @@
 import { Router } from 'express'
 import { RequestWithToken } from '../types/jwt'
 import { transcribeInstagramVideo } from '../libs/transcriptions/instagram'
-import { getTiktokVideoId, transcribeTiktokVideo } from '../libs/media/tiktok'
+import {
+  getTiktokVideoCaption,
+  transcribeTiktokVideo
+} from '../libs/media/tiktok'
 import { transcribeImage } from '../libs/openai/trancriptions'
 import { parseImageTranscription } from '../utils/transcriptions/parseImageTranscription'
 import {
@@ -13,10 +16,14 @@ import {
   getTranscriptionsCount,
   getTranscriptionsWithPagination
 } from '../db/transcriptions'
-import { getCarruselImgUrls } from '../libs/media/instagram'
+import {
+  getCarruselImgUrls,
+  getInstagramVideoCaption
+} from '../libs/media/instagram'
 import { QueryParamsSchema } from '../models/queryParams'
 import { z } from 'zod'
 import { prisma } from '../db/prisma'
+import { getTiktokVideoId } from '../utils/parser'
 
 export const transcriptionsRouter = Router()
 
@@ -40,7 +47,7 @@ transcriptionsRouter.get('/', async (req: RequestWithToken, res) => {
     const count = await getTranscriptionsCount({ userId })
     const prevPage = parsedPage > 0
     const nextPage = count > parsedPage * parsedLimit
-    if (type === 'video' || type === 'image') {
+    if (type === 'video' || type === 'image' || type === 'video_caption') {
       const transcriptionsByType = await getTranscriptionsByTypeWithPagination({
         limit: parsedLimit,
         page: parsedPage,
@@ -189,6 +196,62 @@ transcriptionsRouter.post(
         message:
           'Hubo un error con el servidor, compruebe que el carrusel tiene solo imagenes, por favor'
       })
+    }
+  }
+)
+
+transcriptionsRouter.post(
+  '/transcribe_video_caption',
+  async (req: RequestWithToken, res) => {
+    const { url, platform, language } = req.body
+    const userId = req.userId
+    if (!userId) {
+      return res.status(400).json({ message: 'No userId' })
+    }
+    try {
+      let displayUrl
+      let videoId
+      if (platform === 'instagram') {
+        const caption = await getInstagramVideoCaption({ url })
+        displayUrl = caption?.displayUrl
+        videoId = caption?.shortcode
+      } else if (platform === 'tiktok') {
+        const { caption, videoId: tiktokVideoId } = await getTiktokVideoCaption(
+          {
+            url
+          }
+        )
+        displayUrl = caption
+        videoId = tiktokVideoId
+      } else {
+        return res.status(400).json({ message: 'Platform not supported' })
+      }
+      if (!displayUrl) {
+        return res.status(404).json({ message: 'Caption not found' })
+      }
+      const existsTranscription = await prisma.transcription.findFirst({
+        where: { videoId, userId, language, type: 'video_caption' }
+      })
+      if (existsTranscription) {
+        return res.json({ data: existsTranscription })
+      }
+      const transcription = await transcribeImage({ imgUrl: displayUrl })
+      if (!transcription) {
+        return res.status(500).json({ message: 'Error getting caption' })
+      }
+      const transcriptionSaved = await prisma.transcription.create({
+        data: {
+          language,
+          text: transcription,
+          userId,
+          videoId,
+          type: 'video_caption'
+        }
+      })
+      return res.json({ data: transcriptionSaved })
+    } catch (error) {
+      console.error(error)
+      return res.status(500).json({ message: 'Error getting caption' })
     }
   }
 )

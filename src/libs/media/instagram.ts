@@ -1,3 +1,4 @@
+import { getInstagramVideoId } from '../../utils/parser'
 import { getInstagramDataForOneUrl } from '../apify/instagram'
 
 export const getInstagramVideoURL = async ({ url }: { url: string }) => {
@@ -37,5 +38,24 @@ export const getCarruselImgUrls = async (url: string) => {
     return { urlLists, url: res.url, username: res.ownerUsername }
   } catch (error) {
     console.error({ error })
+  }
+}
+
+export const getInstagramVideoCaption = async ({ url }: { url: string }) => {
+  try {
+    const res = await getInstagramDataForOneUrl({ url })
+    const { shortcode } = getInstagramVideoId({ url })
+    const { type } = res
+    if (type !== 'Video') {
+      throw new Error(
+        'No se encontro el video o el link proporcionado no corresponde a uno'
+      )
+    }
+    if (!res.videoUrl) {
+      throw new Error('No se encontro el video')
+    }
+    return { displayUrl: res.displayUrl, shortcode }
+  } catch (error) {
+    console.error(error)
   }
 }

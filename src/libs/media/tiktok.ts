@@ -3,10 +3,11 @@ const Tiktok = require('@tobyg74/tiktok-api-dl')
 
 import { downloadVideoFromUrl, extractAudio } from '../media/handling'
 import { transcribeAudio } from '../openai/trancriptions'
+import { getTiktokVideoId } from '../../utils/parser'
 
 export const transcribeTiktokVideo = async ({ url }: { url: string }) => {
   try {
-    const id = url?.split('/')[5].split('?')[0] as string
+    const { videoId: id } = getTiktokVideoId({ url })
     const videoLink = await Tiktok.Downloader(url, { version: 'v3' })
     const filename = `${id}.mp3`
     if (!videoLink || !videoLink.result || !videoLink.result.video1)
@@ -36,7 +37,20 @@ export const transcribeTiktokVideo = async ({ url }: { url: string }) => {
   }
 }
 
-export const getTiktokVideoId = ({ url }: { url: string }) => {
-  const id = url?.split('/')[5].split('?')[0] as string
-  return { videoId: id }
+export const getTiktokVideoCaption = async ({ url }: { url: string }) => {
+  try {
+    const { videoId: id } = getTiktokVideoId({ url })
+    const videoLink = await Tiktok.Downloader(url, { version: 'v3' })
+    if (!videoLink || !videoLink.result || !videoLink.result.video1)
+      throw new Error('No se pudo descargar el video')
+    console.log({ videoLink })
+    return { caption: videoLink.result.video1, videoId: id }
+  } catch (error) {
+    console.log({ error })
+    if (error instanceof Error) {
+      throw new Error(error.message)
+    } else {
+      throw new Error('Hubo un error procesando el video')
+    }
+  }
 }

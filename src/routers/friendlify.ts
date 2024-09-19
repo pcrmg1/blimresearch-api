@@ -152,7 +152,7 @@ friendlifyRouter.post(
         if (mejorar === 'contenido') {
           improvedText = await improveContenido({ hook, contenido, cta })
         } else if (mejorar === 'hook') {
-          improvedText = await improveHook({ hook, contenido, cta })
+          improvedText = await improveHook({ contenido, cta })
         } else if (mejorar === 'cta-comentarios') {
           improvedText = await improveCTAComentarios({
             hook,

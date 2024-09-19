@@ -82,7 +82,7 @@ export const getTranscriptionsByTypeWithPagination = async ({
   page: number
   limit: number
   userId: string
-  type: 'image' | 'video'
+  type: 'image' | 'video' | 'video_caption'
 }) => {
   return await prisma.transcription.findMany({
     where: { userId, type },
