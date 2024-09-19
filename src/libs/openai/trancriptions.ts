@@ -18,7 +18,7 @@ export const transcribeImage = async ({ imgUrl }: { imgUrl: string }) => {
         content: [
           {
             type: 'text',
-            text: `I want you to read this image and provide me the text thats written in it, if there is no text, just give me 'null' as an answer. Only provide me with the text in the image, nothing else. The image is the following:`
+            text: `I want you to read this image and provide me the text thats written in it. Only provide me with the text in the image, nothing else. if there is no text, just give me 'null' as an answer.  The image is the following:`
           },
           {
             type: 'image_url',

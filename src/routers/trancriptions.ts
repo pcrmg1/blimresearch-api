@@ -268,17 +268,21 @@ transcriptionsRouter.delete(
       const transcriptionFound = await prisma.transcription.findUnique({
         where: { id }
       })
+      if (transcriptionFound) {
+        await deleteTranscriptionById({ id })
+        return response.json({ message: 'Transcription deleted' })
+      }
       const carruselTranscriptionFound =
         await prisma.carruselTranscription.findUnique({
           where: { id }
         })
-      if (transcriptionFound) {
-        await deleteTranscriptionById({ id })
-      } else if (carruselTranscriptionFound) {
+      if (carruselTranscriptionFound) {
         await prisma.carruselTranscription.delete({
           where: { id }
         })
-      } else if (!transcriptionFound && !carruselTranscriptionFound) {
+        return response.json({ message: 'Transcription deleted' })
+      }
+      if (!transcriptionFound && !carruselTranscriptionFound) {
         return response.status(404).json({ message: 'Transcription not found' })
       } else {
         return response
