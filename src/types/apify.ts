@@ -307,3 +307,75 @@ export interface VideoMeta {
   originalDownloadAddr: string
   downloadAddr: string
 }
+
+export interface YoutubeQueryRun {
+  id: string
+  title: string
+  url: string
+  viewCount: number
+  fromYTUrl: string
+  thumbnailUrl: string
+  type: string
+  duration: null
+  channelName: string
+  channelUrl: string
+  date: Date
+  order: number
+  comments: null
+  channelId: string
+  likes: number
+  commentsCount: number
+  descriptionLinks: any
+  isMonetized: any
+  subtitles: any
+  text: any
+  hashtags: string[]
+}
+
+export interface YoutubeURLRun {
+  id: string
+  title: string
+  url: string
+  viewCount: number
+  fromYTUrl: string
+  thumbnailUrl: string
+  type: string
+  duration: null
+  channelName: string
+  channelUrl: string
+  date: Date
+  order: number
+  channelDescription: string
+  channelJoinedDate: string
+  channelDescriptionLinks: ChannelDescriptionLink[]
+  channelLocation: string
+  channelAvatarUrl: string
+  channelBannerUrl: string
+  channelTotalVideos: number
+  channelTotalViews: number
+  numberOfSubscribers: number
+  isChannelVerified: boolean
+  channelId: string
+  inputChannelUrl: string
+  isAgeRestricted: boolean
+  comments: null
+  likes: number
+  commentsCount: number
+  descriptionLinks: null
+  isMonetized: null
+  subtitles: null
+  text: null
+  hashtags: any[]
+}
+
+export interface ChannelDescriptionLink {
+  text: Text
+  url: string
+}
+
+export enum Text {
+  Fb = 'FB',
+  Instagram = 'Instagram',
+  MiTwitter = 'Mi Twitter',
+  ParaDonarDineroAlCanal = 'Para donar dinero al canal'
+}

@@ -1,5 +1,7 @@
 import { prisma } from './prisma'
 
+type Platform = 'instagram' | 'tiktok' | 'youtube'
+
 export const getViralVideos = async ({
   page,
   limit,
@@ -13,7 +15,7 @@ export const getViralVideos = async ({
   userId: string
   orderBy: string
   query: string
-  platform: 'instagram' | 'tiktok'
+  platform: Platform
 }) => {
   return await prisma.videoQuery.findMany({
     where: {
@@ -37,13 +39,16 @@ export const getViralVideos = async ({
 
 export const getViralVideosCount = async ({
   userId,
-  query
+  query,
+  platform
 }: {
   userId: string
   query?: string
+  platform: Platform
 }) => {
   return await prisma.videoQuery.count({
     where: {
+      platform,
       userId,
       query: {
         contains: query,
@@ -53,7 +58,13 @@ export const getViralVideosCount = async ({
   })
 }
 
-export const getViralsByUserId = async ({ userId, platform }: { userId: string, platform:'instagram'|'tiktok' }) => {
+export const getViralsByUserId = async ({
+  userId,
+  platform
+}: {
+  userId: string
+  platform: Platform
+}) => {
   return await prisma.videoQuery.findMany({
     where: {
       userId,

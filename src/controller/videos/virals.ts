@@ -12,7 +12,7 @@ export const checkReqBody = (req: RequestWithToken) => {
   if (!languages) {
     return { status: 400, error: 'languages is required' }
   }
-  const isPlatformValid = ['tiktok', 'instagram'].includes(platform)
+  const isPlatformValid = ['tiktok', 'instagram', 'youtube'].includes(platform)
   if (!isPlatformValid) {
     return { status: 400, error: 'Invalid platform' }
   }
