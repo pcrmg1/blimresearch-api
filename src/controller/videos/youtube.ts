@@ -105,7 +105,6 @@ export const getYoutubeVirals = async ({
       }
     })
   }
-  console.log({ filteredVideos })
   const queryCreated = await createQueryVirals({
     query,
     language,
@@ -113,6 +112,5 @@ export const getYoutubeVirals = async ({
     platform: 'youtube',
     userId
   })
-  console.log({ queryCreated })
   return filteredVideos
 }

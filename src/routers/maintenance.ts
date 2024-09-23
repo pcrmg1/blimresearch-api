@@ -8,8 +8,7 @@ export const maintenanceRouter = Router()
 
 maintenanceRouter.get('/', async (req, res) => {
   const isInMaintenance = await getMaintenanceStatus()
-  console.log('inMaintenance', isInMaintenance)
-  res.json({
+  return res.json({
     isInMaintenance
   })
 })
@@ -25,5 +24,5 @@ maintenanceRouter.post('/', async (req: RequestWithToken, res) => {
   }
   process.env.MAINTENANCE_STATUS = inMaintenance
   await setMaintenanceStatus(inMaintenance)
-  res.json({ message: 'Server status updated' })
+  return res.json({ message: 'Server status updated' })
 })
