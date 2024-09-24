@@ -3,17 +3,20 @@ import {
   getYoutubeShortsDataFromQuery,
   getYoutubeShortsDataFromUrl
 } from '../../libs/apify/youtube'
+import { YoutubeQueryRun } from '../../types/apify'
 
 export const getYoutubeVirals = async ({
   query,
   language,
   minNumberOfFans,
-  userId
+  userId,
+  first10Items
 }: {
   query: string
   language: string
   minNumberOfFans?: number
   userId: string
+  first10Items?: YoutubeQueryRun[]
 }) => {
   const res = await getYoutubeShortsDataFromQuery({ query })
   if (!res) {
@@ -36,81 +39,61 @@ export const getYoutubeVirals = async ({
     throw new Error('No items found')
   }
 
-  const itemsGrouppedByAuthor = run.items.reduce(
-    (acc, item) => {
-      if (!acc[item.channelName]) {
-        acc[item.channelName] = []
-      }
-      const {
-        channelName,
-        likes,
-        viewCount,
-        commentsCount,
-        numberOfSubscribers,
-        url
-      } = item
-      if (minNumberOfFans && numberOfSubscribers < minNumberOfFans) {
-        return acc
-      }
-      acc[item.channelName].push({
-        username: channelName,
-        videoHearts: likes,
-        videoViews: viewCount,
-        videoComments: commentsCount,
-        userFans: numberOfSubscribers,
-        language,
-        platform: 'youtube',
-        userId,
-        videoUrl: url
-      })
-      return acc
-    },
-    {} as Record<
-      string,
-      {
-        username: string
-        videoHearts: number
-        videoViews: number
-        videoComments: number
-        userFans: number
-        language: string
-        platform: string
-        userId: string
-        videoUrl: string
-      }[]
-    >
-  )
   const filteredVideos: {
     username: string
     videoHearts: number
     videoViews: number
     videoComments: number
-    userFans: number
+    userFans?: number
     language: string
     platform: string
     userId: string
     videoUrl: string
   }[] = []
-  for (const key in itemsGrouppedByAuthor) {
-    const totalChannelViews = itemsGrouppedByAuthor[key].reduce(
-      (acc, item) => acc + item.videoViews,
-      0
-    )
-    itemsGrouppedByAuthor[key].forEach((video) => {
-      if (
-        video.videoViews >=
-        (3 * totalChannelViews) / itemsGrouppedByAuthor[key].length
-      ) {
-        filteredVideos.push(video)
-      }
+
+  run.items.forEach((item) => {
+    if (minNumberOfFans && item.numberOfSubscribers < minNumberOfFans) {
+      return
+    } else {
+      filteredVideos.push({
+        username: item.channelName,
+        videoHearts: item.likes,
+        videoViews: item.viewCount,
+        videoComments: item.commentsCount,
+        userFans: item.numberOfSubscribers,
+        language,
+        platform: 'youtube',
+        userId,
+        videoUrl: item.url
+      })
+    }
+  })
+
+  first10Items?.forEach((item) => {
+    filteredVideos.push({
+      username: item.channelName,
+      videoHearts: item.likes,
+      videoViews: item.viewCount,
+      videoComments: item.commentsCount,
+      userFans: undefined,
+      language,
+      platform: 'youtube',
+      userId,
+      videoUrl: item.url
     })
-  }
+  })
+
+  const totalItems = filteredVideos.sort((a, b) =>
+    b.username.localeCompare(a.username)
+  )
+
   const queryCreated = await createQueryVirals({
     query,
     language,
-    viralVideos: filteredVideos,
+    viralVideos: totalItems,
     platform: 'youtube',
     userId
   })
-  return filteredVideos
+
+  return { totalItems, queryCreated }
 }

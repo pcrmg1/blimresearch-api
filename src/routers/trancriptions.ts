@@ -6,12 +6,9 @@ import {
   transcribeTiktokVideo
 } from '../libs/media/tiktok'
 import { transcribeImage } from '../libs/openai/trancriptions'
-import { parseImageTranscription } from '../utils/transcriptions/parseImageTranscription'
 import {
-  createImageTranscription,
   createVideoTranscription,
   deleteTranscriptionById,
-  getTranscriptionByVideoId,
   getTranscriptionsByTypeWithPagination,
   getTranscriptionsCount,
   getTranscriptionsWithPagination
@@ -24,6 +21,7 @@ import { QueryParamsSchema } from '../models/queryParams'
 import { z } from 'zod'
 import { prisma } from '../db/prisma'
 import { getTiktokVideoId } from '../utils/parser'
+import { transcribeVideoFromYoutube } from '../libs/media/youtube'
 
 export const transcriptionsRouter = Router()
 
@@ -103,6 +101,15 @@ transcriptionsRouter.post(
           text: transcription,
           userId,
           shortcode: videoId
+        })
+        return response.json({ data: transcriptionSaved })
+      } else if (platform === 'youtube') {
+        const transcription = await transcribeVideoFromYoutube({ url })
+        const transcriptionSaved = await createVideoTranscription({
+          language,
+          text: transcription.transcription,
+          userId,
+          shortcode: transcription.videoId
         })
         return response.json({ data: transcriptionSaved })
       } else {
