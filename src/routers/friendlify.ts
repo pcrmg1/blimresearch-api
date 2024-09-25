@@ -117,7 +117,15 @@ friendlifyRouter.post('/mejorarGuion', async (req, res) => {
       return res.status(400).json({ error: 'Text must be a string' })
     }
     const improvedText = await mejorarGuion({ guion: text })
-    return res.json({ data: improvedText })
+    if (!improvedText) {
+      return res.status(500).json({ error: 'Failed to improve text' })
+    }
+    const { contenido, cta, tipoCta } = improvedText
+    const improvedHook = await improveHook({ contenido, cta })
+    if (!improvedHook) {
+      return res.status(500).json({ error: 'Failed to improve hook' })
+    }
+    return res.json({ data: { contenido, cta, hook: improvedHook, tipoCta } })
   } catch (error) {
     errorHandler(error)
     return res.status(500).json({ error: 'Hubo un error procesando el texto' })
