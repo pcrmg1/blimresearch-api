@@ -24,7 +24,7 @@ authRouter.post('/login', async (req, res) => {
         .status(400)
         .json({ message: 'Username and password are required' })
     }
-    const user = await getUserByEmail({ email })
+    const user = await getUserByEmail({ email: email.toLowerCase() })
     if (!user) {
       return res.status(401).json({ message: 'Wrong credentials' })
     }
