@@ -5,6 +5,10 @@ import {
 } from '../../libs/apify/youtube'
 import { YoutubeQueryRun } from '../../types/apify'
 
+const isShort = (url: string) => {
+  return url.includes('shorts')
+}
+
 export const getYoutubeVirals = async ({
   query,
   language,
@@ -27,12 +31,15 @@ export const getYoutubeVirals = async ({
     if (channelUrls.includes(item.channelUrl)) {
       return
     } else {
+      if (!item.channelUrl) {
+        return
+      }
       channelUrls.push(item.channelUrl)
     }
   })
 
-  const run = await await getYoutubeShortsDataFromUrl({
-    channelUrls: channelUrls.filter((url) => url)
+  const run = await getYoutubeShortsDataFromUrl({
+    channelUrls: channelUrls
   })
 
   if (!run) {
@@ -41,9 +48,7 @@ export const getYoutubeVirals = async ({
 
   const filteredVideos: {
     username: string
-    videoHearts: number
     videoViews: number
-    videoComments: number
     userFans?: number
     language: string
     platform: string
@@ -57,9 +62,7 @@ export const getYoutubeVirals = async ({
     } else {
       filteredVideos.push({
         username: item.channelName,
-        videoHearts: item.likes,
         videoViews: item.viewCount,
-        videoComments: item.commentsCount,
         userFans: item.numberOfSubscribers,
         language,
         platform: 'youtube',
@@ -72,9 +75,7 @@ export const getYoutubeVirals = async ({
   first10Items?.forEach((item) => {
     filteredVideos.push({
       username: item.channelName,
-      videoHearts: item.likes,
       videoViews: item.viewCount,
-      videoComments: item.commentsCount,
       userFans: undefined,
       language,
       platform: 'youtube',
@@ -82,6 +83,10 @@ export const getYoutubeVirals = async ({
       videoUrl: item.url
     })
   })
+
+  if (filteredVideos.length === 0) {
+    throw new Error('No items found')
+  }
 
   const totalItems = filteredVideos.sort((a, b) =>
     b.username.localeCompare(a.username)

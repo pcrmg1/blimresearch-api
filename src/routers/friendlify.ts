@@ -7,8 +7,7 @@ import {
   improveCTACompartidos,
   improveCTAGuardados,
   improveCTASeguidores,
-  improveHook,
-  improveWithAI
+  improveHook
 } from '../libs/openai/friendlify'
 import {
   createFriendlifiedText,
@@ -18,7 +17,7 @@ import {
 } from '../db/friendlify'
 import { errorHandler } from '../utils/error'
 import { QueryParamsSchema } from '../models/queryParams'
-import { mejorarGuion, mejorarGuionPorPartes } from '../libs/openai/guiones'
+import { mejorarGuion } from '../libs/openai/guiones'
 import { getGuionById } from '../db/guiones/guion'
 
 export const friendlifyRouter = Router()
