@@ -7,7 +7,10 @@ buysRouter.post('/coralmujaesweb', async (req, res) => {
   const { body } = req
   try {
     console.log('Escribiendo en archivo...')
-    await appendToFile('src/data/coralmujaesweb.txt', body)
+    await appendToFile('src/coralmujaes.txt', {
+      timestamp: new Date().toISOString(),
+      ...body
+    })
     return res
       .status(200)
       .json({ message: 'Data written successfully', data: body })

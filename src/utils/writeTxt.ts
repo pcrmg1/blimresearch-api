@@ -6,7 +6,7 @@ export async function appendToFile(
 ): Promise<void> {
   try {
     // Open the file in append mode, and create it if it doesn't exist
-    await fs.open(filePath, 'a')
+    const fileOpen = await fs.open(filePath, 'a')
 
     // Convert object to string if necessary
     const dataToWrite =
@@ -15,6 +15,7 @@ export async function appendToFile(
     // Append the data to the file
     await fs.appendFile(filePath, `${dataToWrite}\n`)
     console.log('Data appended successfully')
+    await fileOpen.close()
   } catch (error) {
     console.error('Error writing to file:', error)
   }

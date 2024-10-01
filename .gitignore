@@ -7,3 +7,4 @@ node_modules/
 dist/
 prisma/dev.db
 uploads/*
+coralmujaes.txt
