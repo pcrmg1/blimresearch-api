@@ -192,7 +192,7 @@ viralsRouter.post('/findViral', async (req: RequestWithToken, res) => {
       await addUserCredits({
         userId,
         credits: CREDITS_COST['busqueda_tiktok'] * languages.length,
-        concepto: `busqueda_tiktok - ${search}`
+        concepto: `busqueda_tiktok - ${search} - ${languages.join(', ')}`
       })
       const promisesArray = languages.map((language: string) => {
         return getTiktokVirals({
@@ -210,7 +210,7 @@ viralsRouter.post('/findViral', async (req: RequestWithToken, res) => {
       await addUserCredits({
         userId,
         credits: CREDITS_COST['busqueda_instagram'] * languages.length,
-        concepto: `busqueda_instagram - ${search}`
+        concepto: `busqueda_instagram - ${search} - ${languages.join(', ')}`
       })
       const promisesArray = languages.map((language: string) => {
         return getInstagramVirals({
@@ -223,6 +223,11 @@ viralsRouter.post('/findViral', async (req: RequestWithToken, res) => {
       await Promise.all(promisesArray)
       return res.json({ data: 'done' })
     } else if (platform === 'youtube') {
+      await addUserCredits({
+        userId,
+        credits: CREDITS_COST['busqueda_youtube'] * languages.length,
+        concepto: `busqueda_youtube - ${search} - ${languages.join(', ')}`
+      })
       const promisesArray = languages.map((language: string) => {
         return getYoutubeVirals({
           query: search,
