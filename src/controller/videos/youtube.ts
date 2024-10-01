@@ -3,6 +3,7 @@ import {
   getYoutubeShortsDataFromQuery,
   getYoutubeShortsDataFromUrl
 } from '../../libs/apify/youtube'
+import { translateQuery } from '../../libs/openai/translations'
 import { YoutubeQueryRun } from '../../types/apify'
 
 const isShort = (url: string) => {
@@ -22,7 +23,14 @@ export const getYoutubeVirals = async ({
   userId: string
   first10Items?: YoutubeQueryRun[]
 }) => {
-  const res = await getYoutubeShortsDataFromQuery({ query })
+  const translatedQuery = await translateQuery({
+    text: query,
+    toLanguage: language
+  })
+  if (!translatedQuery) {
+    throw new Error('Failed to translate query')
+  }
+  const res = await getYoutubeShortsDataFromQuery({ query: translatedQuery })
   if (!res) {
     throw new Error('No items found')
   }
