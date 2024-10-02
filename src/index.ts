@@ -46,7 +46,7 @@ app.get('/', (req, res) =>
 )
 
 app.use('/api/auth', authRouter)
-app.use('/api/maintenance', maintenanceRouter)
+app.use('/api/maintenance', verifyToken, maintenanceRouter)
 app.use('/api/admin/users', verifyToken, isAdmin, adminUsersRouter)
 app.use('/api/users', verifyToken, usersRouter)
 app.use('/api/transcriptions', verifyToken, transcriptionsRouter)
