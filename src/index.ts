@@ -22,6 +22,7 @@ import { guionesRouter } from './routers/guiones'
 import { listaGuionesRouter } from './routers/listaGuiones'
 import { instagramUsernameViralsRouter } from './routers/instagramUsernameVirals'
 import { buysRouter } from './routers/buys'
+import { extensionRouter } from './routers/extension'
 
 export const prismaDB = new PrismaClient({
   log:
@@ -64,6 +65,7 @@ app.use('/api/resetDb', resetDBRouter)
 app.use('/api/guiones', verifyToken, guionesRouter)
 app.use('/api/listaGuiones', verifyToken, listaGuionesRouter)
 app.use('/api/buys', buysRouter)
+app.use('/api/extension', extensionRouter)
 
 const PORT = process.env.PORT || 5000
 
