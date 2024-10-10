@@ -92,8 +92,7 @@ transcriptionsRouter.post(
         })
         return response.json({ data: transcriptionSaved })
       } else if (platform === 'tiktok') {
-        const { videoId } = getTiktokVideoId({ url })
-        const { transcription } = await transcribeTiktokVideo({
+        const { transcription, videoId } = await transcribeTiktokVideo({
           url
         })
         const transcriptionSaved = await createVideoTranscription({

@@ -38,7 +38,6 @@ export const downloadVideoFromUrl = async ({
   filename: string
 }): Promise<void> => {
   const writer = createWriteStream(filename)
-
   try {
     const response = await axios({
       url,

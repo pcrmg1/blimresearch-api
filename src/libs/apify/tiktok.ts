@@ -8,6 +8,33 @@ import {
   groupItemsFromTiktokUsernamesResponseByAuthor
 } from '../../utils/videos/tiktok'
 
+export const getTiktokDataFromPost = async ({ url }: { url: string }) => {
+  try {
+    if (typeof url !== 'string')
+      throw new Error('La busqueda debe ser una cadena de texto')
+    const input = {
+      excludePinnedPosts: false,
+      maxProfilesPerQuery: 20,
+      postURLs: [url],
+      resultsPerPage: 1,
+      shouldDownloadCovers: false,
+      shouldDownloadSlideshowImages: false,
+      shouldDownloadSubtitles: false,
+      shouldDownloadVideos: false
+    }
+    const run = await apifyClient.actor('OtzYfK1ndEGdwWFKQ').call(input)
+    const response = await apifyClient.dataset(run.defaultDatasetId).listItems()
+    const COST_PER_ITEM = 4 / 1000
+    return {
+      item: response.items[0] as unknown as TiktokQueryRun,
+      cost: COST_PER_ITEM * response.items.length
+    }
+  } catch (error) {
+    console.log('error', error)
+    throw new Error('Error al obtener los datos de Tiktok')
+  }
+}
+
 export const getTiktokDataFromUsernames = async ({
   usernames
 }: {
@@ -23,7 +50,7 @@ export const getTiktokDataFromUsernames = async ({
   }
   const run = await apifyClient.actor('ssOXktOBaQQiYfhc4').call(input)
   const response = await apifyClient.dataset(run.defaultDatasetId).listItems()
-  const COST_PER_ITEM = 0.1 / 1000
+  const COST_PER_ITEM = 0.3 / 1000
   return {
     items: response.items as unknown as TiktokProfileRun[],
     cost: COST_PER_ITEM * response.items.length
@@ -75,7 +102,7 @@ export const getTiktokDataFromProfilesQuery = async ({
     }
     const run = await apifyClient.actor('OtzYfK1ndEGdwWFKQ').call(input)
     const response = await apifyClient.dataset(run.defaultDatasetId).listItems()
-    const COST_PER_ITEM = 0.004
+    const COST_PER_ITEM = 4 / 1000
     return {
       items: response.items as unknown as TiktokQueryRun[],
       cost: COST_PER_ITEM * response.items.length
