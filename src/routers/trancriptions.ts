@@ -233,7 +233,7 @@ transcriptionsRouter.post(
       if (!displayUrl) {
         return res.status(404).json({ message: 'Caption not found' })
       }
-      const existsTranscription = await prisma.transcription.findFirstOrThrow({
+      const existsTranscription = await prisma.transcription.findFirst({
         where: { shortcode: videoId, userId, language, type: 'video_caption' }
       })
       if (existsTranscription) {
