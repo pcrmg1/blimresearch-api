@@ -223,9 +223,7 @@ transcriptionsRouter.post(
         videoId = `${caption?.shortcode}_video_caption`
       } else if (platform === 'tiktok') {
         const { caption, videoId: tiktokVideoId } = await getTiktokVideoCaption(
-          {
-            url
-          }
+          { url }
         )
         displayUrl = caption
         videoId = `${tiktokVideoId}_video_caption`
@@ -235,7 +233,7 @@ transcriptionsRouter.post(
       if (!displayUrl) {
         return res.status(404).json({ message: 'Caption not found' })
       }
-      const existsTranscription = await prisma.transcription.findFirst({
+      const existsTranscription = await prisma.transcription.findFirstOrThrow({
         where: { shortcode: videoId, userId, language, type: 'video_caption' }
       })
       if (existsTranscription) {
