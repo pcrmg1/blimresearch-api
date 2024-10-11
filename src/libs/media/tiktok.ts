@@ -1,17 +1,16 @@
 import { unlink } from 'fs/promises'
-const Tiktok = require('@tobyg74/tiktok-api-dl')
 
-import { downloadVideoFromUrl, extractAudio } from '../media/handling'
-import { transcribeAudio } from '../openai/trancriptions'
-import { getTiktokVideoId } from '../../utils/parser'
 import { getTiktokDataFromPost } from '../apify/tiktok'
+import { downloadVideoFromUrl } from '../media/handling'
+import { transcribeAudio } from '../openai/trancriptions'
 
 export const transcribeTiktokVideo = async ({ url }: { url: string }) => {
+  let filename = ''
   try {
     const { cost, item } = await getTiktokDataFromPost({ url })
     const { id, musicMeta } = item
     const { playUrl } = musicMeta
-    const filename = `${id}.mp3`
+    filename = `${id}.mp3`
     await downloadVideoFromUrl({
       url: playUrl,
       filename
@@ -21,6 +20,8 @@ export const transcribeTiktokVideo = async ({ url }: { url: string }) => {
   } catch (error) {
     console.log({ error })
     throw new Error('Hubo un error procesando el video')
+  } finally {
+    await unlink(filename)
   }
 }
 
