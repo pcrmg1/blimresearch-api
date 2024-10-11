@@ -5,12 +5,19 @@ import { hashPassword } from '../utils/password'
 import { prisma } from '../db/prisma'
 import { generateNewUserEmail } from '../libs/nodemailer/templates/newUser'
 import { sendMail } from '../libs/nodemailer/transporter'
+import {config} from 'dotenv'
+
+config()
 
 export const buysRouter = Router()
 
 buysRouter.post('/coralmujaesweb', async (req, res) => {
+  const CORAL_API_KEY = process.env.CORAL_API_KEY
   const { body } = req
   try {
+    if (body.apiKey !== CORAL_API_KEY) {
+      return res.status(401).json({ message: 'Unauthorized' })
+    }
     await appendToFile('src/coralmujaes.txt', {
       timestamp: new Date().toISOString(),
       ...body
