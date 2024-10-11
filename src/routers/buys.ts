@@ -15,7 +15,7 @@ buysRouter.post('/coralmujaesweb', async (req, res) => {
   const CORAL_API_KEY = process.env.CORAL_API_KEY
   const { body } = req
   try {
-    if (body.apiKey !== CORAL_API_KEY) {
+    if (body.API !== CORAL_API_KEY) {
       return res.status(401).json({ message: 'Unauthorized' })
     }
     await appendToFile('src/coralmujaes.txt', {
