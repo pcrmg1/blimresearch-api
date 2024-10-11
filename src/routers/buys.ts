@@ -1,21 +1,55 @@
 import { Router } from 'express'
 import { appendToFile } from '../utils/writeTxt'
+import { generateRandomToken } from '../utils/token'
+import { hashPassword } from '../utils/password'
+import { prisma } from '../db/prisma'
+import { generateNewUserEmail } from '../libs/nodemailer/templates/newUser'
+import { sendMail } from '../libs/nodemailer/transporter'
 
 export const buysRouter = Router()
 
 buysRouter.post('/coralmujaesweb', async (req, res) => {
   const { body } = req
   try {
-    console.log('Escribiendo en archivo...')
     await appendToFile('src/coralmujaes.txt', {
       timestamp: new Date().toISOString(),
       ...body
     })
+    const randomPassword = generateRandomToken({ length: 10 })
+    const hashedPassword = await hashPassword({ password: randomPassword })
+    const userExists = await prisma.user.findUnique({
+      where: {
+        email: body.email
+      }
+    })
+    if (userExists) {
+      return res.status(400).json({ message: 'User already exists' })
+    }
+
+    const user = await prisma.user.create({
+      data: {
+        email: body.email,
+        password: hashedPassword,
+        role: 'User',
+        name: body.nombre
+      }
+    })
+    const newUserEmail = generateNewUserEmail({
+      password: randomPassword,
+      username: user.email
+    })
+
+    await sendMail({
+      emailTo: user.email,
+      subject: 'Bienvenido a SocialBoost! 🚀',
+      html: newUserEmail
+    })
+
     return res
       .status(200)
-      .json({ message: 'Data written successfully', data: body })
+      .json({ message: 'User created successfully', data: body })
   } catch (error) {
     console.error('Error writing to file:', error)
-    return res.status(500).json({ message: 'Error writing to file' })
+    return res.status(500).json({ message: 'Internal server error' })
   }
 })
