@@ -95,7 +95,7 @@ export const improveHook = async ({
   cta: string
 }) => {
   const response = await openAI.chat.completions.create({
-    model: 'ft:gpt-3.5-turbo-1106:settersoft:hookv1:A9DlOk0w',
+    model: 'ft:gpt-4o-2024-08-06:settersoft::AIJ7jyAI',
     messages: [
       {
         role: 'system',
