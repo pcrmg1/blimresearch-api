@@ -47,13 +47,16 @@ extensionRouter.post('/tiktok', async (req, res) => {
       cta: guionMejorado?.cta
     })
     return res.json({
-      data: `
+      data: {
+        guion: `
       Hook: ${hookMejorado}
 
       Guion: ${guionMejorado.contenido}
 
       CTA: ${guionMejorado.cta}
-      `
+      `,
+        transcripcion: transcription
+      }
     })
   } catch (error) {
     return res.status(500).json({ message: 'Internal server error' })

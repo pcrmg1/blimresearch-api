@@ -35,6 +35,29 @@ export const getTiktokDataFromPost = async ({ url }: { url: string }) => {
   }
 }
 
+export const getTiktokDataFromPost_2 = async ({ url }: { url: string }) => {
+  try {
+    if (typeof url !== 'string')
+      throw new Error('La busqueda debe ser una cadena de texto')
+    const input = {
+      customMapFunction: '(object) => { return {...object} }',
+      location: 'US',
+      maxItems: 1,
+      startUrls: [url]
+    }
+    const run = await apifyClient.actor('5K30i8aFccKNF5ICs').call(input)
+    const response = await apifyClient.dataset(run.defaultDatasetId).listItems()
+    const COST_PER_ITEM = 0.2 / 1000
+    return {
+      item: response.items[0] as unknown as any,
+      cost: COST_PER_ITEM * response.items.length
+    }
+  } catch (error) {
+    console.log('error', error)
+    throw new Error('Error al obtener los datos de Tiktok')
+  }
+}
+
 export const getTiktokDataFromUsernames = async ({
   usernames
 }: {
