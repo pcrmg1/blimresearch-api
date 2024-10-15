@@ -30,30 +30,39 @@ export const deleteTiktokFiles = async (shortcode: string) => {
   return
 }
 
-export const downloadVideoFromUrl = async ({
+export const downloadFromUrl = async ({
   url,
   filename
 }: {
   url: string
   filename: string
-}): Promise<void> => {
-  const writer = createWriteStream(filename)
+}): Promise<{ finalFilename: string; extension: string }> => {
   try {
     const response = await axios({
       url,
       method: 'GET',
       responseType: 'stream'
     })
+
+    const contentType = response.headers['content-type']
+    const extension = contentType.split('/').pop() // Extracts the file extension (e.g., 'mp4', 'mp3')
+
+    const finalFilename = `${filename}.${extension}`
+
+    const writer = createWriteStream(finalFilename)
+
+    // Pipe the response stream into the file
     response.data.pipe(writer)
+
+    // Return the final filename and extension after the download completes
     return new Promise((resolve, reject) => {
-      writer.on('finish', resolve)
+      writer.on('finish', () => resolve({ finalFilename, extension }))
       writer.on('error', (error) => {
         writer.close()
         reject(error)
       })
     })
   } catch (error) {
-    writer.close()
     throw error
   }
 }
