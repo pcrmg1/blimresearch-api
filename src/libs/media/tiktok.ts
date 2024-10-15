@@ -41,7 +41,6 @@ export const transcribeTiktokVideo = async ({ url }: { url: string }) => {
           url: playUrl,
           filename: id
         })
-        console.log({ extension, finalFilename })
         if (extension === 'mp4') {
           filename = `${id}.mp3`
           extractAudio({
