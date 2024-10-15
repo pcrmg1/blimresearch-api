@@ -1,6 +1,5 @@
 import { Router } from 'express'
 import { generateTopicsQueries } from '../libs/openai/topics'
-import { transcribeTiktokVideo } from '../libs/media/tiktok'
 import { mejorarGuion } from '../libs/openai/guiones'
 import {
   improveCTAComentarios,
@@ -11,6 +10,7 @@ import {
   improveContenidoSinPromesa
 } from '../libs/openai/friendlify'
 import { generateRandomNumber } from '../utils/random'
+import { transcribeTiktokVideo } from '../libs/media/tiktok'
 
 export const extensionRouter = Router()
 
@@ -43,9 +43,13 @@ extensionRouter.post('/topics', async (req, res) => {
 extensionRouter.post('/tiktok', async (req, res) => {
   const { url } = req.body
   try {
-    const { transcription, videoId } = await transcribeTiktokVideo({
+    const videoTranscript = await transcribeTiktokVideo({
       url
     })
+    if (!videoTranscript) {
+      return res.status(400).json({ message: 'No video found' })
+    }
+    const { cost, transcription } = videoTranscript
     const guionMejorado = await mejorarGuion({ guion: transcription })
     if (!guionMejorado) {
       return res.status(400).json({ message: 'No guion found' })

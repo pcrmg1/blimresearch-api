@@ -29,7 +29,7 @@ export const transcribeTiktokVideo = async ({ url }: { url: string }) => {
       if (await fileExists(outputMp3)) await unlink(outputMp3)
       return {
         transcription,
-        videoId: firstResult.item.id,
+        videoId: firstResult.item.id as string,
         cost: firstResult.cost
       }
     } else {
