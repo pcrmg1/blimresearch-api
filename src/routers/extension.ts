@@ -5,9 +5,10 @@ import { mejorarGuion } from '../libs/openai/guiones'
 import {
   improveCTAComentarios,
   improveCTACompartidos,
-  improveCTAGuardados,
   improveCTASeguidores,
-  improveHook
+  improveHook,
+  improveContenidoConPromesa,
+  improveContenidoSinPromesa
 } from '../libs/openai/friendlify'
 import { generateRandomNumber } from '../utils/random'
 
@@ -45,34 +46,50 @@ extensionRouter.post('/tiktok', async (req, res) => {
     const { transcription, videoId } = await transcribeTiktokVideo({
       url
     })
+    console.log({ transcription })
     const guionMejorado = await mejorarGuion({ guion: transcription })
+    console.log({ guionMejorado })
     if (!guionMejorado) {
       return res.status(400).json({ message: 'No guion found' })
     }
-    const mejorarCTAFunctions = [
-      improveCTAComentarios,
-      improveCTACompartidos,
-      improveCTAGuardados,
-      improveCTASeguidores
-    ]
-    const randomIndex = generateRandomNumber(0, mejorarCTAFunctions.length - 1)
-    const [hookMejorado, ctaMejorado] = await Promise.all([
+    const randomIndex = generateRandomNumber(0, 100)
+    let mejorarCTAFunction
+    let mejorarContenido
+    if (randomIndex < 35) {
+      mejorarCTAFunction = improveCTAComentarios
+    } else if (randomIndex < 85) {
+      mejorarCTAFunction = improveCTASeguidores
+    } else {
+      mejorarCTAFunction = improveCTACompartidos
+    }
+    if (randomIndex < 60) {
+      mejorarContenido = improveContenidoSinPromesa
+    } else {
+      mejorarContenido = improveContenidoConPromesa
+    }
+    const [hookMejorado, ctaMejorado, contenidoMejorado] = await Promise.all([
       improveHook({
         contenido: guionMejorado?.contenido,
         cta: guionMejorado?.cta
       }),
-      mejorarCTAFunctions[randomIndex]({
-        contenido: guionMejorado?.cta,
-        hook: guionMejorado?.contenido,
+      mejorarCTAFunction({
+        contenido: guionMejorado?.contenido,
+        hook: guionMejorado?.hook,
         cta: guionMejorado?.cta
+      }),
+      mejorarContenido({
+        contenido: guionMejorado?.contenido,
+        cta: guionMejorado?.cta,
+        hook: guionMejorado?.hook
       })
     ])
+    console.log({ hookMejorado, ctaMejorado, contenidoMejorado })
     return res.json({
       data: {
         guion: `
       Hook: ${hookMejorado}
 
-      Guion: ${guionMejorado.contenido}
+      Guion: ${contenidoMejorado}
 
       CTA: ${ctaMejorado}
       `,
@@ -80,6 +97,7 @@ extensionRouter.post('/tiktok', async (req, res) => {
       }
     })
   } catch (error) {
+    console.log({ error })
     return res.status(500).json({ message: 'Internal server error' })
   }
 })

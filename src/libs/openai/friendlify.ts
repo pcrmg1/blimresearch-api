@@ -1,3 +1,4 @@
+import { string } from 'zod'
 import { openAI } from './client'
 
 export const friendlifyText = async ({ text }: { text: string }) => {
@@ -321,6 +322,115 @@ export const improveCTAComentarios = async ({
           {
             type: 'text',
             text: '[Hook]  \n¿Por qué la disciplina es más poderosa que la motivación?  \n[/Hook]  \n\n[Contenido]  \nLa motivación puede ser efímera; un día está en su punto más alto y al siguiente puede desvanecerse. Sin embargo, la disciplina es la verdadera clave del éxito a largo plazo. La disciplina es el hábito de seguir adelante incluso cuando no tienes ganas, y es lo que separa a los que logran sus objetivos de los que simplemente lo intentan. La disciplina te mantendrá avanzando, paso a paso, incluso en los días más desafiantes.  \n[/Contenido]  \n\n[CTA]  \nSi buscas desarrollar una disciplina inquebrantable, comenta "DISCIPLINA".  \n[/CTA]'
+          }
+        ]
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: `[Hook]  \n${hook}\n[/Hook]\n\n[Contenido]\n${contenido}\n[/Contenido]\n\n[CTA]\n${cta}\n[/CTA]`
+          }
+        ]
+      }
+    ],
+    temperature: 1,
+    max_tokens: 4096,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    response_format: {
+      type: 'text'
+    }
+  })
+  return response.choices[0].message.content
+}
+
+export const improveContenidoConPromesa = async ({
+  hook,
+  contenido,
+  cta
+}: {
+  hook: string
+  contenido: string
+  cta: string
+}) => {
+  const response = await openAI.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [
+      {
+        role: 'system',
+        content: [
+          {
+            type: 'text',
+            text: `Mejora este contenido de mi guión, hazlo más simple de entender. Hay dos tipos de guiones: de información, y de enumeración. El usuario te proveerá el hook, contenido y cta, tu tarea es modificar el CONTENIDO y retornar únicamente el CONTENIDO mejorado. No elimines detalles. 
+
+              Para el caso de guiones información:
+              Separa en parrafos más simples la información, escribela con palabras más sencillas. Hazlo fácil de entender, rápido y sin perder detalles. No utilices terminología técnica, solo texto fácil de leer. 
+
+              Para el caso de guiones enumeración: 
+              Si es el hook sugiere un número tipo enumerable, ponle número a cada parte y espaciarlo. Que sea corto, fácil de entender para el 90% de la población y que sea súper simple. 
+
+              En ambos casos, agrega una promesa al inicio del contenido. La intención es generar una interacción extra o retención, por lo que debe ser muy persuasiva. Ejemplos de promesa: 
+              * "La última X es la que Z..".
+              * "Guarda este video por si se te olvida"
+              * "El tercero es el que más comete la gente.."
+              * "Si no puedes recordarlo, guarda el video para que no se te olvide".
+
+              Es importante que la promesa esté al INICIO, y NUNCA se debe repetir con el cta. 
+
+              Ejemplo de respuesta JSON: 
+              CONTENIDO_MEJORADO: 'Texto del contenido mejorado'`
+          }
+        ]
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: `[Hook]  \n${hook}\n[/Hook]\n\n[Contenido]\n${contenido}\n[/Contenido]\n\n[CTA]\n${cta}\n[/CTA]`
+          }
+        ]
+      }
+    ],
+    temperature: 1,
+    max_tokens: 4096,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    response_format: {
+      type: 'text'
+    }
+  })
+  return response.choices[0].message.content
+}
+
+export const improveContenidoSinPromesa = async ({
+  hook,
+  contenido,
+  cta
+}: {
+  hook: string
+  contenido: string
+  cta: string
+}) => {
+  const response = await openAI.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [
+      {
+        role: 'system',
+        content: [
+          {
+            type: 'text',
+            text: `Mejora este contenido de mi guión, hazlo más simple de entender. Hay dos tipos de guiones: de información, y de enumeración. El usuario te proveerá el hook, contenido y cta, tu tarea es modificar el CONTENIDO y retornar únicamente el CONTENIDO mejorado. No elimines detalles. 
+
+            Para el caso de guiones información:
+            Separa en parrafos más simples la información, escribela con palabras más sencillas. Hazlo fácil de entender, rápido y sin perder detalles. No utilices terminología técnica, solo texto fácil de leer. 
+
+            Para el caso de guiones enumeración: 
+            Si es el hook sugiere un número tipo enumerable, ponle número a cada parte y espaciarlo. Que sea corto, fácil de entender para el 90% de la población y que sea súper simple.`
           }
         ]
       },
