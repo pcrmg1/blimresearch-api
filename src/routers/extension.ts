@@ -46,9 +46,7 @@ extensionRouter.post('/tiktok', async (req, res) => {
     const { transcription, videoId } = await transcribeTiktokVideo({
       url
     })
-    console.log({ transcription })
     const guionMejorado = await mejorarGuion({ guion: transcription })
-    console.log({ guionMejorado })
     if (!guionMejorado) {
       return res.status(400).json({ message: 'No guion found' })
     }
@@ -83,7 +81,6 @@ extensionRouter.post('/tiktok', async (req, res) => {
         hook: guionMejorado?.hook
       })
     ])
-    console.log({ hookMejorado, ctaMejorado, contenidoMejorado })
     return res.json({
       data: {
         guion: `
