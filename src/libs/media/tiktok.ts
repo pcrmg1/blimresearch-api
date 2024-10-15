@@ -48,6 +48,7 @@ export const transcribeTiktokVideo = async ({ url }: { url: string }) => {
             outputPath: filename
           })
           transcription = await transcribeAudio(filename)
+          if (await fileExists(finalFilename)) await unlink(finalFilename)
         } else if (extension === 'mp3') {
           filename = finalFilename
           transcription = await transcribeAudio(filename)
