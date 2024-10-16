@@ -378,10 +378,7 @@ export const improveContenidoConPromesa = async ({
               * "El tercero es el que más comete la gente.."
               * "Si no puedes recordarlo, guarda el video para que no se te olvide".
 
-              Es importante que la promesa esté al INICIO, y NUNCA se debe repetir con el cta. 
-
-              Ejemplo de respuesta JSON: 
-              CONTENIDO_MEJORADO: 'Texto del contenido mejorado'`
+              Es importante que la promesa esté al INICIO, y NUNCA se debe repetir con el cta.`
           }
         ]
       },
