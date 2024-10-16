@@ -11,6 +11,7 @@ import {
 } from '../libs/openai/friendlify'
 import { generateRandomNumber } from '../utils/random'
 import { transcribeTiktokVideo } from '../libs/media/tiktok'
+import { transcribeVideoFromYoutube } from '../libs/media/youtube'
 
 export const extensionRouter = Router()
 
@@ -91,6 +92,66 @@ extensionRouter.post('/tiktok', async (req, res) => {
       Hook: ${hookMejorado}
 
       Guion: ${contenidoMejorado}
+
+      CTA: ${ctaMejorado}
+      `,
+        transcripcion: transcription
+      }
+    })
+  } catch (error) {
+    console.log({ error })
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
+extensionRouter.post('/youtube', async (req, res) => {
+  const { url } = req.body
+  if (!url) {
+    return res.status(400).json({ error: 'url is required' })
+  }
+  try {
+    const { transcription } = await transcribeVideoFromYoutube({ url })
+    const guionMejorado = await mejorarGuion({ guion: transcription })
+    if (!guionMejorado) {
+      return res.status(400).json({ message: 'No guion found' })
+    }
+    const randomIndex = generateRandomNumber(0, 100)
+    let mejorarCTAFunction
+    let mejorarContenido
+    if (randomIndex < 35) {
+      mejorarCTAFunction = improveCTAComentarios
+    } else if (randomIndex < 85) {
+      mejorarCTAFunction = improveCTASeguidores
+    } else {
+      mejorarCTAFunction = improveCTACompartidos
+    }
+    if (randomIndex < 60) {
+      mejorarContenido = improveContenidoSinPromesa
+    } else {
+      mejorarContenido = improveContenidoConPromesa
+    }
+    const [hookMejorado, ctaMejorado, contenidoMejorado] = await Promise.all([
+      improveHook({
+        contenido: guionMejorado?.contenido,
+        cta: guionMejorado?.cta
+      }),
+      mejorarCTAFunction({
+        contenido: guionMejorado?.contenido,
+        hook: guionMejorado?.hook,
+        cta: guionMejorado?.cta
+      }),
+      mejorarContenido({
+        contenido: guionMejorado?.contenido,
+        cta: guionMejorado?.cta,
+        hook: guionMejorado?.hook
+      })
+    ])
+    return res.json({
+      data: {
+        guion: `
+      Hook: ${hookMejorado}
+
+      Contenido: ${contenidoMejorado}
 
       CTA: ${ctaMejorado}
       `,
