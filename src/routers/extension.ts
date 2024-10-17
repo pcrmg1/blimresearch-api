@@ -12,6 +12,8 @@ import {
 import { generateRandomNumber } from '../utils/random'
 import { transcribeTiktokVideo } from '../libs/media/tiktok'
 import { transcribeVideoFromYoutube } from '../libs/media/youtube'
+import { downloadFromUrl } from '../libs/media/handling'
+import { transcribeAudio } from '../libs/openai/trancriptions'
 
 export const extensionRouter = Router()
 
@@ -155,6 +157,30 @@ extensionRouter.post('/youtube', async (req, res) => {
 
       CTA: ${ctaMejorado}
       `,
+        transcripcion: transcription
+      }
+    })
+  } catch (error) {
+    console.log({ error })
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
+extensionRouter.post('/mp3', async (req, res) => {
+  const { url } = req.body
+  if (!url) {
+    return res.status(400).json({ error: 'url is required' })
+  }
+  const id = generateRandomNumber(0, 1000000)
+  try {
+    const filename = `${id}.mp3`
+    await downloadFromUrl({ url, filename })
+    const transcription = await transcribeAudio(filename)
+    if (!transcription) {
+      return res.status(400).json({ message: 'No transcription found' })
+    }
+    return res.json({
+      data: {
         transcripcion: transcription
       }
     })
