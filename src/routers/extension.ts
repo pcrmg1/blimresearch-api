@@ -12,7 +12,7 @@ import {
 import { generateRandomNumber } from '../utils/random'
 import { transcribeTiktokVideo } from '../libs/media/tiktok'
 import { transcribeVideoFromYoutube } from '../libs/media/youtube'
-import { downloadFromUrl } from '../libs/media/handling'
+import { downloadFromUrl, extractAudio } from '../libs/media/handling'
 import { transcribeAudio } from '../libs/openai/trancriptions'
 
 export const extensionRouter = Router()
@@ -172,12 +172,21 @@ extensionRouter.post('/mp3', async (req, res) => {
     return res.status(400).json({ error: 'url is required' })
   }
   const id = generateRandomNumber(0, 1000000)
+  let transcription
   try {
     const filename = `${id}.mp3`
-    await downloadFromUrl({ url, filename })
-    const transcription = await transcribeAudio(filename)
-    if (!transcription) {
-      return res.status(400).json({ message: 'No transcription found' })
+    const { finalFilename, extension } = await downloadFromUrl({
+      url,
+      filename: `${id}`
+    })
+    if (extension === 'mp4') {
+      await extractAudio({ inputPath: finalFilename, outputPath: filename })
+      transcription = await transcribeAudio(filename)
+      if (!transcription) {
+        return res.status(400).json({ message: 'No transcription found' })
+      }
+    } else if (extension === 'mp3') {
+      transcription = await transcribeAudio(filename)
     }
     return res.json({
       data: {
