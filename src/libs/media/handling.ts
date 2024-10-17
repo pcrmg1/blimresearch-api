@@ -45,9 +45,20 @@ export const downloadFromUrl = async ({
     })
 
     const contentType = response.headers['content-type']
-    const extension = contentType.split('/').pop() // Extracts the file extension (e.g., 'mp4', 'mp3')
+    let extension = contentType.split('/').pop() // Extracts the file extension (e.g., 'mp4', 'mp3')
 
-    const finalFilename = `${filename}.${extension}`
+    let finalFilename
+
+    if (extension === 'mp4') {
+      finalFilename = `${filename}.mp4`
+    } else if (extension === 'mp3') {
+      finalFilename = `${filename}.mp3`
+    } else if (extension === 'octet-stream') {
+      finalFilename = `${filename}.mov`
+      extension = 'mov'
+    } else {
+      throw new Error('Invalid file extension')
+    }
 
     const writer = createWriteStream(finalFilename)
 

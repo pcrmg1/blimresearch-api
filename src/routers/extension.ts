@@ -14,6 +14,10 @@ import { transcribeTiktokVideo } from '../libs/media/tiktok'
 import { transcribeVideoFromYoutube } from '../libs/media/youtube'
 import { downloadFromUrl, extractAudio } from '../libs/media/handling'
 import { transcribeAudio } from '../libs/openai/trancriptions'
+import { fileExists } from '../utils/files'
+import { unlink } from 'fs/promises'
+import axios from 'axios'
+import { createWriteStream } from 'fs'
 
 export const extensionRouter = Router()
 
@@ -179,7 +183,8 @@ extensionRouter.post('/mp3', async (req, res) => {
       url,
       filename: `${id}`
     })
-    if (extension === 'mp4') {
+    console.log({ finalFilename, extension })
+    if (extension === 'mp4' || extension === 'mov') {
       await extractAudio({ inputPath: finalFilename, outputPath: filename })
       transcription = await transcribeAudio(filename)
       if (!transcription) {
@@ -187,6 +192,8 @@ extensionRouter.post('/mp3', async (req, res) => {
       }
     } else if (extension === 'mp3') {
       transcription = await transcribeAudio(filename)
+    } else {
+      return res.status(400).json({ message: 'Invalid file extension' })
     }
     return res.json({
       data: {
@@ -196,5 +203,8 @@ extensionRouter.post('/mp3', async (req, res) => {
   } catch (error) {
     console.log({ error })
     return res.status(500).json({ message: 'Internal server error' })
+  } finally {
+    if (await fileExists(`${id}.mp3`)) await unlink(`${id}.mp3`)
+    if (await fileExists(`${id}.mp4`)) await unlink(`${id}.mp4`)
   }
 })
