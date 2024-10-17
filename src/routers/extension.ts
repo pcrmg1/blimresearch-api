@@ -205,5 +205,6 @@ extensionRouter.post('/mp3', async (req, res) => {
   } finally {
     if (await fileExists(`${id}.mp3`)) await unlink(`${id}.mp3`)
     if (await fileExists(`${id}.mp4`)) await unlink(`${id}.mp4`)
+    if (await fileExists(`${id}.mov`)) await unlink(`${id}.mov`)
   }
 })
