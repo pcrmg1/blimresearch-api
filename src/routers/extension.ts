@@ -183,7 +183,6 @@ extensionRouter.post('/mp3', async (req, res) => {
       url,
       filename: `${id}`
     })
-    console.log({ finalFilename, extension })
     if (extension === 'mp4' || extension === 'mov') {
       await extractAudio({ inputPath: finalFilename, outputPath: filename })
       transcription = await transcribeAudio(filename)
