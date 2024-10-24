@@ -1,23 +1,22 @@
 import { Router } from 'express'
-import { generateTopicsQueries } from '../libs/openai/topics'
-import { mejorarGuion } from '../libs/openai/guiones'
+import { unlink } from 'fs/promises'
+import { downloadFromUrl, extractAudio } from '../libs/media/handling'
+import { transcribeTiktokVideo } from '../libs/media/tiktok'
+import { transcribeVideoFromYoutube } from '../libs/media/youtube'
 import {
+  improveContenidoConPromesa,
+  improveContenidoSinPromesa,
   improveCTAComentarios,
   improveCTACompartidos,
   improveCTASeguidores,
   improveHook,
-  improveContenidoConPromesa,
-  improveContenidoSinPromesa
+  mejorarGuionV2
 } from '../libs/openai/friendlify'
-import { generateRandomNumber } from '../utils/random'
-import { transcribeTiktokVideo } from '../libs/media/tiktok'
-import { transcribeVideoFromYoutube } from '../libs/media/youtube'
-import { downloadFromUrl, extractAudio } from '../libs/media/handling'
+import { mejorarGuion } from '../libs/openai/guiones'
+import { generateTopicsQueries } from '../libs/openai/topics'
 import { transcribeAudio } from '../libs/openai/trancriptions'
 import { fileExists } from '../utils/files'
-import { unlink } from 'fs/promises'
-import axios from 'axios'
-import { createWriteStream } from 'fs'
+import { generateRandomNumber } from '../utils/random'
 
 export const extensionRouter = Router()
 
@@ -57,7 +56,10 @@ extensionRouter.post('/tiktok', async (req, res) => {
       return res.status(400).json({ message: 'No video found' })
     }
     const { cost, transcription } = videoTranscript
-    const guionMejorado = await mejorarGuion({ guion: transcription })
+    const [guionMejorado, guionMejorado2] = await Promise.all([
+      mejorarGuion({ guion: transcription }),
+      mejorarGuionV2({ text: transcription })
+    ])
     if (!guionMejorado) {
       return res.status(400).json({ message: 'No guion found' })
     }
@@ -101,7 +103,8 @@ extensionRouter.post('/tiktok', async (req, res) => {
 
       CTA: ${ctaMejorado}
       `,
-        transcripcion: transcription
+        transcripcion: transcription,
+        guionV2: guionMejorado2
       }
     })
   } catch (error) {
@@ -117,7 +120,10 @@ extensionRouter.post('/youtube', async (req, res) => {
   }
   try {
     const { transcription } = await transcribeVideoFromYoutube({ url })
-    const guionMejorado = await mejorarGuion({ guion: transcription })
+    const [guionMejorado, guionMejorado2] = await Promise.all([
+      mejorarGuion({ guion: transcription }),
+      mejorarGuionV2({ text: transcription })
+    ])
     if (!guionMejorado) {
       return res.status(400).json({ message: 'No guion found' })
     }
@@ -161,7 +167,8 @@ extensionRouter.post('/youtube', async (req, res) => {
 
       CTA: ${ctaMejorado}
       `,
-        transcripcion: transcription
+        transcripcion: transcription,
+        guionV2: guionMejorado2
       }
     })
   } catch (error) {
