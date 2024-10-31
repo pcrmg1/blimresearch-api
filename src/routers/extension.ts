@@ -12,11 +12,15 @@ import {
   improveHook,
   mejorarGuionV2
 } from '../libs/openai/friendlify'
-import { mejorarGuion } from '../libs/openai/guiones'
+import {
+  generarCategoriaConTranscripcion,
+  mejorarGuion
+} from '../libs/openai/guiones'
 import { generateTopicsQueries } from '../libs/openai/topics'
 import { transcribeAudio } from '../libs/openai/trancriptions'
 import { fileExists } from '../utils/files'
 import { generateRandomNumber } from '../utils/random'
+import { formatearGuionSplitWithPoint } from '../utils/transcriptions/formatGuion'
 
 export const extensionRouter = Router()
 
@@ -78,33 +82,38 @@ extensionRouter.post('/tiktok', async (req, res) => {
     } else {
       mejorarContenido = improveContenidoConPromesa
     }
-    const [hookMejorado, ctaMejorado, contenidoMejorado] = await Promise.all([
-      improveHook({
-        contenido: guionMejorado?.contenido,
-        cta: guionMejorado?.cta
-      }),
-      mejorarCTAFunction({
-        contenido: guionMejorado?.contenido,
-        hook: guionMejorado?.hook,
-        cta: guionMejorado?.cta
-      }),
-      mejorarContenido({
-        contenido: guionMejorado?.contenido,
-        cta: guionMejorado?.cta,
-        hook: guionMejorado?.hook
-      })
-    ])
+    const [hookMejorado, ctaMejorado, contenidoMejorado, categoria] =
+      await Promise.all([
+        improveHook({
+          contenido: guionMejorado?.contenido,
+          cta: guionMejorado?.cta
+        }),
+        mejorarCTAFunction({
+          contenido: guionMejorado?.contenido,
+          hook: guionMejorado?.hook,
+          cta: guionMejorado?.cta
+        }),
+        mejorarContenido({
+          contenido: guionMejorado?.contenido,
+          cta: guionMejorado?.cta,
+          hook: guionMejorado?.hook
+        }),
+        generarCategoriaConTranscripcion({ transcripcion: transcription })
+      ])
+
+    const guionCompleto = `
+  ${hookMejorado}
+
+  ${contenidoMejorado}
+
+  ${ctaMejorado}
+  `
     return res.json({
       data: {
-        guion: `
-      Hook: ${hookMejorado}
-
-      Guion: ${contenidoMejorado}
-
-      CTA: ${ctaMejorado}
-      `,
+        guion: formatearGuionSplitWithPoint({ text: guionCompleto }),
         transcripcion: transcription,
-        guionV2: guionMejorado2
+        guionV2: formatearGuionSplitWithPoint({ text: guionMejorado2 }),
+        categoria
       }
     })
   } catch (error) {
@@ -112,6 +121,8 @@ extensionRouter.post('/tiktok', async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' })
   }
 })
+
+//TODO: Unir con el endpoint de tiktok
 
 extensionRouter.post('/youtube', async (req, res) => {
   const { url } = req.body
@@ -142,33 +153,38 @@ extensionRouter.post('/youtube', async (req, res) => {
     } else {
       mejorarContenido = improveContenidoConPromesa
     }
-    const [hookMejorado, ctaMejorado, contenidoMejorado] = await Promise.all([
-      improveHook({
-        contenido: guionMejorado?.contenido,
-        cta: guionMejorado?.cta
-      }),
-      mejorarCTAFunction({
-        contenido: guionMejorado?.contenido,
-        hook: guionMejorado?.hook,
-        cta: guionMejorado?.cta
-      }),
-      mejorarContenido({
-        contenido: guionMejorado?.contenido,
-        cta: guionMejorado?.cta,
-        hook: guionMejorado?.hook
-      })
-    ])
+    const [hookMejorado, ctaMejorado, contenidoMejorado, categoria] =
+      await Promise.all([
+        improveHook({
+          contenido: guionMejorado?.contenido,
+          cta: guionMejorado?.cta
+        }),
+        mejorarCTAFunction({
+          contenido: guionMejorado?.contenido,
+          hook: guionMejorado?.hook,
+          cta: guionMejorado?.cta
+        }),
+        mejorarContenido({
+          contenido: guionMejorado?.contenido,
+          cta: guionMejorado?.cta,
+          hook: guionMejorado?.hook
+        }),
+        generarCategoriaConTranscripcion({ transcripcion: transcription })
+      ])
+
+    const guionCompleto = `
+    ${hookMejorado}
+
+    ${contenidoMejorado}
+
+    ${ctaMejorado}
+    `
     return res.json({
       data: {
-        guion: `
-      Hook: ${hookMejorado}
-
-      Contenido: ${contenidoMejorado}
-
-      CTA: ${ctaMejorado}
-      `,
+        guion: formatearGuionSplitWithPoint({ text: guionCompleto }),
         transcripcion: transcription,
-        guionV2: guionMejorado2
+        guionV2: formatearGuionSplitWithPoint({ text: guionMejorado2 }),
+        categoria
       }
     })
   } catch (error) {

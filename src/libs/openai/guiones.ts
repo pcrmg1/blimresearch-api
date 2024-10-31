@@ -104,3 +104,42 @@ export const mejorarGuionPorPartes = async ({
   })
   return response.choices[0].message.parsed
 }
+
+export const generarCategoriaConTranscripcion = async ({
+  transcripcion
+}: {
+  transcripcion: string
+}) => {
+  const response = await openAI.chat.completions.create({
+    model: 'gpt-4o-2024-05-13',
+    messages: [
+      {
+        role: 'system',
+        content: [
+          {
+            type: 'text',
+            text: 'Categoriza el guión que el usuario provee, entre estas posibles categorías: \n\nStorytelling\nPaso a Paso\nPreguntas (Empieza por pregunta)\nControversial\nTutorial Express\nInspiracional / Motivacional\nOpinión Personal\nDato Curioso / Cultura General\nActualidad / Noticias\nAnálisis / Revisión (Review)\nExperiencia Personal\nConsejos o Tips\nFAQ (Preguntas Frecuentes)\nComparativa\nReflexión o Filosofía Personal\nOtro\n\nUtiliza tu proprio criterio. Solo puedes responder con UNA SOLA categoría. '
+          }
+        ]
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: `[Guion] ${transcripcion} [/Guion]`
+          }
+        ]
+      }
+    ],
+    temperature: 1,
+    max_tokens: 2048,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    response_format: {
+      type: 'text'
+    }
+  })
+  return response.choices[0].message.content
+}
