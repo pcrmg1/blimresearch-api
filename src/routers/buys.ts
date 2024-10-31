@@ -5,7 +5,7 @@ import { hashPassword } from '../utils/password'
 import { prisma } from '../db/prisma'
 import { generateNewUserEmail } from '../libs/nodemailer/templates/newUser'
 import { sendMail } from '../libs/nodemailer/transporter'
-import {config} from 'dotenv'
+import { config } from 'dotenv'
 
 config()
 
