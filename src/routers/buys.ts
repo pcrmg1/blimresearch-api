@@ -6,7 +6,7 @@ import { prisma } from '../db/prisma'
 import { generateNewUserEmail } from '../libs/nodemailer/templates/newUser'
 import { sendMail } from '../libs/nodemailer/transporter'
 import { config } from 'dotenv'
-import { addUserCredits } from '../db/credits'
+import { addUserCredits, modifyCreditLimit } from '../db/credits'
 
 config()
 
@@ -47,10 +47,9 @@ buysRouter.post('/coralmujaesweb', async (req, res) => {
       username: user.email
     })
 
-    await addUserCredits({
+    await modifyCreditLimit({
       userId: user.id,
-      credits: 1000,
-      concepto: 'Registro de usuario'
+      newCredits: 1000
     })
 
     await sendMail({
