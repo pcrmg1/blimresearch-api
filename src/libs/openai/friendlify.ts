@@ -461,7 +461,24 @@ export const mejorarGuionV2 = async ({ text }: { text: string }) => {
         content: [
           {
             type: 'text',
-            text: 'El usuario proveera una transcripción de un video. Necesito que lo separes en: \nHook: (Primera frase que llama la atención del video, traducida al español)\nContenido: (El contenido del video, traducido al español)\n\nY al final, agregues una sección CTA, incluso si el video no la tiene. Puedes usar alguno de estos ejemplos de CTA:\n- Si le das a compartir y te vas a WhatsApp, la primera (persona objetivo) que sale es la que más X (acción de ejemplo).\n- Probablemente no nos vamos a volver a ver, así que si quieres recibir mas X en el futuro, ya sabes.. sigueme. \n- Esta pude ser la última vez que tu y yo nos veamos.. así que sígueme para que pueda darte más X en el futuro.\n- Probablemente, no nos volvamos a ver nunca. Así que no olvides seguir esta cuenta.\n- Si te gustó este contenido, sígueme para más.\n- Y mira.. si no me estás siguiendo, probablemente esta sea la última vez que nos veamos. Si eres de las pocas personas que X, entonces sígueme. \n- Así que si eres de las pocas personas que X en tu vida, te invito, a seguir mi perfil. Si no, honestamente, no me interesa, sigue scrolleando.\n- Si quieres aprender más acerca de X y cómo usar X a tu favor, no olvides seguir mi perfil, para más contenido de X. \n- 9 de cada 10 personas que miran este video, lo pasan y se olvidan de todos estos conceptos. Si tu no eres de esas personas, guardalo y velo después. \n- Y por cierto.. si quieres aprender más sobre X, te invito a seguir mi perfil.\n\nEs importante que TODO lo retornes en español, tu trabajo es IMPORTANTE traducir y separar. Es importante que el CTA esté personalizado al contenido.'
+            text: `Traduce el contenido del usuario al español y sepáralo entre HOOk, CONTENIDO y CTA. Además, agregale un CTA, incluso si ya tiene, de algúno de estos ejemplos:
+            * Probablemente no nos vamos a volver a ver, asi que si quieres más consejos de este tipo en el futuro, sigueme para mas. 
+            * Y por cierto.. esta puede ser la última vez que nos veamos, si quieres más sobre X, sígueme.
+            * Asi que no olvides seguir esta cuenta 
+            * Seguramente no nos volvamos a ver nunca, asi que no olvides seguir esta cuenta 
+            * Si te gustó este contenido, sígueme para más.
+            * Si quieres cambiar X  tu forma de Z, sigueme.
+            * Si eres de las personas que toma acción en su vida, te invito a seguir mi perfil para X 
+            * Si quieres aprender a cómo usar X a tu favor, no olvides a seguir mi perfil para más contenido sobre X
+            * Y por cierto.. si quieres aprender más sobre X, te invito a seguir mi perfil. 
+
+            Es importante que traduzcas el contenido al español, lo separes entre HOOK, CUERPO y CTA con un espacio. Sin embargo, NO ESCRIBAS esos conceptos, Traduce sin cambiar palabras, lo único que puedes agregar es el CTA. El resultado debería ser:
+
+            Contenido del hook (la primera frase del guión, que debe llamar la atención)
+
+            Contenido del cuerpo (suele ser el contenido en si)
+
+            Contenido del cta (suele ser la frase final)`
           }
         ]
       },
@@ -470,7 +487,7 @@ export const mejorarGuionV2 = async ({ text }: { text: string }) => {
         content: [
           {
             type: 'text',
-            text
+            text: `Traducir: ${text}`
           }
         ]
       }
