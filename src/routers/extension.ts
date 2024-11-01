@@ -21,6 +21,10 @@ import { transcribeAudio } from '../libs/openai/trancriptions'
 import { fileExists } from '../utils/files'
 import { generateRandomNumber } from '../utils/random'
 import { formatearGuionSplitWithPoint } from '../utils/transcriptions/formatGuion'
+import {
+  generarPreguntasNegocio,
+  PreguntasNegocioSchema
+} from '../libs/openai/negocio'
 
 export const extensionRouter = Router()
 
@@ -187,6 +191,21 @@ extensionRouter.post('/youtube', async (req, res) => {
         categoria
       }
     })
+  } catch (error) {
+    console.log({ error })
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
+extensionRouter.post('/negocio', async (req, res) => {
+  const { body } = req
+  try {
+    const preguntasValid = await PreguntasNegocioSchema.safeParseAsync(body)
+    if (preguntasValid.error) {
+      return res.status(400).json({ error: 'Invalid body' })
+    }
+    const preguntas = await generarPreguntasNegocio(preguntasValid.data)
+    return res.json({ data: preguntas })
   } catch (error) {
     console.log({ error })
     return res.status(500).json({ message: 'Internal server error' })

@@ -19,10 +19,17 @@ export const imageFromTranscription = async ({
   const image = await openAI.images.generate({
     prompt: prompt,
     n: 1,
-    model: 'dall-e-3',
+    model: 'dall-e-2',
     size: size,
     quality
   })
+  console.dir(
+    { image },
+    {
+      colors: true,
+      depth: Infinity
+    }
+  )
   return image.data[0].url
 }
 
