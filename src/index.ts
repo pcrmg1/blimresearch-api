@@ -69,7 +69,7 @@ app.use('/api/listaGuiones', verifyToken, listaGuionesRouter)
 app.use('/api/buys', buysRouter)
 app.use('/api/extension', extensionRouter)
 app.use('/api/video-generator', videoGenerator)
-app.use('api/temp', tempRouter)
+app.use('/api/temp', tempRouter)
 
 const PORT = process.env.PORT || 5000
 
