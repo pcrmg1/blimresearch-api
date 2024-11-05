@@ -296,3 +296,12 @@ model Lista_Guiones {
 
   @@index([id], name: "id_listaGuiones")
 }
+
+model tempSeguidores {
+  id               String   @id @default(cuid())
+  linkA            String?
+  linkB            String?
+  umbralSeguidores Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}

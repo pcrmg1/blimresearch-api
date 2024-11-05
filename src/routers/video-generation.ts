@@ -37,23 +37,37 @@ videoGenerator.post('/', upload.single('file'), async (req, res) => {
     await writeFile(audioPath, req.file.buffer)
     const audioTranscription = await transcribeAudioVerbose(audioPath)
     const imagesPromise = []
+    const squareImagesPromise = []
     const imagePrompt = await generateImagePromptFromTranscription({
       text: audioTranscription.text
     })
-    for (let i = 0; i < 3; i++) {
+    console.log({
+      imagePrompt
+    })
+    for (let i = 0; i < 19; i++) {
       imagesPromise.push(
         imageFromTranscription({
           prompt: imagePrompt,
-          size: '1024x1792',
+          size: '1024x1024',
           quality: 'standard'
         })
       )
+      if (i < 3) {
+        squareImagesPromise.push(
+          imageFromTranscription({
+            prompt: imagePrompt,
+            size: '1024x1024',
+            quality: 'standard'
+          })
+        )
+      }
     }
     const [hookEndWord, silences, ...rest] = await Promise.all([
       detectHookEnd({ text: audioTranscription.text }),
       detectSilences(audioPath) as unknown as Silence[],
       ...imagesPromise
     ])
+    const squareImages = await Promise.all(squareImagesPromise)
     let timeHookEnd = audioTranscription.words.find(
       (word) => word.word === hookEndWord
     )
@@ -71,67 +85,14 @@ videoGenerator.post('/', upload.single('file'), async (req, res) => {
       hookEndWord,
       timeHookEnd,
       silences,
-      images: rest
+      images: rest,
+      squareImages
     })
   } catch (error) {
     console.error('Error processing file:', error)
     res.status(500).send('Error processing file')
   }
 })
-
-const data = {
-  audioTranscription:
-    "Fai questo se vuoi trasformare la tua macchina in una macchina di lusso. Per farlo puoi utilizzare la pellicola colorata. Prima prova a smontare tutti i pezzi che ti danno ingombro alla superficie da applicare. Secondo, pulisci perfettamente fino in fondo. Ricordati soprattutto di lavorare gli angoli. Dopo prendi le misure e inizia l'applicazione. Ricordati di spatolare bene per far uscire tutte le bolle d'aria. Vuoi che la tua macchina diventi una macchina con stile? Seguimi!",
-  hookEndWord: 'lusso',
-  timeHookEnd: {
-    word: 'lusso',
-    start: 3.799999952316284,
-    end: 3.9600000381469727
-  },
-  silences: [
-    {
-      start: 5.953719,
-      end: 6.314671
-    },
-    {
-      start: 12.482925,
-      end: 12.879297
-    },
-    {
-      start: 15.268277,
-      end: 15.632041
-    },
-    {
-      start: 22.241247,
-      end: 22.728005
-    },
-    {
-      start: 24.926621,
-      end: 25.327687
-    },
-    {
-      start: 26.459819,
-      end: 27.393764
-    },
-    {
-      start: 33.807732,
-      end: 34.252426
-    },
-    {
-      start: 35.023447,
-      end: 35.557438
-    },
-    {
-      start: 38.033741,
-      end: 38.891973
-    }
-  ],
-  images: [
-    'https://oaidalleapiprodscus.blob.core.windows.net/private/org-TRRqudnjJFm1ExLLEk030e3N/user-r6EswVdOahYp7HDM5dPfkMlR/img-4KWrvKM6uxjVTOR4jfD7b0HG.png?st=2024-10-31T00%3A18%3A13Z&se=2024-10-31T02%3A18%3A13Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=d505667d-d6c1-4a0a-bac7-5c84a87759f8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-10-31T01%3A09%3A06Z&ske=2024-11-01T01%3A09%3A06Z&sks=b&skv=2024-08-04&sig=c4bwVlGcJFXGLZLWaqZ%2BM62ym1xU8fpqVcezJ/0%2ByGY%3D',
-    'https://oaidalleapiprodscus.blob.core.windows.net/private/org-TRRqudnjJFm1ExLLEk030e3N/user-r6EswVdOahYp7HDM5dPfkMlR/img-Mxmblwe4R4HVT9s5wsFpj1Mo.png?st=2024-10-31T00%3A18%3A12Z&se=2024-10-31T02%3A18%3A12Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=d505667d-d6c1-4a0a-bac7-5c84a87759f8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-10-31T01%3A11%3A43Z&ske=2024-11-01T01%3A11%3A43Z&sks=b&skv=2024-08-04&sig=MVE0a1OvzsF96aRGUYoz1xFxWd5eKCYjspivdl0a7MU%3D',
-    'https://oaidalleapiprodscus.blob.core.windows.net/private/org-TRRqudnjJFm1ExLLEk030e3N/user-r6EswVdOahYp7HDM5dPfkMlR/img-OnUbFk650vxI7k13Oa5kZROU.png?st=2024-10-31T00%3A18%3A22Z&se=2024-10-31T02%3A18%3A22Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=d505667d-d6c1-4a0a-bac7-5c84a87759f8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-10-31T01%3A18%3A22Z&ske=2024-11-01T01%3A18%3A22Z&sks=b&skv=2024-08-04&sig=H/uLLCmg7cZELXRk2/9L5PSW1L/X%2BW4IrK5NjSsjPbQ%3D'
-  ]
-}
 
 function detectSilences(audioPath: string) {
   let dbFilter = '40'
