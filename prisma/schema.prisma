@@ -304,4 +304,6 @@ model tempSeguidores {
   umbralSeguidores Int?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  @@index([linkA, linkB, id], name: "linkA_linkB")
 }
