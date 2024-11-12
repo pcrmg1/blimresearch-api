@@ -126,8 +126,6 @@ extensionRouter.post('/tiktok', async (req, res) => {
   }
 })
 
-//TODO: Unir con el endpoint de tiktok
-
 extensionRouter.post('/youtube', async (req, res) => {
   const { url } = req.body
   if (!url) {
@@ -221,6 +219,10 @@ extensionRouter.post('/mp3', async (req, res) => {
   const urlObj = new URL(url)
   urlObj.searchParams.set('confirm', 't')
   const newUrl = urlObj.toString()
+<<<<<<< HEAD
+=======
+
+>>>>>>> 737e6e4 (fix: bugfix when prompted to ask confirmation)
   let transcription
   try {
     const filename = `${id}.mp3`
