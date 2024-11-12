@@ -20,6 +20,11 @@ export const getInstagramViralsByUserId = async ({
         include: {
           Transcription: true
         }
+      },
+      carruseles: {
+        include: {
+          transcription: true
+        }
       }
     },
     take: limit,
@@ -51,6 +56,11 @@ export const getInstagramViralUsernameById = async ({ id }: { id: string }) => {
       videos: {
         include: {
           Transcription: true
+        }
+      },
+      carruseles: {
+        include: {
+          transcription: true
         }
       }
     }

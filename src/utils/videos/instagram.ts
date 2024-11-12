@@ -1,70 +1,11 @@
-import {
-  InstagramDirectURLRun,
-  InstagramQueryRun,
-  InstagramDataByUsername
-} from '../../types/apify'
-
-function filterUrlsFromPostsArray({
-  item,
-  urlsArray
-}: {
-  item: InstagramQueryRun
-  urlsArray: string[]
-}) {
-  const { topPosts, latestPosts } = item
-  if (Array.isArray(topPosts)) {
-    for (const post of topPosts) {
-      if (urlsArray.includes(post.url)) return
-      urlsArray.push(post.url)
-    }
-  }
-  if (Array.isArray(latestPosts)) {
-    for (const post of latestPosts) {
-      if (urlsArray.includes(post.url)) return
-      urlsArray.push(post.url)
-    }
-  }
-  if (!Array.isArray(topPosts) && !Array.isArray(latestPosts)) {
-    throw new Error('No posts found')
-  }
-}
-
-export const filterInstagramPostsByLikes = ({
-  items
-}: {
-  items: InstagramQueryRun[]
-}) => {
-  let filteredUrls: string[] = []
-  items.forEach((item) => {
-    filterUrlsFromPostsArray({
-      item,
-      urlsArray: filteredUrls
-    })
-  })
-  return filteredUrls
-}
+import { InstagramDataByUsername, InstagramQueryRun } from '../../types/apify'
 
 export const getInstagramUsersFromPosts = ({
   items
 }: {
-  items: InstagramDirectURLRun[]
+  items: InstagramQueryRun[]
 }) => {
-  const usernamesArray = items.reduce<string[]>((acc, item) => {
-    if (item.ownerUsername) {
-      if (acc.includes(item.ownerUsername)) {
-        return acc
-      } else {
-        return [...acc, item.ownerUsername]
-      }
-    } else {
-      return acc
-    }
-  }, [])
-  const filteredUsers = usernamesArray.filter((item) => item !== '')
-  if (filteredUsers.length === 0) {
-    throw new Error('No se encontraron usuarios')
-  }
-  return usernamesArray
+  return items.map((item) => item.username)
 }
 
 export const formatCarrouselFromInstagram = ({

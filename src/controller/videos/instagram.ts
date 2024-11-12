@@ -2,20 +2,14 @@ import { addSpentUSD } from '../../db/user'
 import { createCarruselQuery, createQueryVirals } from '../../db/virals'
 import {
   getInstagramDataByQuery,
-  getInstagramDataByDirectUrl,
   getInstagramDataByUsernames
 } from '../../libs/apify/instagram'
-import {
-  translateInstagramQuery,
-  translateQuery,
-  translateText
-} from '../../libs/openai/translations'
+import { translateInstagramQuery } from '../../libs/openai/translations'
 import { formatCurrencyToAddToDB } from '../../utils/currency'
 import {
-  filterInstagramPostsByLikes,
-  getInstagramUsersFromPosts,
   formatCarrouselFromInstagram,
-  formatVideosFromInstagram
+  formatVideosFromInstagram,
+  getInstagramUsersFromPosts
 } from '../../utils/videos/instagram'
 
 export const getInstagramVirals = async ({
@@ -42,30 +36,17 @@ export const getInstagramVirals = async ({
       query: queryTranslated
     })
 
-    const filteredUrls = filterInstagramPostsByLikes({
+    const filteredUrls = getInstagramUsersFromPosts({
       items: foundItemsByQuery
-    })
-
-    // Slice the array to avoid more costs
-    const { items: foundItemsByUrl, cost: costFromDirectURL } =
-      await getInstagramDataByDirectUrl({
-        directUrls:
-          filteredUrls.length > 40 ? filteredUrls.slice(0, 40) : filteredUrls
-      })
-
-    const filteredUsers = getInstagramUsersFromPosts({
-      items: foundItemsByUrl
     })
 
     const { items: foundItemsByUsernames, cost: costFromUsernames } =
       await getInstagramDataByUsernames({
         usernames:
-          filteredUsers.length > 40 ? filteredUsers.slice(0, 40) : filteredUsers
+          filteredUrls.length > 40 ? filteredUrls.slice(0, 40) : filteredUrls
       })
 
-    const totalCost = formatCurrencyToAddToDB(
-      costFromDirectURL + costFromUsernames
-    )
+    const totalCost = formatCurrencyToAddToDB(costFromUsernames)
     await addSpentUSD({
       userId,
       spentUSD: totalCost

@@ -55,69 +55,32 @@ export const getInstagramViralsFromUsernamesList = async ({
     const sideCarsAverageLikes = sidecarsLikesCount / sideCars.length
     const videosAverageLikes = videosLikesCount / videos.length
     for (const sideCar of sideCars) {
-      if (sideCar.likesCount && sideCar.likesCount > sideCarsAverageLikes * 3) {
-        viralSidecars.push({ ...sideCar, sideCarsAverageLikes })
+      const { likesCount, ownerUsername, ...rest } = sideCar
+      if (likesCount && likesCount > sideCarsAverageLikes * 3) {
+        viralSidecars.push({
+          likesCount,
+          username: ownerUsername,
+          ...rest,
+          sideCarsAverageLikes
+        })
       }
     }
     for (const video of videos) {
-      if (video.likesCount && video.likesCount > videosAverageLikes * 3) {
-        viralVideos.push({ ...video, videosAverageLikes })
+      const { likesCount, ownerUsername, ...rest } = video
+      if (likesCount && likesCount > videosAverageLikes * 3) {
+        viralVideos.push({
+          likesCount,
+          username: ownerUsername,
+          ...rest,
+          videosAverageLikes
+        })
       }
     }
   }
 
-  const totalSidecars: {
-    timestamp: string | undefined | Date
-    username: string
-    likes: number | undefined
-    imagesUrl: string[]
-    url: string
-  }[] = []
-  viralSidecars.forEach((sidecar) => {
-    const { timestamp, ownerUsername, images, url, likesCount } = sidecar
-    if (ownerUsername) {
-      totalSidecars.push({
-        timestamp: timestamp ? timestamp : undefined,
-        username: ownerUsername,
-        likes: likesCount ? likesCount : undefined,
-        imagesUrl: images,
-        url: url
-      })
-    }
-  })
-
-  const totalVideos: {
-    timestamp: string | undefined | Date
-    username: string
-    videoHearts: number | undefined
-    videoComments: number | undefined
-    videoUrl: string
-    userPlayAvg: number | undefined
-  }[] = []
-  viralVideos.forEach((video) => {
-    const {
-      timestamp,
-      ownerUsername,
-      likesCount,
-      commentsCount,
-      url,
-      videosAverageLikes
-    } = video
-    if (ownerUsername) {
-      totalVideos.push({
-        timestamp: timestamp ? timestamp : undefined,
-        username: ownerUsername,
-        videoHearts: likesCount ? likesCount : undefined,
-        videoComments: commentsCount,
-        videoUrl: url,
-        userPlayAvg: videosAverageLikes
-      })
-    }
-  })
-
   return {
     cost,
-    totalSidecars,
-    totalVideos
+    totalSidecars: viralSidecars,
+    totalVideos: viralVideos
   }
 }

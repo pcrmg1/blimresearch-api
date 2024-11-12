@@ -18,6 +18,7 @@ import { addUserCredits } from '../db/credits'
 import { CREDITS_COST } from '../consts'
 import { checkCreditsCost } from '../controller/credits'
 import { getInstagramViralsFromUsernamesList } from '../controller/instagramUsernamesViralsList'
+import { Prisma, PrismaClient } from '@prisma/client'
 
 export const instagramUsernameViralsRouter = Router()
 
@@ -184,6 +185,8 @@ instagramUsernameViralsRouter.post(
         listId: instagramUsernameList?.id
       })
 
+      console.log('here')
+
       const {
         cost,
         totalSidecars: carruseles,
@@ -193,10 +196,16 @@ instagramUsernameViralsRouter.post(
         userId
       })
 
+      console.log({ cost, carruseles, videos })
+
       const totalCost = formatCurrencyToAddToDB(cost)
+
+      console.log({ totalCost })
+
       await addSpentUSD({ userId, spentUSD: totalCost })
-      if (videos.length === 0) {
-        return res.json({ data: [], cost })
+
+      if (videos.length === 0 && carruseles.length === 0) {
+        return res.status(400).json({ message: 'No virals found' })
       }
 
       await addUserCredits({
@@ -204,29 +213,38 @@ instagramUsernameViralsRouter.post(
         credits: totalCostCredits,
         concepto: 'busqueda_virales_cada_5_instagram'
       })
+      const formattedCarrouseles: Prisma.CarruselCreateManyInput[] =
+        carruseles.map(({ username, url, likesCount, images }) => ({
+          url,
+          likes: likesCount,
+          imagesUrl: images,
+          username,
+          instagramUsernameViralsId: id,
+          userId
+        }))
 
-      const formattedVideosForDB = videos.map((video) => ({
-        ...video,
-        instagramUsernameViralsId: id,
-        platform: 'instagram',
-        userId
-      }))
-
-      const formattedCarrouselForDB = carruseles.map((carrousel) => ({
-        ...carrousel,
-        instagramUsernameViralsId: id,
-        userId
-      }))
-
-      const data = await prisma.video.createMany({
-        data: formattedVideosForDB
+      const formattedVideos: Prisma.VideoCreateManyInput[] = videos.map(
+        ({ username, url, likesCount, videoViewCount }) => ({
+          url,
+          videoHearts: likesCount,
+          videoViews: videoViewCount,
+          username,
+          instagramUsernameViralsId: id,
+          platform: 'instagram',
+          userId
+        })
+      )
+      const videosData = await prisma.video.createMany({
+        data: formattedVideos
       })
 
-      const data2 = await prisma.carrusel.createMany({
-        data: formattedCarrouselForDB
+      const carruselesData = await prisma.carrusel.createMany({
+        data: formattedCarrouseles
       })
 
-      return res.json({ data: videos, totalCost })
+      console.log({ videosData, carruselesData })
+
+      return res.json({ data: { videosData, carruselesData }, totalCost })
     } catch (error) {
       errorHandler(error)
       return res.status(500).json({ message: 'Internal server error' })

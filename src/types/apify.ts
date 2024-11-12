@@ -1,11 +1,11 @@
 export interface InstagramDirectURLRun {
-  inputUrl?: string
+  inputUrl: string
   id: string
-  type: string
+  type: Type
   shortCode: string
   caption: string
-  hashtags: any[]
-  mentions: any[]
+  hashtags: string[]
+  mentions: string[]
   url: string
   commentsCount: number
   firstComment: string
@@ -14,15 +14,74 @@ export interface InstagramDirectURLRun {
   dimensionsWidth: number
   displayUrl: string
   images: string[]
+  alt: null | string
+  likesCount: number
+  timestamp: Date
+  childPosts: ChildPost[]
+  ownerFullName: string
+  ownerUsername: string
+  ownerId: string
+  isSponsored: boolean
   videoUrl?: string
-  alt: string
-  likesCount: number | null
-  timestamp: Date | null
-  childPosts: InstagramDirectURLRun[]
-  ownerFullName?: string
-  ownerUsername?: string
-  ownerId: null | string
-  isSponsored?: boolean
+  videoViewCount?: number
+  videoPlayCount?: number
+  productType?: string
+  videoDuration?: number
+  isPinned?: boolean
+  musicInfo?: MusicInfo
+  taggedUsers?: CoauthorProducer[]
+  coauthorProducers?: CoauthorProducer[]
+  locationName?: string
+  locationId?: string
+}
+
+export interface MusicInfo {
+  artist_name: string
+  song_name: string
+  uses_original_audio: boolean
+  should_mute_audio: boolean
+  should_mute_audio_reason: string
+  audio_id: string
+}
+
+export interface ChildPost {
+  id: string
+  type: Type
+  shortCode: string
+  caption: string
+  hashtags: any[]
+  mentions: any[]
+  url: string
+  commentsCount: number
+  firstComment: string
+  latestComments: any[]
+  dimensionsHeight: number
+  dimensionsWidth: number
+  displayUrl: string
+  images: any[]
+  alt: null | string
+  likesCount: null
+  timestamp: null
+  childPosts: any[]
+  ownerId: null
+  taggedUsers?: CoauthorProducer[]
+  videoUrl?: string
+  videoViewCount?: number
+  videoPlayCount?: null
+}
+
+export interface CoauthorProducer {
+  full_name?: string
+  id: string
+  is_verified: boolean
+  profile_pic_url: string
+  username: string
+}
+
+export enum Type {
+  Image = 'Image',
+  Sidecar = 'Sidecar',
+  Video = 'Video'
 }
 
 export interface LatestComment {
@@ -31,9 +90,10 @@ export interface LatestComment {
   ownerUsername: string
   ownerProfilePicUrl: string
   timestamp: Date
+  repliesCount: number
+  replies: LatestComment[]
   likesCount: number
-  repliesCount?: number
-  replies?: any[]
+  owner: CoauthorProducer
 }
 
 export interface InstagramDataByUsername {
@@ -161,6 +221,7 @@ export interface InstagramQueryRun {
   inputUrl: string
   id: string
   name: string
+  username: string
   url: string
   topPostsOnly: boolean
   profilePicUrl: string

@@ -35,7 +35,7 @@ export const getInstagramDataByQuery = async ({ query }: { query: string }) => {
     search: query,
     resultsType: 'posts',
     resultsLimit: RESULT_LIMITS_INSTAGRAM,
-    searchType: 'hashtag',
+    searchType: 'user',
     searchLimit: RESULT_LIMITS_INSTAGRAM,
     addParentData: false
   }
