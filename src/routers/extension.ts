@@ -218,11 +218,14 @@ extensionRouter.post('/mp3', async (req, res) => {
     return res.status(400).json({ error: 'url is required' })
   }
   const id = generateRandomNumber(0, 1000000)
+  const urlObj = new URL(url)
+  urlObj.searchParams.set('confirm', 't')
+  const newUrl = urlObj.toString()
   let transcription
   try {
     const filename = `${id}.mp3`
     const { finalFilename, extension } = await downloadFromUrl({
-      url,
+      url: newUrl,
       filename: `${id}`
     })
     if (extension === 'mp4' || extension === 'mov') {
