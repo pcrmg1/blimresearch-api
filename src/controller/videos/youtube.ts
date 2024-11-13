@@ -36,7 +36,7 @@ export const getYoutubeVirals = async ({
   }
   const channelUrls: string[] = []
   res.items.forEach((item) => {
-    if (channelUrls.includes(item.channelUrl)) {
+    if (item.channelName && channelUrls.includes(item.channelName)) {
       return
     } else {
       if (!item.channelUrl) {
@@ -56,7 +56,7 @@ export const getYoutubeVirals = async ({
 
   const filteredVideos: {
     username: string
-    videoViews: number
+    videoViews?: number
     userFans?: number
     language: string
     platform: string

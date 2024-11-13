@@ -370,17 +370,30 @@ export interface VideoMeta {
 }
 
 export interface YoutubeQueryRun {
-  id: string
-  title: string
+  id?: string
+  title?: string
   url: string
-  duration: string
+  viewCount?: number
+  fromYTUrl?: string
+  thumbnailUrl?: string
+  type?: Type
+  duration?: null
   channelName: string
-  channelUrl: string
-  date: string
-  viewCount: number
-  thumbnailUrl: string
-  type: string
-  order: number
+  channelUrl?: null
+  date?: Date
+  order?: number
+  comments?: null
+  channelId?: null
+  likes?: number
+  commentsCount?: number
+  descriptionLinks?: null
+  isMonetized?: null
+  subtitles?: null
+  text?: null | string
+  hashtags?: any[]
+  formats?: null
+  note?: string
+  input?: string
 }
 
 export interface YoutubeURLRun {

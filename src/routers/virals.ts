@@ -166,19 +166,32 @@ viralsRouter.post('/findViral', async (req: RequestWithToken, res) => {
       console.log({ errorReq })
       return res.status(statusReq).json({ error: errorReq })
     }
-    let costOfRequest = 0
-    if (platform === 'tiktok') {
-      costOfRequest =
-        CREDITS_COST['busqueda_tiktok'] * languages.length + user.creditosUsados
-    } else if (platform === 'instagram') {
-      costOfRequest =
-        CREDITS_COST['busqueda_instagram'] * languages.length +
-        user.creditosUsados
-    } else if (platform === 'youtube') {
-      costOfRequest =
-        CREDITS_COST['busqueda_youtube'] * languages.length +
-        user.creditosUsados
+
+    const platformConfig = {
+      tiktok: {
+        costKey: 'busqueda_tiktok',
+        handler: getTiktokVirals,
+        params: { maxDurationVideo, minDurationVideo }
+      },
+      instagram: {
+        costKey: 'busqueda_instagram',
+        handler: getInstagramVirals,
+        params: { minFollowers: minNumberOfFans ?? 1000 }
+      },
+      youtube: {
+        costKey: 'busqueda_youtube',
+        handler: getYoutubeVirals,
+        params: {}
+      }
+    } as const
+
+    const config = platformConfig[platform as keyof typeof platformConfig]
+    if (!config) {
+      return res.status(400).json({ error: 'platform is invalid' })
     }
+
+    const costOfRequest =
+      CREDITS_COST[config.costKey] * languages.length + user.creditosUsados
     const { status, error } = checkCreditsCost({
       costOfRequest,
       creditLimit: user?.limiteCreditos
@@ -188,59 +201,24 @@ viralsRouter.post('/findViral', async (req: RequestWithToken, res) => {
       return res.status(status).json({ error })
     }
 
-    if (platform === 'tiktok') {
-      await addUserCredits({
+    await addUserCredits({
+      userId,
+      credits: CREDITS_COST[config.costKey] * languages.length,
+      concepto: `${config.costKey} - ${search} - ${languages.join(', ')}`
+    })
+
+    const promisesArray = languages.map((language: string) => {
+      return (config.handler as Function)({
+        query: search,
+        language,
+        minNumberOfFans,
         userId,
-        credits: CREDITS_COST['busqueda_tiktok'] * languages.length,
-        concepto: `busqueda_tiktok - ${search} - ${languages.join(', ')}`
+        ...config.params
       })
-      const promisesArray = languages.map((language: string) => {
-        return getTiktokVirals({
-          query: search as string,
-          language,
-          minNumberOfFans,
-          userId,
-          maxDurationVideo,
-          minDurationVideo
-        })
-      })
-      await Promise.all(promisesArray)
-      return res.json({ data: 'done' })
-    } else if (platform === 'instagram') {
-      await addUserCredits({
-        userId,
-        credits: CREDITS_COST['busqueda_instagram'] * languages.length,
-        concepto: `busqueda_instagram - ${search} - ${languages.join(', ')}`
-      })
-      const promisesArray = languages.map((language: string) => {
-        return getInstagramVirals({
-          query: search as string,
-          minFollowers: minNumberOfFans ?? 1000,
-          userId,
-          language
-        })
-      })
-      await Promise.all(promisesArray)
-      return res.json({ data: 'done' })
-    } else if (platform === 'youtube') {
-      await addUserCredits({
-        userId,
-        credits: CREDITS_COST['busqueda_youtube'] * languages.length,
-        concepto: `busqueda_youtube - ${search} - ${languages.join(', ')}`
-      })
-      const promisesArray = languages.map((language: string) => {
-        return getYoutubeVirals({
-          query: search,
-          language,
-          minNumberOfFans,
-          userId
-        })
-      })
-      await Promise.all(promisesArray)
-      res.json({ data: 'done' })
-    } else {
-      return res.status(400).json({ error: 'platform is invalid' })
-    }
+    })
+
+    await Promise.all(promisesArray)
+    return res.json({ data: 'done' })
   } catch (error) {
     console.log('error', error)
     if (error instanceof Error) {
