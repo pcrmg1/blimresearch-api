@@ -2,6 +2,7 @@ import axios from 'axios'
 import ffmpeg from 'fluent-ffmpeg'
 import { createWriteStream } from 'fs'
 import { unlink } from 'fs/promises'
+import { createListaGuion } from '../../db/guiones/listas'
 
 export const extractAudio = ({
   inputPath,

@@ -34,25 +34,6 @@ export const getYoutubeVirals = async ({
   if (!res) {
     throw new Error('No items found')
   }
-  const channelUrls: string[] = []
-  res.items.forEach((item) => {
-    if (item.channelName && channelUrls.includes(item.channelName)) {
-      return
-    } else {
-      if (!item.channelUrl) {
-        return
-      }
-      channelUrls.push(item.channelUrl)
-    }
-  })
-
-  const run = await getYoutubeShortsDataFromUrl({
-    channelUrls: channelUrls
-  })
-
-  if (!run) {
-    throw new Error('No items found')
-  }
 
   const filteredVideos: {
     username: string
@@ -62,35 +43,21 @@ export const getYoutubeVirals = async ({
     platform: string
     userId: string
     videoUrl: string
-  }[] = []
-
-  run.items.forEach((item) => {
-    if (minNumberOfFans && item.numberOfSubscribers < minNumberOfFans) {
-      return
-    } else {
-      filteredVideos.push({
+  }[] = res.items
+    .map((item) => {
+      if (!item.channelName) {
+        return null
+      }
+      return {
         username: item.channelName,
         videoViews: item.viewCount,
-        userFans: item.numberOfSubscribers,
         language,
         platform: 'youtube',
         userId,
         videoUrl: item.url
-      })
-    }
-  })
-
-  first10Items?.forEach((item) => {
-    filteredVideos.push({
-      username: item.channelName,
-      videoViews: item.viewCount,
-      userFans: undefined,
-      language,
-      platform: 'youtube',
-      userId,
-      videoUrl: item.url
+      }
     })
-  })
+    .filter((item) => item !== null)
 
   if (filteredVideos.length === 0) {
     throw new Error('No items found')
