@@ -10,6 +10,7 @@ import {
 } from '../db/translations'
 import { QueryParamsSchema } from '../models/queryParams'
 import { prisma } from '../db/prisma'
+import bodyParser from 'body-parser'
 
 export const translationsRouter = Router()
 
@@ -161,3 +162,32 @@ translationsRouter.delete(
     }
   }
 )
+
+translationsRouter.post('translate-guion', async (req, res) => {
+  const { cta, contenido, hook, language } = req.body
+  if (!cta || !contenido || !hook || !language) {
+    return res.status(400).json({
+      message: 'Missing required fields: hook, contenido, cta y language'
+    })
+  }
+  try {
+    const hookPromise = translateText({ text: hook, toLanguage: language })
+    const contenidoPromise = translateText({
+      text: contenido,
+      toLanguage: language
+    })
+    const ctaPromise = translateText({ text: cta, toLanguage: language })
+    const [translatedHook, translatedContenido, translatedCta] =
+      await Promise.all([hookPromise, contenidoPromise, ctaPromise])
+    return res.json({
+      data: {
+        hook: translatedHook,
+        contenido: translatedContenido,
+        cta: translatedCta
+      }
+    })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: 'Failed to translate text' })
+  }
+})
