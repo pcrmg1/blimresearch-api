@@ -72,7 +72,6 @@ export const getTiktokDataFromPost_3 = async ({ url }: { url: string }) => {
       sortType: 0,
       type: 'VIDEO',
       urls: [url],
-      url: '',
       keyword: 'viral'
     }
 
