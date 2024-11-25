@@ -60,6 +60,7 @@ extensionRouter.post('/tiktok', async (req, res) => {
     const videoTranscript = await transcribeTiktokVideo({
       url
     })
+    console.log({ videoTranscript })
     if (!videoTranscript) {
       return res.status(400).json({ message: 'No video found' })
     }

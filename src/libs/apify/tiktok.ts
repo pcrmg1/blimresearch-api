@@ -7,6 +7,7 @@ import {
   getAverageByAuthorFromTiktokUsernamesResponse,
   groupItemsFromTiktokUsernamesResponseByAuthor
 } from '../../utils/videos/tiktok'
+import { TiktokData3 } from '../media/tiktok.interface'
 
 export const getTiktokDataFromPost = async ({ url }: { url: string }) => {
   try {
@@ -50,6 +51,38 @@ export const getTiktokDataFromPost_2 = async ({ url }: { url: string }) => {
     const COST_PER_ITEM = 0.2 / 1000
     return {
       item: response.items[0] as unknown as any,
+      cost: COST_PER_ITEM * response.items.length
+    }
+  } catch (error) {
+    console.log('error', error)
+    throw new Error('Error al obtener los datos de Tiktok')
+  }
+}
+
+export const getTiktokDataFromPost_3 = async ({ url }: { url: string }) => {
+  try {
+    if (typeof url !== 'string')
+      throw new Error('La busqueda debe ser una cadena de texto')
+    const input = {
+      isUnlimited: false,
+      limit: 1,
+      proxyConfiguration: {
+        useApifyProxy: true,
+        apifyProxyGroups: ['RESIDENTIAL']
+      },
+      publishTime: 'ALL_TIME',
+      region: 'US',
+      sortType: 0,
+      type: 'VIDEO',
+      urls: [url],
+      url: '',
+      keyword: 'viral'
+    }
+    const run = await apifyClient.actor('nCNiU9QG1e0nMwgWj').call(input)
+    const response = await apifyClient.dataset(run.defaultDatasetId).listItems()
+    const COST_PER_ITEM = 0.8 / 1000
+    return {
+      item: response.items[0] as unknown as TiktokData3,
       cost: COST_PER_ITEM * response.items.length
     }
   } catch (error) {
