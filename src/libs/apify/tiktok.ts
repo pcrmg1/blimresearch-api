@@ -66,10 +66,7 @@ export const getTiktokDataFromPost_3 = async ({ url }: { url: string }) => {
     const input = {
       isUnlimited: false,
       limit: 1,
-      proxyConfiguration: {
-        useApifyProxy: true,
-        apifyProxyGroups: ['RESIDENTIAL']
-      },
+      proxyConfiguration: {},
       publishTime: 'ALL_TIME',
       region: 'US',
       sortType: 0,
@@ -78,6 +75,20 @@ export const getTiktokDataFromPost_3 = async ({ url }: { url: string }) => {
       url: '',
       keyword: 'viral'
     }
+
+    const randomNumber = Math.random()
+
+    if (randomNumber > 0.2) {
+      input.proxyConfiguration = {
+        useApifyProxy: true,
+        apifyProxyGroups: ['RESIDENTIAL']
+      }
+    } else {
+      input.proxyConfiguration = {
+        useApifyProxy: false
+      }
+    }
+
     const run = await apifyClient.actor('nCNiU9QG1e0nMwgWj').call(input)
     const response = await apifyClient.dataset(run.defaultDatasetId).listItems()
     const COST_PER_ITEM = 0.8 / 1000
