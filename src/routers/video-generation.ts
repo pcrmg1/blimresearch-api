@@ -41,9 +41,6 @@ videoGenerator.post('/', upload.single('file'), async (req, res) => {
     const imagePrompt = await generateImagePromptFromTranscription({
       text: audioTranscription.text
     })
-    console.log({
-      imagePrompt
-    })
     for (let i = 0; i < 19; i++) {
       imagesPromise.push(
         imageFromTranscription({
@@ -73,11 +70,9 @@ videoGenerator.post('/', upload.single('file'), async (req, res) => {
     )
 
     if (await fileExists(audioPath)) {
-      console.log('Deleting audio file...')
       await unlink(audioPath)
     }
     if (await fileExists(audioPath.replace('.mp3', '-temp.mp3'))) {
-      console.log('Deleting temp audio file...')
       await unlink(audioPath.replace('.mp3', '-temp.mp3'))
     }
     res.json({
@@ -101,8 +96,6 @@ function detectSilences(audioPath: string) {
     const silences: Silence[] = []
     const tempOutput = `${audioPath.replace('.mp3', '-temp.mp3')}`
 
-    console.log('Starting silence detection...') // Log de progreso
-
     Ffmpeg(audioPath)
       .audioFilters(`silencedetect=n=-${dbFilter}dB:d=${unidadTiempo}`)
       .output(tempOutput)
@@ -124,7 +117,6 @@ function detectSilences(audioPath: string) {
         }
       })
       .on('end', async () => {
-        console.log('Silence detection completed.')
         resolve(silences)
       })
       .on('error', (err) => {

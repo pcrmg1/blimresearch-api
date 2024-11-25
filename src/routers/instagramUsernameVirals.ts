@@ -185,8 +185,6 @@ instagramUsernameViralsRouter.post(
         listId: instagramUsernameList?.id
       })
 
-      console.log('here')
-
       const {
         cost,
         totalSidecars: carruseles,
@@ -196,11 +194,7 @@ instagramUsernameViralsRouter.post(
         userId
       })
 
-      console.log({ cost, carruseles, videos })
-
       const totalCost = formatCurrencyToAddToDB(cost)
-
-      console.log({ totalCost })
 
       await addSpentUSD({ userId, spentUSD: totalCost })
 
@@ -241,8 +235,6 @@ instagramUsernameViralsRouter.post(
       const carruselesData = await prisma.carrusel.createMany({
         data: formattedCarrouseles
       })
-
-      console.log({ videosData, carruselesData })
 
       return res.json({ data: { videosData, carruselesData }, totalCost })
     } catch (error) {

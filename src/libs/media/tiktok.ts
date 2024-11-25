@@ -33,7 +33,6 @@ export const transcribeTiktokVideo = async ({ url }: { url: string }) => {
       }
     } else {
       const { cost, item } = await getTiktokDataFromPost({ url })
-      console.log({ item })
       if (item && item.videoMeta.downloadAddr) {
         const { id, musicMeta } = item
         const { playUrl } = musicMeta
