@@ -18,7 +18,7 @@ import {
 } from '../libs/openai/guiones'
 import { generateTopicsQueries } from '../libs/openai/topics'
 import { transcribeAudio } from '../libs/openai/trancriptions'
-import { fileExists } from '../utils/files'
+import { fileExists, getMediaDuration } from '../utils/files'
 import { generateRandomNumber } from '../utils/random'
 import { formatearGuionSplitWithPoint } from '../utils/transcriptions/formatGuion'
 import {
@@ -227,6 +227,7 @@ extensionRouter.post('/mp3', async (req, res) => {
       url: newUrl,
       filename: `${id}`
     })
+    const duration = await getMediaDuration(finalFilename)
     if (extension === 'mp4' || extension === 'mov') {
       await extractAudio({ inputPath: finalFilename, outputPath: filename })
       transcription = await transcribeAudio(filename)
@@ -240,7 +241,8 @@ extensionRouter.post('/mp3', async (req, res) => {
     }
     return res.json({
       data: {
-        transcripcion: transcription
+        transcripcion: transcription,
+        duration: Number(duration.toFixed(2))
       }
     })
   } catch (error) {
