@@ -18,13 +18,14 @@ export const authRouter = Router()
 
 authRouter.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body
+    const { email, password } = req.body as { email: string; password: string }
     if (!email || !password) {
       return res
         .status(400)
         .json({ message: 'Username and password are required' })
     }
-    const user = await getUserByEmail({ email: email.toLowerCase() })
+    const user = await getUserByEmail({ email: email.toLocaleLowerCase() })
+    console.log({ user, email: email.toLocaleLowerCase() })
     if (!user) {
       return res.status(401).json({ message: 'Wrong credentials' })
     }

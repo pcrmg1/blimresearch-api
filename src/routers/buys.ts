@@ -27,7 +27,7 @@ buysRouter.post('/coralmujaesweb', async (req, res) => {
     const hashedPassword = await hashPassword({ password: randomPassword })
     const userExists = await prisma.user.findUnique({
       where: {
-        email: body.email
+        email: body.email.toLocaleLowerCase()
       }
     })
     if (userExists) {
